@@ -10,6 +10,8 @@ export default function Desktop() {
   const windowOrder = useDesktopStore((state) => state.windowOrder)
 
   useEffect(() => {
+    const prevTitle = document.title
+    document.title = 'mattOS'
     document.body.style.overflow = 'hidden'
     document.body.style.margin = '0'
     document.body.style.padding = '0'
@@ -17,6 +19,7 @@ export default function Desktop() {
     document.body.style.backgroundColor = '#306eba'
 
     return () => {
+      document.title = prevTitle
       document.body.style.overflow = ''
       document.body.style.margin = ''
       document.body.style.padding = ''

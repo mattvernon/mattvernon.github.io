@@ -1,7 +1,13 @@
 import { useState } from 'react'
 
+const DEFAULT_TEXT = `hello, welcome to mattOS!
+
+This is an experimental playground I'm building with ClaudeCode.
+
+It's just for fun :~)`
+
 export default function TextEdit() {
-  const [text, setText] = useState('')
+  const [text, setText] = useState(DEFAULT_TEXT)
 
   return (
     <div className="textedit">

@@ -1,10 +1,30 @@
 import { create } from 'zustand'
 import { APPS } from './constants'
 
+// Initial windows open on load
+const INITIAL_WINDOWS = [
+  {
+    id: 'textedit-init',
+    appId: 'textedit',
+    title: 'TextEdit',
+    position: { x: 40, y: 50 },
+    size: { w: 500, h: 450 },
+    isMinimized: false,
+  },
+  {
+    id: 'browser-init',
+    appId: 'browser',
+    title: 'Safari',
+    position: { x: 580, y: 50 },
+    size: { w: 750, h: 550 },
+    isMinimized: false,
+  },
+]
+
 const useDesktopStore = create((set) => ({
-  windows: [],
-  windowOrder: [],
-  focusedWindowId: null,
+  windows: INITIAL_WINDOWS,
+  windowOrder: INITIAL_WINDOWS.map((w) => w.id),
+  focusedWindowId: 'browser-init',
   selectedIconId: null,
 
   selectIcon: (iconId) => set({ selectedIconId: iconId }),

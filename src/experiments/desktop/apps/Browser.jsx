@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 
-const DEFAULT_URL = 'https://en.wikipedia.org/wiki/Macintosh'
+const DEFAULT_URL = 'https://en.wikipedia.org/wiki/IMac_G3'
 
 export default function Browser() {
   const [url, setUrl] = useState(DEFAULT_URL)

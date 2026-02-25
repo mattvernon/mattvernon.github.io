@@ -11,6 +11,7 @@ export default function Home() {
   const containerRef = useRef(null)
   const animationRef = useRef(null)
   const posRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 })
+  const speedRef = useRef(1) // 1 = full speed, 0.05 = nearly stopped
 
   const changeBackgroundColor = useCallback(() => {
     const color = NAMED_COLORS[Math.floor(Math.random() * NAMED_COLORS.length)]
@@ -36,8 +37,8 @@ export default function Home() {
       const maxX = window.innerWidth - cw
       const maxY = window.innerHeight - ch
 
-      pos.x += pos.vx
-      pos.y += pos.vy
+      pos.x += pos.vx * speedRef.current
+      pos.y += pos.vy * speedRef.current
 
       if (pos.x <= 0 || pos.x >= maxX) {
         pos.vx = -pos.vx
@@ -72,9 +73,15 @@ export default function Home() {
 
   return (
     <div className="home" onClick={changeBackgroundColor}>
-      <div className="container" ref={containerRef}>
+      <div
+        className="container"
+        ref={containerRef}
+        onMouseEnter={() => { speedRef.current = 0.05 }}
+        onMouseLeave={() => { speedRef.current = 1 }}
+      >
         <p>matthew vernon</p>
         <p>a designer on the internet</p>
+        <p>cofounder of <a href="https://foundation-labs.xyz" target="_blank" rel="noopener noreferrer">foundation labs</a></p>
         <p>born in sydney</p>
         <p>living in brooklyn, ny</p>
       </div>

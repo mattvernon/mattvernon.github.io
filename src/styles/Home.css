@@ -39,6 +39,17 @@ body {
   color: white;
 }
 
+.home a {
+  color: white;
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.home a:hover {
+  opacity: 1;
+}
+
 .home .container {
   display: flex;
   flex-direction: column;
@@ -50,4 +61,9 @@ body {
   transition: none;
   will-change: transform;
   mix-blend-mode: difference;
+  cursor: default;
+}
+
+.home .container:hover {
+  cursor: default;
 }

@@ -24,6 +24,17 @@ export default function useWindowResize(windowId, windowRef, resizable) {
 
     const state = resizeState.current
 
+    const disableIframes = () => {
+      document.querySelectorAll('iframe').forEach((f) => {
+        f.style.pointerEvents = 'none'
+      })
+    }
+    const enableIframes = () => {
+      document.querySelectorAll('iframe').forEach((f) => {
+        f.style.pointerEvents = ''
+      })
+    }
+
     const handleMouseDown = (e) => {
       const handle = e.target.closest('.resize-handle')
       if (!handle) return
@@ -37,6 +48,7 @@ export default function useWindowResize(windowId, windowRef, resizable) {
       state.startLeft = windowEl.offsetLeft
       state.startTop = windowEl.offsetTop
 
+      disableIframes()
       e.preventDefault()
       e.stopPropagation()
     }
@@ -79,6 +91,7 @@ export default function useWindowResize(windowId, windowRef, resizable) {
     }
 
     const handleMouseUp = () => {
+      if (state.isResizing) enableIframes()
       state.isResizing = false
       state.direction = null
     }

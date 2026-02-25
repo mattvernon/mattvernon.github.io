@@ -8,12 +8,14 @@ import Finder from '../apps/Finder'
 import TextEdit from '../apps/TextEdit'
 import AboutThisMac from '../apps/AboutThisMac'
 import Browser from '../apps/Browser'
+import Racing from '../apps/Racing'
 
 const APP_COMPONENTS = {
   finder: Finder,
   textedit: TextEdit,
   about: AboutThisMac,
   browser: Browser,
+  racing: Racing,
 }
 
 export default function WindowFrame({ window: win, zIndex }) {

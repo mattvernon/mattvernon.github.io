@@ -19,6 +19,17 @@ export default function useWindowDrag(windowId, titleBarRef, windowRef) {
 
     const state = dragState.current
 
+    const disableIframes = () => {
+      document.querySelectorAll('iframe').forEach((f) => {
+        f.style.pointerEvents = 'none'
+      })
+    }
+    const enableIframes = () => {
+      document.querySelectorAll('iframe').forEach((f) => {
+        f.style.pointerEvents = ''
+      })
+    }
+
     const handleMouseDown = (e) => {
       // Don't drag when clicking traffic lights
       if (e.target.closest('.traffic-lights')) return
@@ -29,6 +40,7 @@ export default function useWindowDrag(windowId, titleBarRef, windowRef) {
       state.initialX = windowEl.offsetLeft
       state.initialY = windowEl.offsetTop
 
+      disableIframes()
       // Prevent text selection during drag
       e.preventDefault()
     }
@@ -55,6 +67,7 @@ export default function useWindowDrag(windowId, titleBarRef, windowRef) {
     }
 
     const handleMouseUp = () => {
+      if (state.isDragging) enableIframes()
       state.isDragging = false
     }
 

@@ -31,18 +31,28 @@ export const APPS = {
     defaultPosition: { x: 240, y: 160 },
     resizable: false,
   },
+  racing: {
+    id: 'racing',
+    name: 'y2k_racer',
+    icon: '🛞',
+    defaultSize: { w: 900, h: 650 },
+    defaultPosition: { x: 60, y: 40 },
+    resizable: true,
+  },
 }
 
 export const DESKTOP_ICONS = [
   { appId: 'finder', label: 'Macintosh HD', icon: '💾' },
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
+  { appId: 'racing', label: 'y2k_racer', icon: '🛞' },
 ]
 
 export const DOCK_APPS = [
   { appId: 'finder', label: 'Finder', icon: '📁' },
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
+  { appId: 'racing', label: 'y2k_racer', icon: '🛞' },
   { appId: 'about', label: 'About This Mac', icon: '🖥️' },
 ]
 

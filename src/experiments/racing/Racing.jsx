@@ -11,7 +11,7 @@ export default function Racing() {
   const returnToMenu = useRacingStore((s) => s.returnToMenu)
 
   useEffect(() => {
-    document.title = 'Street Racer | mattOS'
+    document.title = 'y2k racer'
     const prevOverflow = document.body.style.overflow
     const prevBg = document.body.style.backgroundColor
     document.body.style.overflow = 'hidden'

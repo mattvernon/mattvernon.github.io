@@ -5,6 +5,11 @@ export default function HUD() {
 
   return (
     <div className="hud">
+      <img
+        src="/y2kracer-logo.png"
+        alt="y2k racer"
+        className="hud-watermark"
+      />
       <div className="hud-speed">
         <span className="hud-speed-value">{speed}</span>
         <span className="hud-speed-unit">KM/H</span>

@@ -42,7 +42,13 @@ export default function Dock() {
               }}
             >
               <div className="dock-tooltip">{app.label}</div>
-              <div className="dock-icon">{app.icon}</div>
+              <div className="dock-icon">
+                {app.icon.startsWith('/') ? (
+                  <img src={app.icon} alt={app.label} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '10px' }} />
+                ) : (
+                  app.icon
+                )}
+              </div>
               {running && <div className="dock-indicator" />}
             </div>
           )

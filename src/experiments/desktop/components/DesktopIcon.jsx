@@ -22,7 +22,13 @@ export default function DesktopIcon({ appId, icon, label }) {
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      <div className="desktop-icon-image">{icon}</div>
+      <div className="desktop-icon-image">
+        {icon.startsWith('/') ? (
+          <img src={icon} alt={label} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '10px' }} />
+        ) : (
+          icon
+        )}
+      </div>
       <div className="desktop-icon-label">{label}</div>
     </div>
   )

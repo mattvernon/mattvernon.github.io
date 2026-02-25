@@ -18,11 +18,11 @@ export default function StartScreen() {
   return (
     <div className="start-screen">
       <div className="start-screen-content">
-        <h1 className="game-title">
-          <span className="title-street">STREET</span>
-          <span className="title-racer">RACER</span>
-        </h1>
-        <p className="start-subtitle">UNDERGROUND</p>
+        <img
+          src="/y2kracer-logo.png"
+          alt="y2k racer"
+          className="game-logo"
+        />
         <p className="start-prompt">PRESS ENTER TO START</p>
         <div className="start-controls">
           <p>W / &#8593; &mdash; Accelerate</p>

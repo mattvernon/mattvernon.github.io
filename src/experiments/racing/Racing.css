@@ -32,40 +32,11 @@
   font-family: 'Courier New', monospace;
 }
 
-.game-title {
-  font-size: 5rem;
-  font-weight: 900;
-  line-height: 1;
-  margin: 0 0 0.2em;
-  letter-spacing: 0.08em;
-}
-
-.title-street {
-  display: block;
-  color: #fff;
-  text-shadow:
-    0 0 10px rgba(255, 255, 255, 0.5),
-    0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.title-racer {
-  display: block;
-  color: #ff006e;
-  text-shadow:
-    0 0 10px #ff006e,
-    0 0 30px #ff006e,
-    0 0 60px #ff006e,
-    0 0 100px #ff006e;
-}
-
-.start-subtitle {
-  font-size: 1.2rem;
-  letter-spacing: 0.5em;
-  color: #00f0ff;
-  text-shadow:
-    0 0 10px #00f0ff,
-    0 0 30px #00f0ff;
-  margin: 0 0 3em;
+.game-logo {
+  width: min(500px, 80vw);
+  height: auto;
+  margin-bottom: 2em;
+  filter: drop-shadow(0 0 20px rgba(200, 255, 0, 0.3));
 }
 
 .start-prompt {
@@ -91,13 +62,25 @@
 /* ===== HUD ===== */
 .hud {
   position: absolute;
-  bottom: 40px;
-  right: 40px;
+  inset: 0;
   z-index: 5;
   pointer-events: none;
 }
 
+.hud-watermark {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 360px;
+  height: auto;
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
+}
+
 .hud-speed {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
   font-family: 'Courier New', monospace;
   text-align: right;
   color: #fff;

@@ -1,54 +1,28 @@
 <!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Matthew Vernon – Designer</title>
-        <meta name="description" content="Hi – I’m Matthew Vernon,a freelance designer from Sydney. I build things for the internet.">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <link rel="shortcut icon" type="image/png" href="assets/favicon.png"/>
-        <link rel="stylesheet" href="css/normalize.css">
-        <meta property="og:image" content="http://matthewvernon.co/assets/opengraph.png">
-        <!-- Place favicon.ico in the root directory -->
-
-        <link rel="stylesheet" href="css/style.css">
-
-
-        <!-- space mono -->
-        <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet">
-    </head>
-
-
-
-
-
-    <body>
-        <div class="container">
-            <p>matthew vernon</p>
-            <p>a designer on the internet</p>
-            <p>born in sydney</p>
-            <p>living in brooklyn, ny</p>
-        </div>
-       
-        
-        
-        
-
-        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-        <script src="js/main.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
-        <script src="js/main.js"></script>
-
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-61698848-2"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'UA-61698848-2');
-        </script>
-
-    </body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matthew Vernon – Designer</title>
+    <meta name="description" content="Hi – I'm Matthew Vernon, a freelance designer from Sydney. I build things for the internet." />
+    <meta property="og:image" content="https://matthewvernon.co/opengraph.png" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <link href="https://fonts.googleapis.com/css?family=Space+Mono" rel="stylesheet" />
+    <!-- SPA redirect handler for GitHub Pages (counterpart to 404.html) -->
+    <script>
+      (function(l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function(s) {
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      }(window.location))
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

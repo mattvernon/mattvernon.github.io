@@ -39,6 +39,13 @@ export const DESKTOP_ICONS = [
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
 ]
 
+export const DOCK_APPS = [
+  { appId: 'finder', label: 'Finder', icon: '📁' },
+  { appId: 'browser', label: 'Safari', icon: '🧭' },
+  { appId: 'textedit', label: 'TextEdit', icon: '📝' },
+  { appId: 'about', label: 'About This Mac', icon: '🖥️' },
+]
+
 export const WINDOW_CONSTRAINTS = {
   minWidth: 300,
   minHeight: 200,

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import MenuBar from './components/MenuBar'
 import DesktopArea from './components/DesktopArea'
 import WindowFrame from './components/WindowFrame'
+import Dock from './components/Dock'
 import useDesktopStore from './store'
 import './Desktop.css'
 
@@ -32,6 +33,8 @@ export default function Desktop() {
     <div className="aqua-desktop">
       <MenuBar />
       <DesktopArea />
+
+      <Dock />
 
       {windowOrder.map((windowId, index) => {
         const win = windows.find((w) => w.id === windowId)

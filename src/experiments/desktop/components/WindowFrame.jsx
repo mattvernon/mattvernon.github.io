@@ -7,11 +7,13 @@ import { APPS } from '../constants'
 import Finder from '../apps/Finder'
 import TextEdit from '../apps/TextEdit'
 import AboutThisMac from '../apps/AboutThisMac'
+import Browser from '../apps/Browser'
 
 const APP_COMPONENTS = {
   finder: Finder,
   textedit: TextEdit,
   about: AboutThisMac,
+  browser: Browser,
 }
 
 export default function WindowFrame({ window: win, zIndex }) {

@@ -15,6 +15,14 @@ export const APPS = {
     defaultPosition: { x: 180, y: 120 },
     resizable: true,
   },
+  browser: {
+    id: 'browser',
+    name: 'Safari',
+    icon: '🧭',
+    defaultSize: { w: 800, h: 550 },
+    defaultPosition: { x: 80, y: 60 },
+    resizable: true,
+  },
   about: {
     id: 'about',
     name: 'About This Mac',
@@ -27,6 +35,7 @@ export const APPS = {
 
 export const DESKTOP_ICONS = [
   { appId: 'finder', label: 'Macintosh HD', icon: '💾' },
+  { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
 ]
 

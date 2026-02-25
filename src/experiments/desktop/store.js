@@ -19,12 +19,20 @@ const INITIAL_WINDOWS = [
     size: { w: 750, h: 550 },
     isMinimized: false,
   },
+  {
+    id: 'racing-init',
+    appId: 'racing',
+    title: 'y2k_racer',
+    position: { x: Math.max(0, (window.innerWidth - 900) / 2), y: Math.max(0, window.innerHeight - 650 - 90) },
+    size: { w: 900, h: 650 },
+    isMinimized: false,
+  },
 ]
 
 const useDesktopStore = create((set) => ({
   windows: INITIAL_WINDOWS,
   windowOrder: INITIAL_WINDOWS.map((w) => w.id),
-  focusedWindowId: 'browser-init',
+  focusedWindowId: 'racing-init',
   selectedIconId: null,
 
   selectIcon: (iconId) => set({ selectedIconId: iconId }),

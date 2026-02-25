@@ -1,148 +1,159 @@
-import { useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import useRacingStore from '../store'
 
-// Gauge layout
-const SIZE = 300
-const CENTER = SIZE / 2
-const RADIUS = 125
-const TICK_OUTER = RADIUS - 5
-const TICK_INNER_MAJOR = RADIUS - 24
-const TICK_INNER_MINOR = RADIUS - 14
-const LABEL_RADIUS = RADIUS - 42
-const NEEDLE_LENGTH = RADIUS - 18
-const NEEDLE_TAIL = 16
+// Low-res canvas (displayed at 1.5x for pixelated look)
+const CANVAS_SIZE = 200
+const CENTER = CANVAS_SIZE / 2
+const RADIUS = 83
 
-// Speed range
+const TICK_OUTER = RADIUS - 4
+const TICK_INNER_MAJOR = RADIUS - 20
+const TICK_INNER_MINOR = RADIUS - 12
+const LABEL_RADIUS = RADIUS - 33
+const NEEDLE_LENGTH = RADIUS - 12
+const NEEDLE_TAIL = 10
+
 const MAX_DISPLAY = 260
 const MAJOR_STEP = 20
 const MINOR_STEP = 10
 
-// Arc: 210° sweep starting at 220° (~7 o'clock) going clockwise to 430°/70° (~2 o'clock)
 const ARC_START = 220
 const ARC_SWEEP = 210
+
+const CYAN = '#00f0ff'
+const RED = '#ff3c00'
+const DANGER_SPEED = 200
+
+const FONT = '"Barlow Condensed", "Arial Narrow", sans-serif'
 
 function speedToAngle(speed) {
   const clamped = Math.max(0, Math.min(speed, MAX_DISPLAY))
   return ARC_START + (clamped / MAX_DISPLAY) * ARC_SWEEP
 }
 
-function generateTicks() {
-  const ticks = []
+function degToRad(deg) {
+  return (deg - 90) * (Math.PI / 180)
+}
+
+function drawGauge(ctx, speed) {
+  ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE)
+  ctx.lineCap = 'round'
+
+  // Gauge face
+  const grad = ctx.createRadialGradient(CENTER, CENTER * 0.85, 0, CENTER, CENTER, RADIUS)
+  grad.addColorStop(0, 'rgba(30, 30, 50, 0.95)')
+  grad.addColorStop(1, 'rgba(5, 5, 15, 0.98)')
+  ctx.beginPath()
+  ctx.arc(CENTER, CENTER, RADIUS - 1, 0, Math.PI * 2)
+  ctx.fillStyle = grad
+  ctx.fill()
+
+  // Outer ring
+  ctx.beginPath()
+  ctx.arc(CENTER, CENTER, RADIUS, 0, Math.PI * 2)
+  ctx.strokeStyle = CYAN
+  ctx.lineWidth = 7
+  ctx.globalAlpha = 0.6
+  ctx.stroke()
+  ctx.globalAlpha = 1
+
+  // Arc track
+  ctx.beginPath()
+  ctx.arc(CENTER, CENTER, RADIUS - 3, degToRad(ARC_START), degToRad(ARC_START + ARC_SWEEP))
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'
+  ctx.lineWidth = 1
+  ctx.stroke()
+
+  // Ticks and labels
+  ctx.font = `600 9px ${FONT}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
   for (let s = 0; s <= MAX_DISPLAY; s += MINOR_STEP) {
     const isMajor = s % MAJOR_STEP === 0
-    const deg = speedToAngle(s)
-    const rad = (deg - 90) * (Math.PI / 180)
+    const rad = degToRad(speedToAngle(s))
+    const danger = s >= DANGER_SPEED
 
     const ox = CENTER + TICK_OUTER * Math.cos(rad)
     const oy = CENTER + TICK_OUTER * Math.sin(rad)
-    const ir = isMajor ? TICK_INNER_MAJOR : TICK_INNER_MINOR
-    const ix = CENTER + ir * Math.cos(rad)
-    const iy = CENTER + ir * Math.sin(rad)
+    const inner = isMajor ? TICK_INNER_MAJOR : TICK_INNER_MINOR
+    const ix = CENTER + inner * Math.cos(rad)
+    const iy = CENTER + inner * Math.sin(rad)
 
-    ticks.push({ s, isMajor, ox, oy, ix, iy, rad })
+    ctx.beginPath()
+    ctx.moveTo(ox, oy)
+    ctx.lineTo(ix, iy)
+    ctx.strokeStyle = danger
+      ? 'rgba(255, 60, 0, 0.8)'
+      : isMajor
+        ? 'rgba(255, 255, 255, 0.85)'
+        : 'rgba(255, 255, 255, 0.3)'
+    ctx.lineWidth = isMajor ? 2 : 1
+    ctx.stroke()
+
+    if (isMajor) {
+      const lx = CENTER + LABEL_RADIUS * Math.cos(rad)
+      const ly = CENTER + LABEL_RADIUS * Math.sin(rad)
+      ctx.fillStyle = danger ? 'rgba(255, 60, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'
+      ctx.fillText(String(s), lx, ly)
+    }
   }
-  return ticks
-}
 
-function buildArcPath() {
-  const r = RADIUS - 6
-  const startRad = (ARC_START - 90) * (Math.PI / 180)
-  const endRad = (ARC_START + ARC_SWEEP - 90) * (Math.PI / 180)
-  const x1 = CENTER + r * Math.cos(startRad)
-  const y1 = CENTER + r * Math.sin(startRad)
-  const x2 = CENTER + r * Math.cos(endRad)
-  const y2 = CENTER + r * Math.sin(endRad)
-  return `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`
+  // Needle
+  const nRad = degToRad(speedToAngle(speed))
+  ctx.beginPath()
+  ctx.moveTo(
+    CENTER - NEEDLE_TAIL * Math.cos(nRad),
+    CENTER - NEEDLE_TAIL * Math.sin(nRad)
+  )
+  ctx.lineTo(
+    CENTER + NEEDLE_LENGTH * Math.cos(nRad),
+    CENTER + NEEDLE_LENGTH * Math.sin(nRad)
+  )
+  ctx.strokeStyle = RED
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // Needle cap
+  ctx.beginPath()
+  ctx.arc(CENTER, CENTER, 5, 0, Math.PI * 2)
+  ctx.fillStyle = RED
+  ctx.fill()
+
+  // Digital readout — bottom-right free space
+  const dx = CENTER + 32
+  const dy = CENTER + 48
+  ctx.textAlign = 'right'
+  ctx.textBaseline = 'alphabetic'
+
+  ctx.font = `italic 700 44px ${FONT}`
+  ctx.fillStyle = '#fff'
+  ctx.fillText(String(Math.round(speed)), dx, dy)
+
+  ctx.font = `italic 400 10px ${FONT}`
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+  ctx.fillText('KM/H', dx, dy + 12)
 }
 
 export default function Speedometer() {
+  const canvasRef = useRef(null)
   const speed = useRacingStore((s) => s.speed)
-  const ticks = useMemo(generateTicks, [])
-  const arcPath = useMemo(buildArcPath, [])
-  const needleAngle = speedToAngle(speed)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    drawGauge(ctx, speed)
+  }, [speed])
 
   return (
     <div className="speedometer">
-      <svg
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="speedo-svg"
-      >
-        <defs>
-          <radialGradient id="gaugeFace" cx="50%" cy="40%" r="55%">
-            <stop offset="0%" stopColor="rgba(30, 30, 50, 0.95)" />
-            <stop offset="100%" stopColor="rgba(5, 5, 15, 0.98)" />
-          </radialGradient>
-        </defs>
-
-        {/* Outer glow ring */}
-        <circle
-          cx={CENTER} cy={CENTER} r={RADIUS}
-          className="speedo-ring-glow"
-        />
-
-        {/* Dark gauge face */}
-        <circle
-          cx={CENTER} cy={CENTER} r={RADIUS - 2}
-          fill="url(#gaugeFace)"
-          className="speedo-face"
-        />
-
-        {/* Arc track */}
-        <path d={arcPath} className="speedo-arc-track" />
-
-        {/* Tick marks */}
-        {ticks.map((t) => (
-          <line
-            key={t.s}
-            x1={t.ox} y1={t.oy}
-            x2={t.ix} y2={t.iy}
-            className={
-              t.isMajor
-                ? `speedo-tick-major${t.s >= 200 ? ' speedo-tick-danger' : ''}`
-                : `speedo-tick-minor${t.s >= 200 ? ' speedo-tick-danger' : ''}`
-            }
-          />
-        ))}
-
-        {/* Number labels at major ticks */}
-        {ticks.filter((t) => t.isMajor).map((t) => {
-          const lx = CENTER + LABEL_RADIUS * Math.cos(t.rad)
-          const ly = CENTER + LABEL_RADIUS * Math.sin(t.rad)
-          return (
-            <text
-              key={`l-${t.s}`}
-              x={lx} y={ly}
-              className={`speedo-label${t.s >= 200 ? ' speedo-label-danger' : ''}`}
-              textAnchor="middle"
-              dominantBaseline="central"
-            >
-              {t.s}
-            </text>
-          )
-        })}
-
-        {/* Needle */}
-        <g
-          className="speedo-needle"
-          style={{
-            transform: `rotate(${needleAngle}deg)`,
-            transformOrigin: `${CENTER}px ${CENTER}px`,
-          }}
-        >
-          <line
-            x1={CENTER} y1={CENTER + NEEDLE_TAIL}
-            x2={CENTER} y2={CENTER - NEEDLE_LENGTH}
-            className="speedo-needle-line"
-          />
-          <circle cx={CENTER} cy={CENTER} r={8} className="speedo-needle-cap" />
-        </g>
-      </svg>
-
-      {/* Digital readout */}
-      <div className="speedo-digital">
-        <span className="speedo-digital-value">{speed}</span>
-        <span className="speedo-digital-unit">KM/H</span>
-      </div>
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_SIZE}
+        height={CANVAS_SIZE}
+        className="speedo-canvas"
+      />
     </div>
   )
 }

@@ -1,5 +1,56 @@
+import { useRef, useEffect } from 'react'
 import useRacingStore from '../store'
-import { useEffect } from 'react'
+
+const FONT = '"Barlow Condensed", "Arial Narrow", sans-serif'
+
+function PixelatedGameLogo() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+    }
+    img.src = '/y2kracer-logo.png'
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={167}
+      height={56}
+      className="game-logo"
+    />
+  )
+}
+
+function PixelatedPrompt() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    ctx.font = `700 19px ${FONT}`
+    ctx.fillStyle = '#fff'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('PRESS ENTER TO START', canvas.width / 2, canvas.height / 2)
+  }, [])
+
+  // 250x24 canvas displayed at 750x72 (3x scale)
+  return (
+    <canvas
+      ref={canvasRef}
+      width={250}
+      height={24}
+      className="start-prompt-canvas"
+    />
+  )
+}
 
 export default function StartScreen() {
   const startGame = useRacingStore((s) => s.startGame)
@@ -18,19 +69,8 @@ export default function StartScreen() {
   return (
     <div className="start-screen">
       <div className="start-screen-content">
-        <img
-          src="/y2kracer-logo.png"
-          alt="y2k racer"
-          className="game-logo"
-        />
-        <p className="start-prompt">PRESS ENTER TO START</p>
-        <div className="start-controls">
-          <p>W / &#8593; &mdash; Accelerate</p>
-          <p>S / &#8595; &mdash; Brake / Reverse</p>
-          <p>A D / &#8592; &#8594; &mdash; Steer</p>
-          <p>SPACE &mdash; Handbrake</p>
-          <p>ESC &mdash; Pause</p>
-        </div>
+        <PixelatedGameLogo />
+        <PixelatedPrompt />
       </div>
     </div>
   )

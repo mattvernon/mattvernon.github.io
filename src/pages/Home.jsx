@@ -65,7 +65,7 @@ export default function Home() {
 
   // Reset body background when unmounting (for route changes)
   useEffect(() => {
-    document.body.style.backgroundColor = 'white'
+    document.body.style.backgroundColor = NAMED_COLORS[Math.floor(Math.random() * NAMED_COLORS.length)]
     return () => {
       document.body.style.backgroundColor = ''
     }

@@ -1,8 +1,6 @@
-import useRacingStore from '../store'
+import Speedometer from './Speedometer'
 
 export default function HUD() {
-  const speed = useRacingStore((s) => s.speed)
-
   return (
     <div className="hud">
       <img
@@ -10,10 +8,7 @@ export default function HUD() {
         alt="y2k racer"
         className="hud-watermark"
       />
-      <div className="hud-speed">
-        <span className="hud-speed-value">{speed}</span>
-        <span className="hud-speed-unit">KM/H</span>
-      </div>
+      <Speedometer />
     </div>
   )
 }

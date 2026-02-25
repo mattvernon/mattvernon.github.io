@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&display=swap');
+
 /* ===== Container ===== */
 .racing-container {
   position: fixed;
@@ -77,31 +79,111 @@
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
 }
 
-.hud-speed {
+/* ===== Speedometer ===== */
+.speedometer {
   position: absolute;
-  bottom: 40px;
-  right: 40px;
-  font-family: 'Courier New', monospace;
-  text-align: right;
-  color: #fff;
-  text-shadow:
-    0 0 8px rgba(255, 255, 255, 0.6),
-    0 0 20px rgba(0, 240, 255, 0.3);
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  height: 300px;
 }
 
-.hud-speed-value {
-  display: block;
-  font-size: 4rem;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.05em;
+.speedo-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.15));
 }
 
-.hud-speed-unit {
-  display: block;
-  font-size: 0.9rem;
-  letter-spacing: 0.3em;
+.speedo-ring-glow {
+  fill: none;
+  stroke: #00f0ff;
+  stroke-width: 2;
   opacity: 0.6;
+  filter: drop-shadow(0 0 6px #00f0ff) drop-shadow(0 0 12px rgba(0, 240, 255, 0.4));
+}
+
+.speedo-face {
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 1;
+}
+
+.speedo-arc-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.speedo-tick-major {
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.speedo-tick-minor {
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.speedo-tick-danger {
+  stroke: rgba(255, 60, 0, 0.8);
+}
+
+.speedo-label {
+  fill: rgba(255, 255, 255, 0.7);
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.speedo-label-danger {
+  fill: rgba(255, 60, 0, 0.7);
+}
+
+.speedo-needle {
+  transition: transform 0.08s ease-out;
+}
+
+.speedo-needle-line {
+  stroke: #ff3c00;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(255, 60, 0, 0.8));
+}
+
+.speedo-needle-cap {
+  fill: #ff3c00;
+  filter: drop-shadow(0 0 3px rgba(255, 60, 0, 0.6));
+}
+
+.speedo-digital {
+  position: absolute;
+  bottom: 22%;
+  right: 26%;
+  text-align: right;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-style: italic;
+  pointer-events: none;
+}
+
+.speedo-digital-value {
+  display: block;
+  font-size: 64px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.5),
+    0 0 16px rgba(0, 240, 255, 0.25);
+}
+
+.speedo-digital-unit {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
 }
 
 /* ===== Pause Overlay ===== */

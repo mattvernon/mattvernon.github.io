@@ -6,9 +6,9 @@ export const SIDEWALK_WIDTH = 2
 
 // Physics
 export const MAX_SPEED = 60
-export const ACCELERATION = 25
-export const BRAKING = 40
-export const FRICTION = 0.98
+export const ACCELERATION = 30
+export const BRAKING = 50
+export const FRICTION = 0.99
 export const TURN_SPEED = 2.5
 export const TURN_SPEED_FACTOR = 0.7
 export const DRIFT_FACTOR = 0.92

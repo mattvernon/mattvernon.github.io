@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import Desktop from './experiments/desktop/Desktop'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* future experiments go here */}
-        {/* <Route path="/experiments/my-thing" element={<MyThing />} /> */}
+        <Route path="/experiments/desktop" element={<Desktop />} />
       </Routes>
     </BrowserRouter>
   )

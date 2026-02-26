@@ -7,6 +7,8 @@ const SOUND_PATHS = {
   wind: '/sounds/wind-loop.mp3',
 }
 
+const MUSIC_DIR = '/sounds/music/'
+
 // Engine pitch range (playbackRate)
 const ENGINE_PITCH_MIN = 0.6
 const ENGINE_PITCH_MAX = 2.0
@@ -26,6 +28,11 @@ const COLLISION_COOLDOWN = 1.0
 // Minimum speed (internal units) to trigger collision sound (~5 km/h)
 const COLLISION_MIN_SPEED = 1.4
 
+// Music
+const MUSIC_VOLUME = 0.35
+const MUSIC_PAUSED_VOLUME = 0.1
+const MUSIC_FADE_MS = 300
+
 export default class AudioManager {
   constructor() {
     this.ctx = null
@@ -34,6 +41,15 @@ export default class AudioManager {
     this.gains = {}
     this.ready = false
     this.lastCollisionTime = 0
+
+    // Music state
+    this.musicEl = null
+    this.musicSource = null
+    this.musicGain = null
+    this.musicStarted = false
+
+    // Driving sounds gain (muted on pause, full on play)
+    this.drivingGain = null
   }
 
   async init() {
@@ -44,7 +60,17 @@ export default class AudioManager {
     this.masterGain.gain.value = 1
     this.masterGain.connect(this.ctx.destination)
 
-    // Load all sound files in parallel
+    // Driving sounds sub-mix (muted when paused)
+    this.drivingGain = this.ctx.createGain()
+    this.drivingGain.gain.value = 1
+    this.drivingGain.connect(this.masterGain)
+
+    // Music gain (ducked when paused)
+    this.musicGain = this.ctx.createGain()
+    this.musicGain.gain.value = MUSIC_VOLUME
+    this.musicGain.connect(this.masterGain)
+
+    // Load all SFX in parallel
     const entries = Object.entries(SOUND_PATHS)
     const results = await Promise.all(
       entries.map(async ([key, path]) => {
@@ -69,6 +95,9 @@ export default class AudioManager {
     this._initLoop('screech', 0) // starts silent
     this._initLoop('wind', 0)    // starts silent
 
+    // Prepare music (HTML audio element for streaming)
+    this._initMusic()
+
     this.ready = true
   }
 
@@ -83,22 +112,46 @@ export default class AudioManager {
     const gain = this.ctx.createGain()
     gain.gain.value = initialVolume
     source.connect(gain)
-    gain.connect(this.masterGain)
+    gain.connect(this.drivingGain) // route through driving sub-mix
     source.start(0)
 
     this.sources[name] = source
     this.gains[name] = gain
   }
 
-  resume() {
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume()
-    }
+  _initMusic() {
+    this.musicEl = new Audio()
+    this.musicEl.loop = true
+    this.musicEl.preload = 'auto'
+    this.musicEl.src = MUSIC_DIR + 'mall grab - new york.mp3'
+
+    this.musicSource = this.ctx.createMediaElementSource(this.musicEl)
+    this.musicSource.connect(this.musicGain)
   }
 
-  suspend() {
-    if (this.ctx && this.ctx.state === 'running') {
-      this.ctx.suspend()
+  startMusic() {
+    if (this.musicStarted || !this.musicEl) return
+    this.musicStarted = true
+    // Resume context if needed (browser autoplay policy)
+    if (this.ctx.state === 'suspended') this.ctx.resume()
+    this.musicEl.play().catch(() => {})
+  }
+
+  setPlaying(playing) {
+    if (!this.ctx) return
+
+    if (playing) {
+      // Resume audio context if suspended
+      if (this.ctx.state === 'suspended') this.ctx.resume()
+      // Unmute driving sounds
+      this.drivingGain.gain.setTargetAtTime(1, this.ctx.currentTime, 0.02)
+      // Restore music volume
+      this.musicGain.gain.setTargetAtTime(MUSIC_VOLUME, this.ctx.currentTime, MUSIC_FADE_MS / 1000)
+    } else {
+      // Mute driving sounds
+      this.drivingGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02)
+      // Duck music
+      this.musicGain.gain.setTargetAtTime(MUSIC_PAUSED_VOLUME, this.ctx.currentTime, MUSIC_FADE_MS / 1000)
     }
   }
 
@@ -153,11 +206,18 @@ export default class AudioManager {
     const gain = this.ctx.createGain()
     gain.gain.value = volume
     source.connect(gain)
-    gain.connect(this.masterGain)
+    gain.connect(this.drivingGain) // route through driving sub-mix
     source.start(0)
   }
 
   dispose() {
+    // Stop music
+    if (this.musicEl) {
+      this.musicEl.pause()
+      this.musicEl.src = ''
+      this.musicEl = null
+    }
+
     // Stop all looping sources
     for (const source of Object.values(this.sources)) {
       try { source.stop() } catch (_) { /* already stopped */ }

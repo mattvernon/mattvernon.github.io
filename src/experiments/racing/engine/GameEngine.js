@@ -97,7 +97,7 @@ export default class GameEngine {
   pause() {
     this.running = false
     this.clock.stop()
-    this.audio.suspend()
+    this.audio.setPlaying(false)
     if (this.animFrameId) {
       cancelAnimationFrame(this.animFrameId)
       this.animFrameId = null
@@ -108,7 +108,8 @@ export default class GameEngine {
     if (this.running) return
     this.running = true
     this.clock.start()
-    this.audio.resume()
+    this.audio.setPlaying(true)
+    this.audio.startMusic()
     this._loop()
   }
 

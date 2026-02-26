@@ -17,6 +17,7 @@ export default class CollisionSystem {
     // Get car's oriented bounding box corners
     const corners = this._getCarCorners(car)
     const carAABB = this._cornersToAABB(corners)
+    let collided = false
 
     for (const body of this.staticBodies) {
       // Broad phase: AABB vs AABB
@@ -30,8 +31,11 @@ export default class CollisionSystem {
         car.position.z += penetration.z
         // Reduce speed on collision
         car.speed *= COLLISION_SPEED_FACTOR
+        collided = true
       }
     }
+
+    return collided
   }
 
   _getCarCorners(car) {

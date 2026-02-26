@@ -6,6 +6,7 @@ import CollisionSystem from './CollisionSystem.js'
 import CityBuilder from '../world/CityBuilder.js'
 import { createCarMesh, createCarLights, loadCarModel } from '../vehicles/CarModel.js'
 import PostProcessingPipeline from '../effects/PostProcessingPipeline.js'
+import AudioManager from './AudioManager.js'
 import { CAMERA_FOV, FIXED_TIMESTEP, GRID_SIZE, BLOCK_SIZE, ROAD_WIDTH } from '../constants.js'
 
 export default class GameEngine {
@@ -75,6 +76,10 @@ export default class GameEngine {
     // Post-processing
     this.postProcessing = new PostProcessingPipeline(this.renderer, this.scene, this.camera)
 
+    // Audio
+    this.audio = new AudioManager()
+    this.audio.init() // loads asynchronously, AudioManager handles not-ready state
+
     // Resize handler
     this._onResize = this._handleResize.bind(this)
     window.addEventListener('resize', this._onResize)
@@ -92,6 +97,7 @@ export default class GameEngine {
   pause() {
     this.running = false
     this.clock.stop()
+    this.audio.suspend()
     if (this.animFrameId) {
       cancelAnimationFrame(this.animFrameId)
       this.animFrameId = null
@@ -102,6 +108,7 @@ export default class GameEngine {
     if (this.running) return
     this.running = true
     this.clock.start()
+    this.audio.resume()
     this._loop()
   }
 
@@ -132,7 +139,10 @@ export default class GameEngine {
   _fixedUpdate(dt) {
     const inputState = this.input.getState()
     this.carPhysics.update(dt, inputState)
-    this.collision.resolve(this.carPhysics)
+    const collided = this.collision.resolve(this.carPhysics)
+
+    // Update audio with current driving state
+    this.audio.update(this.carPhysics.speed, inputState, collided)
   }
 
   _visualUpdate(dt) {
@@ -162,6 +172,7 @@ export default class GameEngine {
 
   dispose() {
     this.pause()
+    this.audio.dispose()
     window.removeEventListener('resize', this._onResize)
     this.input.dispose()
 

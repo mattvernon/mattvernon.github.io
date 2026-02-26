@@ -31,7 +31,7 @@ export default class GameEngine {
       antialias: false, // we pixelate anyway
       powerPreference: 'high-performance',
     })
-    this.renderer.setSize(width, height)
+    this.renderer.setSize(width, height, false)
     this.renderer.setPixelRatio(1) // keep it lo-fi
     this.renderer.shadowMap.enabled = false
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -167,7 +167,7 @@ export default class GameEngine {
 
     this.camera.aspect = width / height
     this.camera.updateProjectionMatrix()
-    this.renderer.setSize(width, height)
+    this.renderer.setSize(width, height, false)
     this.postProcessing.resize(width, height)
   }
 

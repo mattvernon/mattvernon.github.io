@@ -6,7 +6,6 @@ export default function Y2KRacerCanvas() {
   const canvasRef = useRef(null)
   const engineRef = useRef(null)
   const gameState = useY2KRacerStore((s) => s.gameState)
-  const updateSpeed = useY2KRacerStore((s) => s.updateSpeed)
   const pauseGame = useY2KRacerStore((s) => s.pauseGame)
 
   // Boot engine on mount
@@ -14,7 +13,8 @@ export default function Y2KRacerCanvas() {
     if (!canvasRef.current) return
 
     const engine = new GameEngine(canvasRef.current, {
-      onSpeedUpdate: (speed) => useY2KRacerStore.getState().updateSpeed(speed),
+      onHudUpdate: (speed, carX, carZ, carHeading) =>
+        useY2KRacerStore.getState().updateHud(speed, carX, carZ, carHeading),
     })
     engine.init()
     engineRef.current = engine

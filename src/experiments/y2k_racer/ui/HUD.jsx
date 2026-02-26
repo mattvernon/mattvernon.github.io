@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import Speedometer from './Speedometer'
+import Minimap from './Minimap'
 
 function PixelatedLogo() {
   const canvasRef = useRef(null)
@@ -30,6 +31,7 @@ export default function HUD() {
   return (
     <div className="hud">
       <PixelatedLogo />
+      <Minimap />
       <Speedometer />
     </div>
   )

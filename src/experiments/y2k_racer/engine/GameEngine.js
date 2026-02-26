@@ -11,9 +11,9 @@ import AudioManager from './AudioManager.js'
 import { CAMERA_FOV, FIXED_TIMESTEP } from '../constants.js'
 
 export default class GameEngine {
-  constructor(canvas, { onSpeedUpdate, onReady } = {}) {
+  constructor(canvas, { onHudUpdate, onReady } = {}) {
     this.canvas = canvas
-    this.onSpeedUpdate = onSpeedUpdate
+    this.onHudUpdate = onHudUpdate
     this.onReady = onReady
     this.running = false
     this.animFrameId = null
@@ -156,9 +156,14 @@ export default class GameEngine {
     // Camera follow
     this.cameraController.update(dt, this.carPhysics)
 
-    // Report speed to UI
-    if (this.onSpeedUpdate) {
-      this.onSpeedUpdate(this.carPhysics.getSpeedKMH())
+    // Report HUD data to UI
+    if (this.onHudUpdate) {
+      this.onHudUpdate(
+        this.carPhysics.getSpeedKMH(),
+        this.carPhysics.position.x,
+        this.carPhysics.position.z,
+        this.carPhysics.heading
+      )
     }
   }
 

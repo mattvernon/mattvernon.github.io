@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Desktop from './experiments/desktop/Desktop'
-import Racing from './experiments/racing/Racing'
+import Y2KRacer from './experiments/y2k_racer/Y2KRacer'
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/experiments/mattOS" element={<Desktop />} />
-        <Route path="/experiments/y2kracer" element={<Racing />} />
+        <Route path="/experiments/y2kracer" element={<Y2KRacer />} />
       </Routes>
     </BrowserRouter>
   )

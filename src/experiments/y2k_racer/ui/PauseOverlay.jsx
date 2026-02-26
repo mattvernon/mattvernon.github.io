@@ -1,9 +1,9 @@
-import useRacingStore from '../store'
+import useY2KRacerStore from '../store'
 import { useEffect } from 'react'
 
 export default function PauseOverlay() {
-  const resumeGame = useRacingStore((s) => s.resumeGame)
-  const returnToMenu = useRacingStore((s) => s.returnToMenu)
+  const resumeGame = useY2KRacerStore((s) => s.resumeGame)
+  const returnToMenu = useY2KRacerStore((s) => s.returnToMenu)
 
   useEffect(() => {
     const handleKey = (e) => {

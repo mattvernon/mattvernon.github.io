@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-const useRacingStore = create((set) => ({
+const useY2KRacerStore = create((set) => ({
   gameState: 'menu', // 'menu' | 'playing' | 'paused'
   speed: 0,
 
@@ -11,4 +11,4 @@ const useRacingStore = create((set) => ({
   updateSpeed: (speed) => set({ speed }),
 }))
 
-export default useRacingStore
+export default useY2KRacerStore

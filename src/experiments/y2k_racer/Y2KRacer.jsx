@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
-import useRacingStore from './store'
-import RacingCanvas from './RacingCanvas'
+import useY2KRacerStore from './store'
+import Y2KRacerCanvas from './Y2KRacerCanvas'
 import StartScreen from './ui/StartScreen'
 import HUD from './ui/HUD'
 import PauseOverlay from './ui/PauseOverlay'
-import './Racing.css'
+import './Y2KRacer.css'
 
-export default function Racing() {
-  const gameState = useRacingStore((s) => s.gameState)
-  const returnToMenu = useRacingStore((s) => s.returnToMenu)
+export default function Y2KRacer() {
+  const gameState = useY2KRacerStore((s) => s.gameState)
+  const returnToMenu = useY2KRacerStore((s) => s.returnToMenu)
 
   useEffect(() => {
     document.title = 'y2k racer'
@@ -27,7 +27,7 @@ export default function Racing() {
 
   return (
     <div className="racing-container">
-      <RacingCanvas />
+      <Y2KRacerCanvas />
       {gameState === 'menu' && <StartScreen />}
       {gameState === 'playing' && <HUD />}
       {gameState === 'paused' && <PauseOverlay />}

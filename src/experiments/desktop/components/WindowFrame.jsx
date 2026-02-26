@@ -8,7 +8,7 @@ import Finder from '../apps/Finder'
 import TextEdit from '../apps/TextEdit'
 import AboutThisMac from '../apps/AboutThisMac'
 import Browser from '../apps/Browser'
-import Racing from '../apps/Racing'
+import Y2KRacer from '../apps/Y2KRacer'
 import QuickTime from '../apps/QuickTime'
 
 const APP_COMPONENTS = {
@@ -16,7 +16,7 @@ const APP_COMPONENTS = {
   textedit: TextEdit,
   about: AboutThisMac,
   browser: Browser,
-  racing: Racing,
+  y2kracer: Y2KRacer,
   quicktime: QuickTime,
 }
 

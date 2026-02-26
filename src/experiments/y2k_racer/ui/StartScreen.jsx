@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import useRacingStore from '../store'
+import useY2KRacerStore from '../store'
 
 const FONT = '"Barlow Condensed", "Arial Narrow", sans-serif'
 
@@ -53,7 +53,7 @@ function PixelatedPrompt() {
 }
 
 export default function StartScreen() {
-  const startGame = useRacingStore((s) => s.startGame)
+  const startGame = useY2KRacerStore((s) => s.startGame)
 
   useEffect(() => {
     const handleKey = (e) => {

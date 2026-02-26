@@ -31,8 +31,8 @@ export const APPS = {
     defaultPosition: { x: 240, y: 160 },
     resizable: false,
   },
-  racing: {
-    id: 'racing',
+  y2kracer: {
+    id: 'y2kracer',
     name: 'y2k_racer',
     icon: '/y2kracer-icon.png',
     defaultSize: { w: 900, h: 650 },
@@ -53,7 +53,7 @@ export const DESKTOP_ICONS = [
   { appId: 'finder', label: 'Macintosh HD', icon: '💾' },
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
-  { appId: 'racing', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
+  { appId: 'y2kracer', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
   { appId: 'quicktime', label: 'Welcome', icon: '/icons/mp4.png' },
 ]
 
@@ -61,7 +61,7 @@ export const DOCK_APPS = [
   { appId: 'finder', label: 'Finder', icon: '📁' },
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
-  { appId: 'racing', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
+  { appId: 'y2kracer', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
   { appId: 'quicktime', label: 'QuickTime Player', icon: '/icons/mp4.png' },
   { appId: 'about', label: 'About This Mac', icon: '🖥️' },
 ]

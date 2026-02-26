@@ -1,20 +1,20 @@
 import { useRef, useEffect } from 'react'
 import GameEngine from './engine/GameEngine'
-import useRacingStore from './store'
+import useY2KRacerStore from './store'
 
-export default function RacingCanvas() {
+export default function Y2KRacerCanvas() {
   const canvasRef = useRef(null)
   const engineRef = useRef(null)
-  const gameState = useRacingStore((s) => s.gameState)
-  const updateSpeed = useRacingStore((s) => s.updateSpeed)
-  const pauseGame = useRacingStore((s) => s.pauseGame)
+  const gameState = useY2KRacerStore((s) => s.gameState)
+  const updateSpeed = useY2KRacerStore((s) => s.updateSpeed)
+  const pauseGame = useY2KRacerStore((s) => s.pauseGame)
 
   // Boot engine on mount
   useEffect(() => {
     if (!canvasRef.current) return
 
     const engine = new GameEngine(canvasRef.current, {
-      onSpeedUpdate: (speed) => useRacingStore.getState().updateSpeed(speed),
+      onSpeedUpdate: (speed) => useY2KRacerStore.getState().updateSpeed(speed),
     })
     engine.init()
     engineRef.current = engine

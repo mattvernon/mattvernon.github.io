@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import useRacingStore from '../store'
+import useY2KRacerStore from '../store'
 
 // Low-res canvas (displayed at 1.5x for pixelated look)
 const CANVAS_SIZE = 200
@@ -137,7 +137,7 @@ function drawGauge(ctx, speed) {
 
 export default function Speedometer() {
   const canvasRef = useRef(null)
-  const speed = useRacingStore((s) => s.speed)
+  const speed = useY2KRacerStore((s) => s.speed)
 
   useEffect(() => {
     const canvas = canvasRef.current

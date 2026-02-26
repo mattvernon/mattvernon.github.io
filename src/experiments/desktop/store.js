@@ -21,8 +21,8 @@ const INITIAL_WINDOWS = [
     isMinimized: false,
   },
   {
-    id: 'racing-init',
-    appId: 'racing',
+    id: 'y2kracer-init',
+    appId: 'y2kracer',
     title: 'y2k_racer',
     position: { x: 475, y: 370 },
     size: { w: 1000, h: 600 },

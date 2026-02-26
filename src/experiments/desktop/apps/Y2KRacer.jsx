@@ -1,4 +1,4 @@
-export default function Racing() {
+export default function Y2KRacer() {
   return (
     <div style={{ width: '100%', height: '100%', background: '#000' }}>
       <iframe

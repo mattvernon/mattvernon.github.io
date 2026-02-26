@@ -47,9 +47,9 @@ export default class GameEngine {
     // Input
     this.input = new InputManager(window)
 
-    // Physics — start car on Madison Ave in midtown
+    // Physics — start car in Times Square
     this.carPhysics = new CarPhysics()
-    this.carPhysics.reset(-10, -30, 0)
+    this.carPhysics.reset(400, 105, 0)
 
     // Car mesh (placeholder shown immediately, GLB loaded async)
     this.carMesh = createCarMesh()

@@ -2,8 +2,8 @@ import { DISTRICTS } from './DistrictConfig.js'
 
 // === Map Bounds ===
 export const MAP_BOUNDS = {
-  minX: -1150,
-  maxX: 850,
+  minX: -850,
+  maxX: 1150,
   minZ: -1000,
   maxZ: 1000,
 }
@@ -20,22 +20,22 @@ export const SIDEWALK_WIDTH = 2
 
 // === Central Park ===
 export const CENTRAL_PARK = {
-  minX: -520,
-  maxX: -150,
+  minX: 150,
+  maxX: 520,
   minZ: 200,
   maxZ: 700,
 }
 
 // === Water zones ===
 export const WATER_ZONES = [
-  { id: 'east-river', bounds: { minX: 300, maxX: 500, minZ: -900, maxZ: 500 } },
+  { id: 'east-river', bounds: { minX: -500, maxX: -300, minZ: -900, maxZ: 500 } },
 ]
 
 // === District zones (checked in order — first match wins) ===
 export const DISTRICT_ZONES = [
   {
     id: 'timesSquare',
-    bounds: { minX: -470, maxX: -330, minZ: 30, maxZ: 200 },
+    bounds: { minX: 330, maxX: 470, minZ: 30, maxZ: 200 },
     config: DISTRICTS.timesSquare,
   },
   {
@@ -45,29 +45,29 @@ export const DISTRICT_ZONES = [
   },
   {
     id: 'uptown',
-    bounds: { minX: -1100, maxX: 300, minZ: 400, maxZ: 950 },
+    bounds: { minX: -300, maxX: 1100, minZ: 400, maxZ: 950 },
     config: DISTRICTS.uptown,
   },
   {
     id: 'midtown',
-    bounds: { minX: -1100, maxX: 300, minZ: -200, maxZ: 400 },
+    bounds: { minX: -300, maxX: 1100, minZ: -200, maxZ: 400 },
     config: DISTRICTS.midtown,
   },
   {
     id: 'downtown',
-    bounds: { minX: -1100, maxX: 300, minZ: -950, maxZ: -200 },
+    bounds: { minX: -300, maxX: 1100, minZ: -950, maxZ: -200 },
     config: DISTRICTS.downtown,
   },
   {
     id: 'brooklyn',
-    bounds: { minX: 500, maxX: 830, minZ: -800, maxZ: 420 },
+    bounds: { minX: -830, maxX: -500, minZ: -800, maxZ: 420 },
     config: DISTRICTS.brooklyn,
   },
 ]
 
 // === Manhattan grid ===
 // Avenue X positions (west to east)
-const MH_AVENUES = [-1050, -920, -790, -660, -530, -400, -270, -140, -10, 120, 250]
+const MH_AVENUES = [-250, -120, 10, 140, 270, 400, 530, 660, 790, 920, 1050]
 
 // Regular cross-street Z positions (midtown/uptown, every 55 units)
 const MH_REGULAR_Z = []
@@ -80,14 +80,14 @@ const MH_LOWER_Z = [-850, -760, -670, -580]
 const MH_ALL_Z = [...MH_LOWER_Z, ...MH_REGULAR_Z].sort((a, b) => a - b)
 
 // === Brooklyn grid ===
-const BK_AVENUES = [540, 660, 780]
+const BK_AVENUES = [-780, -660, -540]
 const BK_STREETS_Z = []
 for (let z = -750; z <= 370; z += 80) BK_STREETS_Z.push(z)
 
 // === Broadway definition ===
 export const BROADWAY = {
-  start: { x: -150, z: 850 },
-  end: { x: -650, z: -850 },
+  start: { x: 650, z: 850 },
+  end: { x: 150, z: -850 },
   width: ROAD_WIDTHS.broadway,
 }
 
@@ -96,8 +96,8 @@ export const BRIDGE_DEFS = [
   {
     id: 'williamsburg',
     name: 'Williamsburg Bridge',
-    start: { x: 250, z: 0 },
-    end: { x: 540, z: 0 },
+    start: { x: -540, z: 0 },
+    end: { x: -250, z: 0 },
     width: 14,
     height: 10,
     style: 'truss',
@@ -105,8 +105,8 @@ export const BRIDGE_DEFS = [
   {
     id: 'manhattan-bridge',
     name: 'Manhattan Bridge',
-    start: { x: 250, z: -350 },
-    end: { x: 540, z: -350 },
+    start: { x: -540, z: -350 },
+    end: { x: -250, z: -350 },
     width: 14,
     height: 10,
     style: 'suspension',
@@ -114,8 +114,8 @@ export const BRIDGE_DEFS = [
   {
     id: 'brooklyn-bridge',
     name: 'Brooklyn Bridge',
-    start: { x: 250, z: -600 },
-    end: { x: 540, z: -600 },
+    start: { x: -540, z: -600 },
+    end: { x: -250, z: -600 },
     width: 14,
     height: 12,
     style: 'gothic',

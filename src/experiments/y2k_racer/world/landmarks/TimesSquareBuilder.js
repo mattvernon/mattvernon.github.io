@@ -3,7 +3,7 @@ import { NEON_COLORS } from '../../constants.js'
 import InstanceManager from '../InstanceManager.js'
 
 // Times Square zone bounds (from MapData DISTRICT_ZONES)
-const TS_BOUNDS = { minX: -470, maxX: -330, minZ: 30, maxZ: 200 }
+const TS_BOUNDS = { minX: 330, maxX: 470, minZ: 30, maxZ: 200 }
 
 export default class TimesSquareBuilder {
   build(scene) {

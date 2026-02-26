@@ -3,11 +3,12 @@ import InputManager from './InputManager.js'
 import CarPhysics from './CarPhysics.js'
 import CameraController from './CameraController.js'
 import CollisionSystem from './CollisionSystem.js'
-import CityBuilder from '../world/CityBuilder.js'
+import MapGenerator from '../world/MapGenerator.js'
+import ElevationSystem from '../world/ElevationSystem.js'
 import { createCarMesh, createCarLights, loadCarModel } from '../vehicles/CarModel.js'
 import PostProcessingPipeline from '../effects/PostProcessingPipeline.js'
 import AudioManager from './AudioManager.js'
-import { CAMERA_FOV, FIXED_TIMESTEP, GRID_SIZE, BLOCK_SIZE, ROAD_WIDTH } from '../constants.js'
+import { CAMERA_FOV, FIXED_TIMESTEP } from '../constants.js'
 
 export default class GameEngine {
   constructor(canvas, { onSpeedUpdate, onReady } = {}) {
@@ -40,19 +41,15 @@ export default class GameEngine {
     // Scene
     this.scene = new THREE.Scene()
 
-    // Camera
-    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, width / height, 0.5, 300)
+    // Camera (far plane extended for larger map)
+    this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, width / height, 0.5, 500)
 
     // Input
     this.input = new InputManager(window)
 
-    // Physics
+    // Physics — start car on Madison Ave in midtown
     this.carPhysics = new CarPhysics()
-    // Start car on a road in the center of the grid
-    const cellSize = BLOCK_SIZE + ROAD_WIDTH
-    const startX = 0
-    const startZ = -cellSize / 2
-    this.carPhysics.reset(startX, startZ, 0)
+    this.carPhysics.reset(-10, -30, 0)
 
     // Car mesh (placeholder shown immediately, GLB loaded async)
     this.carMesh = createCarMesh()
@@ -69,9 +66,12 @@ export default class GameEngine {
     // Collision system
     this.collision = new CollisionSystem()
 
-    // Build city
-    this.cityBuilder = new CityBuilder(this.scene, this.collision)
-    this.cityBuilder.build()
+    // Elevation system (bridges, terrain)
+    this.elevationSystem = new ElevationSystem()
+
+    // Build NYC map (includes bridges)
+    this.mapGenerator = new MapGenerator(this.scene, this.collision, this.elevationSystem)
+    this.mapGenerator.build()
 
     // Post-processing
     this.postProcessing = new PostProcessingPipeline(this.renderer, this.scene, this.camera)
@@ -139,7 +139,7 @@ export default class GameEngine {
 
   _fixedUpdate(dt) {
     const inputState = this.input.getState()
-    this.carPhysics.update(dt, inputState)
+    this.carPhysics.update(dt, inputState, this.elevationSystem)
     const collided = this.collision.resolve(this.carPhysics)
 
     // Update audio with current driving state
@@ -150,6 +150,8 @@ export default class GameEngine {
     // Update car mesh to match physics
     this.carMesh.position.copy(this.carPhysics.position)
     this.carMesh.rotation.y = this.carPhysics.heading
+    // Pitch car on slopes (negative because forward is +Z in local space)
+    this.carMesh.rotation.x = -(this.carPhysics.slopeAngle || 0)
 
     // Camera follow
     this.cameraController.update(dt, this.carPhysics)

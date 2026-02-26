@@ -9,7 +9,10 @@ import {
 } from '../constants.js'
 
 // Generate a canvas texture for building windows
-function createWindowTexture(width, height) {
+function createWindowTexture(width, height, districtConfig) {
+  const litChance = districtConfig?.windowLitChance ?? LIT_WINDOW_CHANCE
+  const tint = districtConfig?.buildingTint ?? PALETTE.building
+
   const canvas = document.createElement('canvas')
   const cols = Math.max(2, Math.floor(width / 3))
   const rows = Math.max(3, Math.floor(height / 4))
@@ -18,13 +21,13 @@ function createWindowTexture(width, height) {
 
   const ctx = canvas.getContext('2d')
   // Dark base
-  ctx.fillStyle = PALETTE.building
+  ctx.fillStyle = tint
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // Windows
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (Math.random() < LIT_WINDOW_CHANCE) {
+      if (Math.random() < litChance) {
         const warmth = Math.random()
         if (warmth > 0.5) {
           ctx.fillStyle = `rgba(255, 230, 150, ${0.5 + Math.random() * 0.5})`
@@ -46,18 +49,21 @@ function createWindowTexture(width, height) {
   return texture
 }
 
-export function createBuilding(x, z, width, depth, height) {
+export function createBuilding(x, z, width, depth, height, districtConfig) {
   const geo = new THREE.BoxGeometry(width, height, depth)
 
-  // Create window texture for each face
-  const windowTex = createWindowTexture(width, height)
-  const sideTex = createWindowTexture(depth, height)
+  // Create window texture for each face (district-aware)
+  const windowTex = createWindowTexture(width, height, districtConfig)
+  const sideTex = createWindowTexture(depth, height, districtConfig)
+
+  const roofColor = districtConfig?.roofColor ?? '#1a1a2a'
+  const baseColor = districtConfig?.buildingTint ?? PALETTE.building
 
   const materials = [
     new THREE.MeshBasicMaterial({ map: sideTex }),   // +x
     new THREE.MeshBasicMaterial({ map: sideTex }),   // -x
-    new THREE.MeshBasicMaterial({ color: '#1a1a2a' }),  // +y (roof)
-    new THREE.MeshBasicMaterial({ color: PALETTE.building }),  // -y (bottom)
+    new THREE.MeshBasicMaterial({ color: roofColor }),  // +y (roof)
+    new THREE.MeshBasicMaterial({ color: baseColor }),  // -y (bottom)
     new THREE.MeshBasicMaterial({ map: windowTex }),  // +z
     new THREE.MeshBasicMaterial({ map: windowTex }),  // -z
   ]
@@ -103,8 +109,10 @@ export function createNeonSign(building, face) {
   return sign
 }
 
-export function randomBuildingHeight() {
-  return MIN_BUILDING_HEIGHT + Math.random() * (MAX_BUILDING_HEIGHT - MIN_BUILDING_HEIGHT)
+export function randomBuildingHeight(districtConfig) {
+  const min = districtConfig?.buildingHeight?.min ?? MIN_BUILDING_HEIGHT
+  const max = districtConfig?.buildingHeight?.max ?? MAX_BUILDING_HEIGHT
+  return min + Math.random() * (max - min)
 }
 
 export { NEON_SIGN_CHANCE }

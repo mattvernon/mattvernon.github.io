@@ -18,10 +18,12 @@ export default class CameraController {
   }
 
   update(dt, car) {
-    // Target position: behind the car, elevated
+    const carY = car.position.y
+
+    // Target position: behind the car, elevated (follows car Y)
     this.targetPosition.set(
       car.position.x - car.forward.x * CAMERA_FOLLOW_DISTANCE,
-      CAMERA_FOLLOW_HEIGHT,
+      carY + CAMERA_FOLLOW_HEIGHT,
       car.position.z - car.forward.z * CAMERA_FOLLOW_DISTANCE
     )
 
@@ -37,24 +39,25 @@ export default class CameraController {
       this.camera.position.copy(this.targetPosition).add(this._tmpVec)
     }
 
-    // Look at point ahead of car
+    // Look at point ahead of car (follows car Y)
     this.lookTarget.set(
       car.position.x + car.forward.x * CAMERA_LOOK_AHEAD,
-      1.5,
+      carY + 1.5,
       car.position.z + car.forward.z * CAMERA_LOOK_AHEAD
     )
     this.camera.lookAt(this.lookTarget)
   }
 
   setInitialPosition(car) {
+    const carY = car.position.y
     this.camera.position.set(
       car.position.x - car.forward.x * CAMERA_FOLLOW_DISTANCE,
-      CAMERA_FOLLOW_HEIGHT,
+      carY + CAMERA_FOLLOW_HEIGHT,
       car.position.z - car.forward.z * CAMERA_FOLLOW_DISTANCE
     )
     this.lookTarget.set(
       car.position.x + car.forward.x * CAMERA_LOOK_AHEAD,
-      1.5,
+      carY + 1.5,
       car.position.z + car.forward.z * CAMERA_LOOK_AHEAD
     )
     this.camera.lookAt(this.lookTarget)

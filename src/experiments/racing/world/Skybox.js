@@ -1,12 +1,12 @@
 import * as THREE from 'three'
-import { PALETTE } from '../constants.js'
+import { PALETTE, FOG_DENSITY } from '../constants.js'
 
 export function createSky(scene) {
   // No dynamic lights needed - all materials are MeshBasicMaterial.
   // The bloom pass handles glow from emissive surfaces.
 
-  // Star particles
-  const starCount = 500
+  // Star particles (larger dome for bigger map)
+  const starCount = 800
   const starGeo = new THREE.BufferGeometry()
   const positions = new Float32Array(starCount * 3)
   const sizes = new Float32Array(starCount)
@@ -14,10 +14,10 @@ export function createSky(scene) {
   for (let i = 0; i < starCount; i++) {
     const theta = Math.random() * Math.PI * 2
     const phi = Math.random() * Math.PI * 0.4 // upper hemisphere only
-    const r = 200
+    const r = 500
 
     positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
-    positions[i * 3 + 1] = r * Math.cos(phi) + 50
+    positions[i * 3 + 1] = r * Math.cos(phi) + 100
     positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta)
     sizes[i] = 0.5 + Math.random() * 1.5
   }
@@ -36,8 +36,8 @@ export function createSky(scene) {
   const stars = new THREE.Points(starGeo, starMat)
   scene.add(stars)
 
-  // Fog
-  scene.fog = new THREE.FogExp2(PALETTE.fog, 0.012)
+  // Fog (reduced density for larger map)
+  scene.fog = new THREE.FogExp2(PALETTE.fog, FOG_DENSITY)
   scene.background = new THREE.Color(PALETTE.sky)
 
   return { stars }

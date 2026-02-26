@@ -6,6 +6,7 @@ import {
   FRICTION,
   TURN_SPEED,
   TURN_SPEED_FACTOR,
+  SLOPE_GRAVITY,
 } from '../constants.js'
 
 export default class CarPhysics {
@@ -23,7 +24,7 @@ export default class CarPhysics {
     this._updateForward()
   }
 
-  update(dt, input) {
+  update(dt, input, elevationSystem) {
     // Acceleration / braking
     if (input.forward) {
       this.speed += ACCELERATION * dt
@@ -43,6 +44,15 @@ export default class CarPhysics {
 
     // Friction
     this.speed *= FRICTION
+
+    // Slope gravity effect (uphill slows, downhill accelerates)
+    if (elevationSystem) {
+      const slopeAngle = elevationSystem.getSlopeAngle(
+        this.position.x, this.position.z, this.heading
+      )
+      this.speed -= Math.sin(slopeAngle) * SLOPE_GRAVITY * dt
+      this.slopeAngle = slopeAngle
+    }
 
     // Clamp speed
     this.speed = THREE.MathUtils.clamp(this.speed, -MAX_SPEED * 0.3, MAX_SPEED)
@@ -72,6 +82,11 @@ export default class CarPhysics {
     // Move
     this.position.x += this.forward.x * this.speed * dt
     this.position.z += this.forward.z * this.speed * dt
+
+    // Update Y position from elevation
+    if (elevationSystem) {
+      this.position.y = elevationSystem.getElevation(this.position.x, this.position.z)
+    }
   }
 
   _updateForward() {

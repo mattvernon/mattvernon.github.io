@@ -1,4 +1,4 @@
-// City grid
+// City grid (legacy — see world/MapData.js for new map layout)
 export const GRID_SIZE = 8
 export const BLOCK_SIZE = 40
 export const ROAD_WIDTH = 12
@@ -13,6 +13,7 @@ export const TURN_SPEED = 2.5
 export const TURN_SPEED_FACTOR = 0.7
 export const DRIFT_FACTOR = 0.92
 export const COLLISION_SPEED_FACTOR = 0.3
+export const SLOPE_GRAVITY = 15
 export const FIXED_TIMESTEP = 1 / 60
 
 // Car dimensions
@@ -79,4 +80,4 @@ export const BLOOM_THRESHOLD = 0.6
 export const PIXEL_SIZE = 3.0
 
 // Fog
-export const FOG_DENSITY = 0.012
+export const FOG_DENSITY = 0.008

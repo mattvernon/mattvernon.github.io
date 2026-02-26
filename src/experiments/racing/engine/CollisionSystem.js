@@ -1,16 +1,34 @@
 import { CAR_WIDTH, CAR_LENGTH, COLLISION_SPEED_FACTOR } from '../constants.js'
 
+const HASH_CELL_SIZE = 50
+
 export default class CollisionSystem {
   constructor() {
     this.staticBodies = [] // Array of { minX, minZ, maxX, maxZ }
+    this.grid = new Map()  // spatial hash: "cx,cz" -> [body, ...]
   }
 
-  addStaticBody(minX, minZ, maxX, maxZ) {
-    this.staticBodies.push({ minX, minZ, maxX, maxZ })
+  addStaticBody(minX, minZ, maxX, maxZ, minY = -Infinity, maxY = Infinity) {
+    const body = { minX, minZ, maxX, maxZ, minY, maxY }
+    this.staticBodies.push(body)
+
+    // Insert into spatial hash grid
+    const cx0 = Math.floor(minX / HASH_CELL_SIZE)
+    const cz0 = Math.floor(minZ / HASH_CELL_SIZE)
+    const cx1 = Math.floor(maxX / HASH_CELL_SIZE)
+    const cz1 = Math.floor(maxZ / HASH_CELL_SIZE)
+    for (let cx = cx0; cx <= cx1; cx++) {
+      for (let cz = cz0; cz <= cz1; cz++) {
+        const key = `${cx},${cz}`
+        if (!this.grid.has(key)) this.grid.set(key, [])
+        this.grid.get(key).push(body)
+      }
+    }
   }
 
   clear() {
     this.staticBodies = []
+    this.grid.clear()
   }
 
   resolve(car) {
@@ -19,7 +37,15 @@ export default class CollisionSystem {
     const carAABB = this._cornersToAABB(corners)
     let collided = false
 
-    for (const body of this.staticBodies) {
+    // Query spatial hash for nearby bodies
+    const nearby = this._queryNearby(car.position.x, car.position.z)
+
+    const carY = car.position.y || 0
+
+    for (const body of nearby) {
+      // Y-range filter: skip bodies outside car's vertical range
+      if (carY < body.minY - 1 || carY > body.maxY + 1) continue
+
       // Broad phase: AABB vs AABB
       if (!this._aabbOverlap(carAABB, body)) continue
 
@@ -36,6 +62,20 @@ export default class CollisionSystem {
     }
 
     return collided
+  }
+
+  _queryNearby(x, z) {
+    const cx = Math.floor(x / HASH_CELL_SIZE)
+    const cz = Math.floor(z / HASH_CELL_SIZE)
+    const result = new Set()
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dz = -1; dz <= 1; dz++) {
+        const key = `${cx + dx},${cz + dz}`
+        const cell = this.grid.get(key)
+        if (cell) for (const b of cell) result.add(b)
+      }
+    }
+    return result
   }
 
   _getCarCorners(car) {

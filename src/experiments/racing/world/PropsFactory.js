@@ -10,13 +10,39 @@ function ensureSharedAssets() {
   _poleMat = new THREE.MeshBasicMaterial({ color: '#333344' })
   _headGeo = new THREE.SphereGeometry(0.25, 6, 6)
   _headMat = new THREE.MeshBasicMaterial({ color: PALETTE.streetLamp })
-  // Small glow disc on the ground beneath lamp
+  // Small glow disc on the ground beneath lamp (pre-rotated flat)
   _glowGeo = new THREE.CircleGeometry(3, 8)
+  _glowGeo.rotateX(-Math.PI / 2)
   _glowMat = new THREE.MeshBasicMaterial({
     color: PALETTE.streetLamp,
     transparent: true,
     opacity: 0.08,
   })
+}
+
+// Export shared assets for instanced rendering
+export function getLampAssets() {
+  ensureSharedAssets()
+  return {
+    poleGeo: _poleGeo, poleMat: _poleMat,
+    headGeo: _headGeo, headMat: _headMat,
+    glowGeo: _glowGeo, glowMat: _glowMat,
+  }
+}
+
+// Shared cone assets (lazy init)
+let _coneGeo, _coneMat, _stripeGeo, _stripeMat
+export function getConeAssets() {
+  if (!_coneGeo) {
+    _coneGeo = new THREE.ConeGeometry(0.2, 0.6, 6)
+    _coneMat = new THREE.MeshBasicMaterial({ color: '#ff6600' })
+    _stripeGeo = new THREE.CylinderGeometry(0.18, 0.15, 0.08, 6)
+    _stripeMat = new THREE.MeshBasicMaterial({ color: '#ffffff' })
+  }
+  return {
+    coneGeo: _coneGeo, coneMat: _coneMat,
+    stripeGeo: _stripeGeo, stripeMat: _stripeMat,
+  }
 }
 
 export function createStreetLamp(x, z) {
@@ -33,9 +59,8 @@ export function createStreetLamp(x, z) {
   head.position.set(x, LAMP_HEIGHT, z)
   group.add(head)
 
-  // Ground glow disc (fake light pool)
+  // Ground glow disc (fake light pool) — geometry already pre-rotated flat
   const glow = new THREE.Mesh(_glowGeo, _glowMat)
-  glow.rotation.x = -Math.PI / 2
   glow.position.set(x, 0.02, z)
   group.add(glow)
 

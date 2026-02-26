@@ -9,6 +9,7 @@ import TextEdit from '../apps/TextEdit'
 import AboutThisMac from '../apps/AboutThisMac'
 import Browser from '../apps/Browser'
 import Racing from '../apps/Racing'
+import QuickTime from '../apps/QuickTime'
 
 const APP_COMPONENTS = {
   finder: Finder,
@@ -16,6 +17,7 @@ const APP_COMPONENTS = {
   about: AboutThisMac,
   browser: Browser,
   racing: Racing,
+  quicktime: QuickTime,
 }
 
 export default function WindowFrame({ window: win, zIndex }) {

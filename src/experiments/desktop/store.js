@@ -2,29 +2,38 @@ import { create } from 'zustand'
 import { APPS } from './constants'
 
 // Initial windows open on load
+// Order in array = back-to-front z-order
 const INITIAL_WINDOWS = [
   {
     id: 'textedit-init',
     appId: 'textedit',
     title: 'TextEdit',
-    position: { x: 40, y: 50 },
-    size: { w: 500, h: 450 },
+    position: { x: 25, y: 35 },
+    size: { w: 375, h: 240 },
     isMinimized: false,
   },
   {
     id: 'browser-init',
     appId: 'browser',
     title: 'Safari',
-    position: { x: 580, y: 50 },
-    size: { w: 750, h: 550 },
+    position: { x: 420, y: 35 },
+    size: { w: 650, h: 550 },
     isMinimized: false,
   },
   {
     id: 'racing-init',
     appId: 'racing',
     title: 'y2k_racer',
-    position: { x: Math.max(0, (window.innerWidth - 900) / 2), y: Math.max(0, window.innerHeight - 650 - 90) },
-    size: { w: 900, h: 650 },
+    position: { x: 475, y: 370 },
+    size: { w: 1000, h: 600 },
+    isMinimized: false,
+  },
+  {
+    id: 'quicktime-init',
+    appId: 'quicktime',
+    title: 'Welcome.mp4 — QuickTime Player',
+    position: { x: 85, y: 255 },
+    size: { w: 750, h: 510 },
     isMinimized: false,
   },
 ]
@@ -32,7 +41,7 @@ const INITIAL_WINDOWS = [
 const useDesktopStore = create((set) => ({
   windows: INITIAL_WINDOWS,
   windowOrder: INITIAL_WINDOWS.map((w) => w.id),
-  focusedWindowId: 'racing-init',
+  focusedWindowId: 'quicktime-init',
   selectedIconId: null,
 
   selectIcon: (iconId) => set({ selectedIconId: iconId }),

@@ -39,6 +39,14 @@ export const APPS = {
     defaultPosition: { x: 60, y: 40 },
     resizable: true,
   },
+  quicktime: {
+    id: 'quicktime',
+    name: 'QuickTime Player',
+    icon: '/icons/mp4.png',
+    defaultSize: { w: 640, h: 430 },
+    defaultPosition: { x: 200, y: 100 },
+    resizable: true,
+  },
 }
 
 export const DESKTOP_ICONS = [
@@ -46,6 +54,7 @@ export const DESKTOP_ICONS = [
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
   { appId: 'racing', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
+  { appId: 'quicktime', label: 'Welcome', icon: '/icons/mp4.png' },
 ]
 
 export const DOCK_APPS = [
@@ -53,6 +62,7 @@ export const DOCK_APPS = [
   { appId: 'browser', label: 'Safari', icon: '🧭' },
   { appId: 'textedit', label: 'TextEdit', icon: '📝' },
   { appId: 'racing', label: 'y2k_racer', icon: '/y2kracer-icon.png' },
+  { appId: 'quicktime', label: 'QuickTime Player', icon: '/icons/mp4.png' },
   { appId: 'about', label: 'About This Mac', icon: '🖥️' },
 ]
 

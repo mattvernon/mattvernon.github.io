@@ -1,12 +1,14 @@
 import * as THREE from 'three'
 import { CENTRAL_PARK, STREETS } from '../MapData.js'
 import InstanceManager from '../InstanceManager.js'
+import { LAMP_HEIGHT, PALETTE } from '../../constants.js'
 
 const PARK_GREEN = '#1a3a1a'
 const PATH_COLOR = '#3a3a2a'
 const TREE_TRUNK_COLOR = '#3a2a1a'
 const TREE_CANOPY_COLORS = ['#1a4a1a', '#1a5a1a', '#2a5a2a', '#1a4a2a']
 const POND_COLOR = '#0a2035'
+const PARK_LAMP_COLOR = '#ffaa44'
 
 export default class CentralParkBuilder {
   constructor(elevationSystem) {
@@ -49,6 +51,15 @@ export default class CentralParkBuilder {
 
     // Instanced trees
     this._createTrees(group, collision)
+
+    // Path lamps and ambient glow
+    this._createPathLamps(group)
+
+    // Pond glow highlights
+    this._createPondGlow(group)
+
+    // Moonlight wash — subtle bright overlay on park ground
+    this._createMoonlightWash(group)
 
     // Park boundary walls (low, keep car on paths or at least in park)
     this._createBoundaryCollision(collision)
@@ -168,6 +179,107 @@ export default class CentralParkBuilder {
     }
 
     instances.build(group)
+  }
+
+  _createPathLamps(group) {
+    const b = CENTRAL_PARK
+    const cx = (b.minX + b.maxX) / 2
+    const cz = (b.minZ + b.maxZ) / 2
+    const instances = new InstanceManager()
+
+    const lampH = 5 // slightly shorter than street lamps
+    const poleGeo = new THREE.CylinderGeometry(0.06, 0.08, lampH, 5)
+    const poleMat = new THREE.MeshBasicMaterial({ color: '#333344' })
+    const headGeo = new THREE.SphereGeometry(0.2, 6, 6)
+    const headMat = new THREE.MeshBasicMaterial({ color: PARK_LAMP_COLOR })
+    const glowGeo = new THREE.CircleGeometry(4, 8)
+    glowGeo.rotateX(-Math.PI / 2)
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: PARK_LAMP_COLOR,
+      transparent: true,
+      opacity: 0.1,
+    })
+
+    instances.register('parkPole', poleGeo, poleMat)
+    instances.register('parkHead', headGeo, headMat)
+    instances.register('parkGlow', glowGeo, glowMat)
+
+    // Lamps along the main N-S path
+    const nsSpacing = 30
+    for (let z = b.minZ + 20; z < b.maxZ - 20; z += nsSpacing) {
+      for (const side of [-1, 1]) {
+        const lx = cx + side * 4
+        instances.add('parkPole', lx, lampH / 2, z)
+        instances.add('parkHead', lx, lampH, z)
+        instances.add('parkGlow', lx, 0.02, z)
+      }
+    }
+
+    // Lamps along cross paths
+    const crossZPositions = [b.minZ + 100, cz, b.maxZ - 100]
+    const ewSpacing = 35
+    for (const z of crossZPositions) {
+      for (let x = b.minX + 20; x < b.maxX - 20; x += ewSpacing) {
+        // Skip lamps near the N-S path center (already have lamps there)
+        if (Math.abs(x - cx) < 8) continue
+        const side = ((x / ewSpacing) | 0) % 2 === 0 ? 1 : -1
+        instances.add('parkPole', x, lampH / 2, z + side * 3.5)
+        instances.add('parkHead', x, lampH, z + side * 3.5)
+        instances.add('parkGlow', x, 0.02, z + side * 3.5)
+      }
+    }
+
+    instances.build(group)
+  }
+
+  _createPondGlow(group) {
+    const b = CENTRAL_PARK
+    const cx = (b.minX + b.maxX) / 2
+    const cz = (b.minZ + b.maxZ) / 2
+    const pondCx = cx - 40
+    const pondCz = cz + 60
+
+    // Subtle glow highlights on the pond surface (moonlight reflections)
+    const highlightMat = new THREE.MeshBasicMaterial({
+      color: '#2a4a6a',
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false,
+    })
+
+    for (let i = 0; i < 8; i++) {
+      const size = 2 + Math.random() * 4
+      const geo = new THREE.PlaneGeometry(size, size * 0.6)
+      const highlight = new THREE.Mesh(geo, highlightMat)
+      highlight.rotation.x = -Math.PI / 2
+      highlight.position.set(
+        pondCx + (Math.random() - 0.5) * 24,
+        0.015,
+        pondCz + (Math.random() - 0.5) * 14
+      )
+      group.add(highlight)
+    }
+  }
+
+  _createMoonlightWash(group) {
+    const b = CENTRAL_PARK
+    const w = b.maxX - b.minX
+    const d = b.maxZ - b.minZ
+    const cx = (b.minX + b.maxX) / 2
+    const cz = (b.minZ + b.maxZ) / 2
+
+    // Subtle moonlight tint over the entire park
+    const washGeo = new THREE.PlaneGeometry(w, d)
+    const washMat = new THREE.MeshBasicMaterial({
+      color: '#223344',
+      transparent: true,
+      opacity: 0.06,
+      depthWrite: false,
+    })
+    const wash = new THREE.Mesh(washGeo, washMat)
+    wash.rotation.x = -Math.PI / 2
+    wash.position.set(cx, 0.008, cz)
+    group.add(wash)
   }
 
   _createBoundaryCollision(collision) {

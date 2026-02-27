@@ -143,7 +143,7 @@ export function createCarLights(scene, carGroup, bounds = null) {
   const beamMat = new THREE.MeshBasicMaterial({
     color: PALETTE.headlight,
     transparent: true,
-    opacity: 0.04,
+    opacity: 0.09,
     side: THREE.DoubleSide,
     depthWrite: false,
   })

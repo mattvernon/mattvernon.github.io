@@ -129,7 +129,7 @@ export default class MapGenerator {
     const lampSpacing = LAMP_SPACING * 2
 
     for (const seg of STREETS) {
-      if (seg.type === 'bridge') continue
+      const isBridge = seg.type === 'bridge'
 
       const dx = seg.end.x - seg.start.x
       const dz = seg.end.z - seg.start.z
@@ -149,9 +149,14 @@ export default class MapGenerator {
         const lx = px + perpX * swOffset * sideToggle
         const lz = pz + perpZ * swOffset * sideToggle
 
-        instances.add('lampPole', lx, LAMP_HEIGHT / 2, lz)
-        instances.add('lampHead', lx, LAMP_HEIGHT, lz)
-        instances.add('lampGlow', lx, 0.02, lz)
+        // On bridges, elevate lamps to match the deck height
+        const baseY = (isBridge && this.elevation)
+          ? this.elevation.getElevation(px, pz)
+          : 0
+
+        instances.add('lampPole', lx, baseY + LAMP_HEIGHT / 2, lz)
+        instances.add('lampHead', lx, baseY + LAMP_HEIGHT, lz)
+        instances.add('lampGlow', lx, baseY + 0.02, lz)
 
         sideToggle *= -1
       }

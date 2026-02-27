@@ -116,6 +116,110 @@
   image-rendering: crisp-edges;
 }
 
+/* ===== Car Select Screen ===== */
+.car-select-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10;
+  backdrop-filter: blur(6px);
+}
+
+.car-select-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.car-select-title canvas {
+  display: block;
+}
+
+.car-select-cards {
+  display: flex;
+  gap: 1.5vw;
+  align-items: center;
+}
+
+.car-select-card {
+  width: 22vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0 0 8px;
+  font: inherit;
+  color: inherit;
+  overflow: hidden;
+  transform: scale(0.92);
+}
+
+.car-select-card-preview {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  position: relative;
+}
+
+.car-select-card-preview .car-preview-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.car-select-card .car-preview-canvas {
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+.car-select-card--active .car-preview-canvas {
+  opacity: 1;
+}
+
+.car-select-card-name canvas {
+  display: block;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.car-select-card--active {
+  border-color: #00f0ff;
+  box-shadow:
+    0 0 20px rgba(0, 240, 255, 0.25),
+    inset 0 0 30px rgba(0, 240, 255, 0.05);
+  background: rgba(0, 240, 255, 0.05);
+  transform: scale(1.05);
+}
+
+.car-select-card--active .car-select-card-name canvas {
+  opacity: 1;
+}
+
+.car-select-card:hover {
+  border-color: #00f0ff;
+}
+
+.car-select-card-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.car-select-hint {
+  opacity: 0.4;
+}
+
+.car-select-hint canvas {
+  display: block;
+}
+
 /* ===== Pause Overlay ===== */
 .pause-overlay {
   position: absolute;

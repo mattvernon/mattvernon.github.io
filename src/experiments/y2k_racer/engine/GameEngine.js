@@ -87,6 +87,51 @@ export default class GameEngine {
     if (this.onReady) this.onReady()
   }
 
+  swapCarModel(modelKey) {
+    // Dispose current car mesh children
+    while (this.carMesh.children.length > 0) {
+      const child = this.carMesh.children[0]
+      this.carMesh.remove(child)
+      if (child.geometry) child.geometry.dispose()
+      if (child.material) {
+        if (Array.isArray(child.material)) child.material.forEach(m => {
+          if (m.map) m.map.dispose()
+          m.dispose()
+        })
+        else {
+          if (child.material.map) child.material.map.dispose()
+          child.material.dispose()
+        }
+      }
+      // Recursively dispose nested children (e.g. loaded GLB model)
+      child.traverse?.((obj) => {
+        if (obj.geometry) obj.geometry.dispose()
+        if (obj.material) {
+          if (Array.isArray(obj.material)) obj.material.forEach(m => {
+            if (m.map) m.map.dispose()
+            m.dispose()
+          })
+          else {
+            if (obj.material.map) obj.material.map.dispose()
+            obj.material.dispose()
+          }
+        }
+      })
+    }
+
+    // Re-add placeholder then load new model
+    const placeholder = createCarMesh()
+    for (const child of [...placeholder.children]) {
+      this.carMesh.add(child)
+    }
+    createCarLights(this.scene, this.carMesh)
+    loadCarModel(this.carMesh, modelKey)
+
+    // Reset car to starting position
+    this.carPhysics.reset(400, 105, 0)
+    this.cameraController.setInitialPosition(this.carPhysics)
+  }
+
   start() {
     if (this.running) return
     this.running = true

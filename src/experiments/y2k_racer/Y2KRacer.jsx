@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import useY2KRacerStore from './store'
 import Y2KRacerCanvas from './Y2KRacerCanvas'
 import StartScreen from './ui/StartScreen'
+import CarSelectScreen from './ui/CarSelectScreen'
 import HUD from './ui/HUD'
 import PauseOverlay from './ui/PauseOverlay'
 import './Y2KRacer.css'
@@ -29,6 +30,7 @@ export default function Y2KRacer() {
     <div className="racing-container">
       <Y2KRacerCanvas />
       {gameState === 'menu' && <StartScreen />}
+      {gameState === 'carSelect' && <CarSelectScreen />}
       {gameState === 'playing' && <HUD />}
       {gameState === 'paused' && <PauseOverlay />}
     </div>

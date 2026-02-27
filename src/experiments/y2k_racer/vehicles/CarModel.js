@@ -2,8 +2,10 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { CAR_WIDTH, CAR_LENGTH, CAR_HEIGHT, PALETTE } from '../constants.js'
 
-const CAR_MODELS = {
-  'skyline-r34': '/models/skyline-r34.glb',
+export const CAR_MODELS = {
+  'toyota-supra': { url: '/models/toyota-supra.glb', name: 'TOYOTA SUPRA' },
+  'skyline-r34': { url: '/models/skyline-r34.glb', name: 'NISSAN SKYLINE R34' },
+  'honda-s2000': { url: '/models/honda-s2000.glb', name: 'HONDA S2000' },
 }
 
 // Simple placeholder box car (shown while GLB loads)
@@ -44,9 +46,10 @@ export function createCarMesh() {
   return createPlaceholderCar()
 }
 
-export async function loadCarModel(carGroup, modelKey = 'skyline-r34') {
-  const url = CAR_MODELS[modelKey]
-  if (!url) return
+export async function loadCarModel(carGroup, modelKey = 'skyline-r34', { includeBeam = true, includeLights = true } = {}) {
+  const entry = CAR_MODELS[modelKey]
+  if (!entry) return
+  const url = entry.url
 
   const loader = new GLTFLoader()
   try {
@@ -113,17 +116,19 @@ export async function loadCarModel(carGroup, modelKey = 'skyline-r34') {
     const finalSize = finalBox.getSize(new THREE.Vector3())
 
     // Add glow lights positioned to match actual model dimensions
-    createCarLights(null, carGroup, {
-      halfWidth: finalSize.x / 2,
-      halfLength: finalSize.z / 2,
-      height: finalSize.y,
-    })
+    if (includeLights) {
+      createCarLights(null, carGroup, {
+        halfWidth: finalSize.x / 2,
+        halfLength: finalSize.z / 2,
+        height: finalSize.y,
+      }, { includeBeam })
+    }
   } catch (err) {
     console.warn('Failed to load car model, keeping placeholder:', err)
   }
 }
 
-export function createCarLights(scene, carGroup, bounds = null) {
+export function createCarLights(scene, carGroup, bounds = null, { includeBeam = true } = {}) {
   // Use actual model bounds if available, otherwise fall back to constants
   const hw = bounds ? bounds.halfWidth : CAR_WIDTH / 2
   const hl = bounds ? bounds.halfLength : CAR_LENGTH / 2
@@ -138,19 +143,21 @@ export function createCarLights(scene, carGroup, bounds = null) {
     carGroup.add(glow)
   }
 
-  // Headlight beam
-  const beamGeo = new THREE.ConeGeometry(3, 15, 8, 1, true)
-  const beamMat = new THREE.MeshBasicMaterial({
-    color: PALETTE.headlight,
-    transparent: true,
-    opacity: 0.09,
-    side: THREE.DoubleSide,
-    depthWrite: false,
-  })
-  const beam = new THREE.Mesh(beamGeo, beamMat)
-  beam.rotation.x = Math.PI / 2
-  beam.position.set(0, 0.3, hl + 7)
-  carGroup.add(beam)
+  // Headlight beam (omitted for turntable previews)
+  if (includeBeam) {
+    const beamGeo = new THREE.ConeGeometry(3, 15, 8, 1, true)
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: PALETTE.headlight,
+      transparent: true,
+      opacity: 0.09,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    })
+    const beam = new THREE.Mesh(beamGeo, beamMat)
+    beam.rotation.x = Math.PI / 2
+    beam.position.set(0, 0.3, hl + 7)
+    carGroup.add(beam)
+  }
 
   // TODO: taillights — revisit later with better approach
 

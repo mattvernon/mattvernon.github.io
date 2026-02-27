@@ -34,6 +34,8 @@ export default function Y2KRacerCanvas() {
     if (!engine) return
 
     if (gameState === 'playing') {
+      const selectedCar = useY2KRacerStore.getState().selectedCar
+      engine.swapCarModel(selectedCar)
       engine.resume()
       canvasRef.current?.focus()
     } else if (gameState === 'paused') {

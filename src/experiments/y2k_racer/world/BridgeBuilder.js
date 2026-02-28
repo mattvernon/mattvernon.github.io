@@ -1,6 +1,5 @@
 import * as THREE from 'three'
-import { BRIDGE_DEFS, SIDEWALK_WIDTH } from './MapData.js'
-import { PALETTE } from '../constants.js'
+import { PALETTE, SIDEWALK_WIDTH } from '../constants.js'
 import InstanceManager from './InstanceManager.js'
 
 const BRIDGE_STYLES = {
@@ -28,8 +27,9 @@ const DECK_SEGMENTS = 40
 const BARRIER_HEIGHT = 1.2
 
 export default class BridgeBuilder {
-  constructor(elevationSystem) {
+  constructor(elevationSystem, bridgeDefs) {
     this.elevation = elevationSystem
+    this.bridgeDefs = bridgeDefs
   }
 
   build(scene, collision) {
@@ -39,7 +39,7 @@ export default class BridgeBuilder {
     const cableGeo = new THREE.CylinderGeometry(0.06, 0.06, 1, 4)
     const postGeo = new THREE.BoxGeometry(0.3, 1, 0.3)
 
-    for (const def of BRIDGE_DEFS) {
+    for (const def of this.bridgeDefs) {
       const colors = BRIDGE_STYLES[def.style]
       const group = new THREE.Group()
       group.name = def.id

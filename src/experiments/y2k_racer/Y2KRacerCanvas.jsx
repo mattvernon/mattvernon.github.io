@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import GameEngine from './engine/GameEngine'
 import useY2KRacerStore from './store'
+import { getMapConfig } from './world/maps/index.js'
 
 export default function Y2KRacerCanvas() {
   const canvasRef = useRef(null)
@@ -16,10 +17,10 @@ export default function Y2KRacerCanvas() {
       onHudUpdate: (speed, carX, carZ, carHeading) =>
         useY2KRacerStore.getState().updateHud(speed, carX, carZ, carHeading),
     })
-    engine.init()
+    // Init with default NYC map
+    engine.init(getMapConfig('nyc'))
     engineRef.current = engine
 
-    // Focus canvas for keyboard input
     canvasRef.current.focus()
 
     return () => {
@@ -34,8 +35,15 @@ export default function Y2KRacerCanvas() {
     if (!engine) return
 
     if (gameState === 'playing') {
-      const selectedCar = useY2KRacerStore.getState().selectedCar
-      engine.swapCarModel(selectedCar)
+      const state = useY2KRacerStore.getState()
+      const mapConfig = getMapConfig(state.selectedMap)
+
+      // Swap map if it changed
+      if (engine.currentMapConfig?.id !== mapConfig.id) {
+        engine.swapMap(mapConfig)
+      }
+
+      engine.swapCarModel(state.selectedCar)
       engine.resume()
       canvasRef.current?.focus()
     } else if (gameState === 'paused') {

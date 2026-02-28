@@ -1,6 +1,5 @@
 import * as THREE from 'three'
-import { PALETTE } from '../constants.js'
-import { MAP_BOUNDS, SIDEWALK_WIDTH } from './MapData.js'
+import { PALETTE, SIDEWALK_WIDTH } from '../constants.js'
 import InstanceManager from './InstanceManager.js'
 
 const roadMat = new THREE.MeshBasicMaterial({ color: PALETTE.road })

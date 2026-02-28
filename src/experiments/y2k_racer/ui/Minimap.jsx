@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import useY2KRacerStore from '../store'
-import { STREETS, MAP_BOUNDS, WATER_ZONES, CENTRAL_PARK } from '../world/MapData'
+import { getMapConfig } from '../world/maps/index.js'
 
 // Canvas dimensions (low-res, scaled up via CSS for pixelated look)
 const CANVAS_SIZE = 200
@@ -14,12 +14,13 @@ const SCALE = RADIUS / VIEW_RADIUS
 const CYAN = '#00f0ff'
 const CAR_COLOR = '#ff3c00'
 
-// Pre-render the full road network onto an offscreen canvas (done once)
-function createMapCanvas() {
-  // Padding so rotation at map edges doesn't show blank areas
+// Pre-render the full road network onto an offscreen canvas (done once per map)
+function createMapCanvas(mapConfig) {
+  const { mapBounds, streets, waterZones, parkZones } = mapConfig
+
   const padding = RADIUS * 2
-  const mapW = (MAP_BOUNDS.maxX - MAP_BOUNDS.minX) * SCALE
-  const mapH = (MAP_BOUNDS.maxZ - MAP_BOUNDS.minZ) * SCALE
+  const mapW = (mapBounds.maxX - mapBounds.minX) * SCALE
+  const mapH = (mapBounds.maxZ - mapBounds.minZ) * SCALE
 
   const canvas = document.createElement('canvas')
   canvas.width = Math.ceil(mapW + padding * 2)
@@ -35,31 +36,34 @@ function createMapCanvas() {
 
   // Water zones
   ctx.fillStyle = '#0a1932'
-  for (const wz of WATER_ZONES) {
+  for (const wz of waterZones) {
     ctx.fillRect(
-      ox + (wz.bounds.minX - MAP_BOUNDS.minX) * SCALE,
-      oy + (wz.bounds.minZ - MAP_BOUNDS.minZ) * SCALE,
+      ox + (wz.bounds.minX - mapBounds.minX) * SCALE,
+      oy + (wz.bounds.minZ - mapBounds.minZ) * SCALE,
       (wz.bounds.maxX - wz.bounds.minX) * SCALE,
       (wz.bounds.maxZ - wz.bounds.minZ) * SCALE
     )
   }
 
-  // Central Park
+  // Park zones
   ctx.fillStyle = '#0f2814'
-  ctx.fillRect(
-    ox + (CENTRAL_PARK.minX - MAP_BOUNDS.minX) * SCALE,
-    oy + (CENTRAL_PARK.minZ - MAP_BOUNDS.minZ) * SCALE,
-    (CENTRAL_PARK.maxX - CENTRAL_PARK.minX) * SCALE,
-    (CENTRAL_PARK.maxZ - CENTRAL_PARK.minZ) * SCALE
-  )
+  for (const pz of parkZones) {
+    const b = pz.bounds
+    ctx.fillRect(
+      ox + (b.minX - mapBounds.minX) * SCALE,
+      oy + (b.minZ - mapBounds.minZ) * SCALE,
+      (b.maxX - b.minX) * SCALE,
+      (b.maxZ - b.minZ) * SCALE
+    )
+  }
 
   // Roads
   ctx.lineCap = 'round'
-  for (const seg of STREETS) {
-    const sx = ox + (seg.start.x - MAP_BOUNDS.minX) * SCALE
-    const sy = oy + (seg.start.z - MAP_BOUNDS.minZ) * SCALE
-    const ex = ox + (seg.end.x - MAP_BOUNDS.minX) * SCALE
-    const ey = oy + (seg.end.z - MAP_BOUNDS.minZ) * SCALE
+  for (const seg of streets) {
+    const sx = ox + (seg.start.x - mapBounds.minX) * SCALE
+    const sy = oy + (seg.start.z - mapBounds.minZ) * SCALE
+    const ex = ox + (seg.end.x - mapBounds.minX) * SCALE
+    const ey = oy + (seg.end.z - mapBounds.minZ) * SCALE
     const lw = Math.max(1, seg.width * SCALE)
 
     ctx.beginPath()
@@ -75,10 +79,10 @@ function createMapCanvas() {
     ctx.stroke()
   }
 
-  return { canvas, padding }
+  return { canvas, padding, mapBounds }
 }
 
-function drawMinimap(ctx, mapCanvas, mapPadding, carX, carZ, heading) {
+function drawMinimap(ctx, mapCanvas, mapPadding, mapBounds, carX, carZ, heading) {
   ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE)
   ctx.lineCap = 'round'
 
@@ -101,8 +105,8 @@ function drawMinimap(ctx, mapCanvas, mapPadding, carX, carZ, heading) {
   ctx.rotate(heading - Math.PI)
 
   // Position offscreen map so the car's world position sits at (0,0)
-  const carPx = mapPadding + (carX - MAP_BOUNDS.minX) * SCALE
-  const carPz = mapPadding + (carZ - MAP_BOUNDS.minZ) * SCALE
+  const carPx = mapPadding + (carX - mapBounds.minX) * SCALE
+  const carPz = mapPadding + (carZ - mapBounds.minZ) * SCALE
   ctx.drawImage(mapCanvas, -carPx, -carPz)
 
   ctx.restore()
@@ -131,25 +135,26 @@ function drawMinimap(ctx, mapCanvas, mapPadding, carX, carZ, heading) {
 
 export default function Minimap() {
   const canvasRef = useRef(null)
+  const selectedMap = useY2KRacerStore((s) => s.selectedMap)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
 
-    // Pre-render the road network once
-    const { canvas: mapCanvas, padding } = createMapCanvas()
+    const mapConfig = getMapConfig(selectedMap)
+    const { canvas: mapCanvas, padding, mapBounds } = createMapCanvas(mapConfig)
 
     // Initial draw
-    drawMinimap(ctx, mapCanvas, padding, 0, 0, 0)
+    drawMinimap(ctx, mapCanvas, padding, mapBounds, 0, 0, 0)
 
     // Subscribe to store updates directly (avoids React re-renders)
     const unsub = useY2KRacerStore.subscribe((state) => {
-      drawMinimap(ctx, mapCanvas, padding, state.carX, state.carZ, state.carHeading)
+      drawMinimap(ctx, mapCanvas, padding, mapBounds, state.carX, state.carZ, state.carHeading)
     })
 
     return unsub
-  }, [])
+  }, [selectedMap])
 
   return (
     <div className="minimap">

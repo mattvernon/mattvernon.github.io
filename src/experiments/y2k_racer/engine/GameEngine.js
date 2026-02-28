@@ -10,6 +10,21 @@ import PostProcessingPipeline from '../effects/PostProcessingPipeline.js'
 import AudioManager from './AudioManager.js'
 import { CAMERA_FOV, FIXED_TIMESTEP } from '../constants.js'
 
+function disposeObject(obj) {
+  if (obj.geometry) obj.geometry.dispose()
+  if (obj.material) {
+    if (Array.isArray(obj.material)) {
+      obj.material.forEach(m => {
+        if (m.map) m.map.dispose()
+        m.dispose()
+      })
+    } else {
+      if (obj.material.map) obj.material.map.dispose()
+      obj.material.dispose()
+    }
+  }
+}
+
 export default class GameEngine {
   constructor(canvas, { onHudUpdate, onReady } = {}) {
     this.canvas = canvas
@@ -20,20 +35,22 @@ export default class GameEngine {
     this.clock = new THREE.Clock(false)
     this.accumulator = 0
     this.elapsedTime = 0
+    this.mapRoot = null
+    this.currentMapConfig = null
   }
 
-  init() {
+  init(mapConfig) {
     const width = this.canvas.clientWidth
     const height = this.canvas.clientHeight
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: false, // we pixelate anyway
+      antialias: false,
       powerPreference: 'high-performance',
     })
     this.renderer.setSize(width, height, false)
-    this.renderer.setPixelRatio(1) // keep it lo-fi
+    this.renderer.setPixelRatio(1)
     this.renderer.shadowMap.enabled = false
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 1.0
@@ -41,22 +58,22 @@ export default class GameEngine {
     // Scene
     this.scene = new THREE.Scene()
 
-    // Camera (far plane extended for larger map)
+    // Camera
     this.camera = new THREE.PerspectiveCamera(CAMERA_FOV, width / height, 0.5, 500)
 
     // Input
     this.input = new InputManager(window)
 
-    // Physics — start car in Times Square
+    // Physics — start car at map spawn point
     this.carPhysics = new CarPhysics()
-    this.carPhysics.reset(400, 105, 0)
+    const spawn = mapConfig.spawnPoint
+    this.carPhysics.reset(spawn.x, spawn.z, spawn.heading)
 
-    // Car mesh (placeholder shown immediately, GLB loaded async)
+    // Car mesh
     this.carMesh = createCarMesh()
     this.scene.add(this.carMesh)
     this.carLights = createCarLights(this.scene, this.carMesh)
 
-    // Load the real 3D model in the background (swaps out placeholder when ready)
     loadCarModel(this.carMesh)
 
     // Camera controller
@@ -66,25 +83,49 @@ export default class GameEngine {
     // Collision system
     this.collision = new CollisionSystem()
 
-    // Elevation system (bridges, terrain)
-    this.elevationSystem = new ElevationSystem()
-
-    // Build NYC map (includes bridges)
-    this.mapGenerator = new MapGenerator(this.scene, this.collision, this.elevationSystem)
-    this.mapGenerator.build()
+    // Build map
+    this.currentMapConfig = mapConfig
+    this.elevationSystem = new ElevationSystem(mapConfig)
+    this.mapGenerator = new MapGenerator(this.scene, this.collision, this.elevationSystem, mapConfig)
+    this.mapRoot = this.mapGenerator.build()
 
     // Post-processing
     this.postProcessing = new PostProcessingPipeline(this.renderer, this.scene, this.camera)
 
     // Audio
     this.audio = new AudioManager()
-    this.audio.init() // loads asynchronously, AudioManager handles not-ready state
+    this.audio.init()
 
     // Resize handler
     this._onResize = this._handleResize.bind(this)
     window.addEventListener('resize', this._onResize)
 
     if (this.onReady) this.onReady()
+  }
+
+  swapMap(mapConfig) {
+    // Dispose old map
+    if (this.mapRoot) {
+      this.scene.remove(this.mapRoot)
+      this.mapRoot.traverse((obj) => {
+        disposeObject(obj)
+      })
+      this.mapRoot = null
+    }
+
+    // Clear collision
+    this.collision.clear()
+
+    // Rebuild with new config
+    this.currentMapConfig = mapConfig
+    this.elevationSystem = new ElevationSystem(mapConfig)
+    this.mapGenerator = new MapGenerator(this.scene, this.collision, this.elevationSystem, mapConfig)
+    this.mapRoot = this.mapGenerator.build()
+
+    // Reset car to new spawn
+    const spawn = mapConfig.spawnPoint
+    this.carPhysics.reset(spawn.x, spawn.z, spawn.heading)
+    this.cameraController.setInitialPosition(this.carPhysics)
   }
 
   swapCarModel(modelKey) {
@@ -103,7 +144,6 @@ export default class GameEngine {
           child.material.dispose()
         }
       }
-      // Recursively dispose nested children (e.g. loaded GLB model)
       child.traverse?.((obj) => {
         if (obj.geometry) obj.geometry.dispose()
         if (obj.material) {
@@ -127,8 +167,9 @@ export default class GameEngine {
     createCarLights(this.scene, this.carMesh)
     loadCarModel(this.carMesh, modelKey)
 
-    // Reset car to starting position
-    this.carPhysics.reset(400, 105, 0)
+    // Reset car to map spawn position
+    const spawn = this.currentMapConfig.spawnPoint
+    this.carPhysics.reset(spawn.x, spawn.z, spawn.heading)
     this.cameraController.setInitialPosition(this.carPhysics)
   }
 
@@ -163,21 +204,17 @@ export default class GameEngine {
     this.animFrameId = requestAnimationFrame(() => this._loop())
 
     const rawDelta = this.clock.getDelta()
-    // Clamp to prevent spiral of death on tab switch
     const delta = Math.min(rawDelta, 0.1)
     this.elapsedTime += delta
 
-    // Fixed timestep physics
     this.accumulator += delta
     while (this.accumulator >= FIXED_TIMESTEP) {
       this._fixedUpdate(FIXED_TIMESTEP)
       this.accumulator -= FIXED_TIMESTEP
     }
 
-    // Visual update (smooth)
     this._visualUpdate(delta)
 
-    // Render
     this.postProcessing.update(this.elapsedTime)
     this.postProcessing.render()
   }
@@ -187,21 +224,16 @@ export default class GameEngine {
     this.carPhysics.update(dt, inputState, this.elevationSystem)
     const collided = this.collision.resolve(this.carPhysics)
 
-    // Update audio with current driving state
     this.audio.update(this.carPhysics.speed, inputState, collided)
   }
 
   _visualUpdate(dt) {
-    // Update car mesh to match physics
     this.carMesh.position.copy(this.carPhysics.position)
     this.carMesh.rotation.y = this.carPhysics.heading
-    // Pitch car on slopes (negative because forward is +Z in local space)
     this.carMesh.rotation.x = -(this.carPhysics.slopeAngle || 0)
 
-    // Camera follow
     this.cameraController.update(dt, this.carPhysics)
 
-    // Report HUD data to UI
     if (this.onHudUpdate) {
       this.onHudUpdate(
         this.carPhysics.getSpeedKMH(),
@@ -229,20 +261,8 @@ export default class GameEngine {
     window.removeEventListener('resize', this._onResize)
     this.input.dispose()
 
-    // Dispose Three.js resources
     this.scene.traverse((obj) => {
-      if (obj.geometry) obj.geometry.dispose()
-      if (obj.material) {
-        if (Array.isArray(obj.material)) {
-          obj.material.forEach((m) => {
-            if (m.map) m.map.dispose()
-            m.dispose()
-          })
-        } else {
-          if (obj.material.map) obj.material.map.dispose()
-          obj.material.dispose()
-        }
-      }
+      disposeObject(obj)
     })
 
     this.postProcessing.dispose()

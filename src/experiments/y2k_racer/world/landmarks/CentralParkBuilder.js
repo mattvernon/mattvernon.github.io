@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { CENTRAL_PARK, STREETS } from '../MapData.js'
 import InstanceManager from '../InstanceManager.js'
 import { LAMP_HEIGHT, PALETTE } from '../../constants.js'
 
@@ -11,13 +10,14 @@ const POND_COLOR = '#0a2035'
 const PARK_LAMP_COLOR = '#ffaa44'
 
 export default class CentralParkBuilder {
-  constructor(elevationSystem) {
+  constructor(elevationSystem, parkBounds) {
     this.elevation = elevationSystem
+    this.bounds = parkBounds
   }
 
   build(scene, collision) {
     const group = new THREE.Group()
-    const b = CENTRAL_PARK
+    const b = this.bounds
 
     const w = b.maxX - b.minX
     const d = b.maxZ - b.minZ
@@ -58,17 +58,17 @@ export default class CentralParkBuilder {
     // Pond glow highlights
     this._createPondGlow(group)
 
-    // Moonlight wash — subtle bright overlay on park ground
+    // Moonlight wash
     this._createMoonlightWash(group)
 
-    // Park boundary walls (low, keep car on paths or at least in park)
+    // Park boundary walls
     this._createBoundaryCollision(collision)
 
     scene.add(group)
   }
 
   _createPaths(group) {
-    const b = CENTRAL_PARK
+    const b = this.bounds
     const cx = (b.minX + b.maxX) / 2
     const pathMat = new THREE.MeshBasicMaterial({ color: PATH_COLOR })
 
@@ -119,19 +119,16 @@ export default class CentralParkBuilder {
   }
 
   _createTrees(group, collision) {
-    const b = CENTRAL_PARK
+    const b = this.bounds
     const instances = new InstanceManager()
 
-    // Tree trunk geometry
     const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 3, 5)
     const trunkMat = new THREE.MeshBasicMaterial({ color: TREE_TRUNK_COLOR })
     instances.register('trunk', trunkGeo, trunkMat)
 
-    // Multiple canopy sizes for variety
     const smallCanopy = new THREE.SphereGeometry(2, 6, 5)
     const largeCanopy = new THREE.SphereGeometry(3, 6, 5)
 
-    // Use different colors for canopy variety
     const canopyMats = TREE_CANOPY_COLORS.map(c =>
       new THREE.MeshBasicMaterial({ color: c })
     )
@@ -141,7 +138,6 @@ export default class CentralParkBuilder {
     const cx = (b.minX + b.maxX) / 2
     const cz = (b.minZ + b.maxZ) / 2
 
-    // Place ~120 trees, avoiding paths and pond
     const treeCount = 120
     let placed = 0
     let attempts = 0
@@ -151,10 +147,8 @@ export default class CentralParkBuilder {
       const tx = b.minX + 10 + Math.random() * (b.maxX - b.minX - 20)
       const tz = b.minZ + 10 + Math.random() * (b.maxZ - b.minZ - 20)
 
-      // Skip if too close to center path
       if (Math.abs(tx - cx) < 5) continue
 
-      // Skip if on cross paths
       const crossZs = [b.minZ + 100, cz, b.maxZ - 100]
       let onPath = false
       for (const z of crossZs) {
@@ -162,7 +156,6 @@ export default class CentralParkBuilder {
       }
       if (onPath) continue
 
-      // Skip if too close to pond
       if (Math.abs(tx - (cx - 40)) < 20 && Math.abs(tz - (cz + 60)) < 14) continue
 
       const isLarge = Math.random() > 0.5
@@ -172,7 +165,6 @@ export default class CentralParkBuilder {
       instances.add('trunk', tx, trunkH / 2, tz)
       instances.add(canopyType, tx, trunkH + (isLarge ? 2.5 : 1.8), tz)
 
-      // Tree trunk collision
       collision.addStaticBody(tx - 0.5, tz - 0.5, tx + 0.5, tz + 0.5)
 
       placed++
@@ -182,12 +174,12 @@ export default class CentralParkBuilder {
   }
 
   _createPathLamps(group) {
-    const b = CENTRAL_PARK
+    const b = this.bounds
     const cx = (b.minX + b.maxX) / 2
     const cz = (b.minZ + b.maxZ) / 2
     const instances = new InstanceManager()
 
-    const lampH = 5 // slightly shorter than street lamps
+    const lampH = 5
     const poleGeo = new THREE.CylinderGeometry(0.06, 0.08, lampH, 5)
     const poleMat = new THREE.MeshBasicMaterial({ color: '#333344' })
     const headGeo = new THREE.SphereGeometry(0.2, 6, 6)
@@ -204,7 +196,6 @@ export default class CentralParkBuilder {
     instances.register('parkHead', headGeo, headMat)
     instances.register('parkGlow', glowGeo, glowMat)
 
-    // Lamps along the main N-S path
     const nsSpacing = 30
     for (let z = b.minZ + 20; z < b.maxZ - 20; z += nsSpacing) {
       for (const side of [-1, 1]) {
@@ -215,12 +206,10 @@ export default class CentralParkBuilder {
       }
     }
 
-    // Lamps along cross paths
     const crossZPositions = [b.minZ + 100, cz, b.maxZ - 100]
     const ewSpacing = 35
     for (const z of crossZPositions) {
       for (let x = b.minX + 20; x < b.maxX - 20; x += ewSpacing) {
-        // Skip lamps near the N-S path center (already have lamps there)
         if (Math.abs(x - cx) < 8) continue
         const side = ((x / ewSpacing) | 0) % 2 === 0 ? 1 : -1
         instances.add('parkPole', x, lampH / 2, z + side * 3.5)
@@ -233,13 +222,12 @@ export default class CentralParkBuilder {
   }
 
   _createPondGlow(group) {
-    const b = CENTRAL_PARK
+    const b = this.bounds
     const cx = (b.minX + b.maxX) / 2
     const cz = (b.minZ + b.maxZ) / 2
     const pondCx = cx - 40
     const pondCz = cz + 60
 
-    // Subtle glow highlights on the pond surface (moonlight reflections)
     const highlightMat = new THREE.MeshBasicMaterial({
       color: '#2a4a6a',
       transparent: true,
@@ -262,13 +250,12 @@ export default class CentralParkBuilder {
   }
 
   _createMoonlightWash(group) {
-    const b = CENTRAL_PARK
+    const b = this.bounds
     const w = b.maxX - b.minX
     const d = b.maxZ - b.minZ
     const cx = (b.minX + b.maxX) / 2
     const cz = (b.minZ + b.maxZ) / 2
 
-    // Subtle moonlight tint over the entire park
     const washGeo = new THREE.PlaneGeometry(w, d)
     const washMat = new THREE.MeshBasicMaterial({
       color: '#223344',
@@ -283,12 +270,6 @@ export default class CentralParkBuilder {
   }
 
   _createBoundaryCollision(collision) {
-    const b = CENTRAL_PARK
-    const t = 1 // wall thickness
-
-    // The park boundary prevents driving off the paths into deep park
-    // But streets around the park already have buildings, so we just
-    // need to mark the park edges for collision
-    // (Buildings already provide collision around the park perimeter)
+    // Buildings around the park perimeter already provide collision
   }
 }

@@ -1,14 +1,4 @@
 import * as THREE from 'three'
-import {
-  STREETS,
-  BLOCKS,
-  BROADWAY,
-  SIDEWALK_WIDTH,
-  MAP_BOUNDS,
-  WATER_ZONES,
-  getDistrictAt,
-  distToSegment,
-} from './MapData.js'
 import { buildRoadNetwork } from './RoadNetworkBuilder.js'
 import { createBuilding, createNeonSign, randomBuildingHeight } from './BuildingFactory.js'
 import { getLampAssets, getConeAssets } from './PropsFactory.js'
@@ -16,53 +6,69 @@ import { createSky } from './Skybox.js'
 import InstanceManager from './InstanceManager.js'
 import BridgeBuilder from './BridgeBuilder.js'
 import WaterRenderer from './WaterRenderer.js'
-import CentralParkBuilder from './landmarks/CentralParkBuilder.js'
-import TimesSquareBuilder from './landmarks/TimesSquareBuilder.js'
-import { LAMP_HEIGHT, LAMP_SPACING, PALETTE } from '../constants.js'
+import { LAMP_HEIGHT, LAMP_SPACING, PALETTE, SIDEWALK_WIDTH } from '../constants.js'
+
+// Distance from a point to a line segment (for broadway exclusion)
+function distToSegment(px, pz, sx, sz, ex, ez) {
+  const dx = ex - sx
+  const dz = ez - sz
+  const len2 = dx * dx + dz * dz
+  if (len2 === 0) return Math.sqrt((px - sx) ** 2 + (pz - sz) ** 2)
+  let t = ((px - sx) * dx + (pz - sz) * dz) / len2
+  t = Math.max(0, Math.min(1, t))
+  const nearX = sx + t * dx
+  const nearZ = sz + t * dz
+  return Math.sqrt((px - nearX) ** 2 + (pz - nearZ) ** 2)
+}
 
 export default class MapGenerator {
-  constructor(scene, collisionSystem, elevationSystem) {
+  constructor(scene, collisionSystem, elevationSystem, mapConfig) {
     this.scene = scene
     this.collision = collisionSystem
     this.elevation = elevationSystem
+    this.config = mapConfig
   }
 
   build() {
+    const root = new THREE.Group()
+    root.name = 'mapRoot'
+
+    const config = this.config
+
     // Sky and atmosphere
-    createSky(this.scene)
+    createSky(root)
 
-    // Roads (dashes are already instanced inside RoadNetworkBuilder)
-    // Bridge segments are skipped here — BridgeBuilder handles them
-    const roads = buildRoadNetwork(STREETS)
-    this.scene.add(roads)
+    // Roads
+    const roads = buildRoadNetwork(config.streets)
+    root.add(roads)
 
-    // Bridges with elevation
-    if (this.elevation) {
-      const bridgeBuilder = new BridgeBuilder(this.elevation)
-      bridgeBuilder.build(this.scene, this.collision)
+    // Bridges with elevation (if any)
+    if (config.bridgeDefs.length > 0 && this.elevation) {
+      const bridgeBuilder = new BridgeBuilder(this.elevation, config.bridgeDefs)
+      bridgeBuilder.build(root, this.collision)
     }
 
-    // Ground plane (split around water zones)
-    this._createGround()
+    // Ground plane
+    this._createGround(root)
 
-    // Water (East River)
-    const water = new WaterRenderer()
-    water.build(this.scene, this.collision)
+    // Water (if any)
+    if (config.waterZones.length > 0) {
+      const water = new WaterRenderer(config)
+      water.build(root, this.collision)
+    }
 
-    // Central Park
-    const park = new CentralParkBuilder(this.elevation)
-    park.build(this.scene, this.collision)
-
-    // Times Square
-    const timesSquare = new TimesSquareBuilder()
-    timesSquare.build(this.scene)
+    // Landmarks
+    for (const lm of config.landmarks) {
+      const builder = lm.create(this.elevation)
+      builder.build(root, this.collision)
+    }
 
     // Buildings
     const buildingsGroup = new THREE.Group()
     const neonGroup = new THREE.Group()
 
-    for (const block of BLOCKS) {
-      const district = getDistrictAt(block.centerX, block.centerZ)
+    for (const block of config.blocks) {
+      const district = config.getDistrictAt(block.centerX, block.centerZ)
       if (!district) continue
 
       if (Math.random() > district.buildingDensity) continue
@@ -79,12 +85,15 @@ export default class MapGenerator {
           const bz = sub.centerZ + fp.offsetZ
           const padding = SIDEWALK_WIDTH + 0.5
 
-          const distToBroadway = distToSegment(
-            bx, bz,
-            BROADWAY.start.x, BROADWAY.start.z,
-            BROADWAY.end.x, BROADWAY.end.z
-          )
-          if (distToBroadway < BROADWAY.width / 2 + Math.max(fp.width, fp.depth) / 2) continue
+          // Broadway exclusion (if present)
+          if (config.broadway) {
+            const distToBroadway = distToSegment(
+              bx, bz,
+              config.broadway.start.x, config.broadway.start.z,
+              config.broadway.end.x, config.broadway.end.z
+            )
+            if (distToBroadway < config.broadway.width / 2 + Math.max(fp.width, fp.depth) / 2) continue
+          }
 
           const bw = fp.width - padding
           const bd = fp.depth - padding
@@ -116,8 +125,8 @@ export default class MapGenerator {
       }
     }
 
-    this.scene.add(buildingsGroup)
-    this.scene.add(neonGroup)
+    root.add(buildingsGroup)
+    root.add(neonGroup)
 
     // --- Instanced street lamps ---
     const lamp = getLampAssets()
@@ -128,7 +137,7 @@ export default class MapGenerator {
 
     const lampSpacing = LAMP_SPACING * 2
 
-    for (const seg of STREETS) {
+    for (const seg of config.streets) {
       const isBridge = seg.type === 'bridge'
 
       const dx = seg.end.x - seg.start.x
@@ -149,7 +158,6 @@ export default class MapGenerator {
         const lx = px + perpX * swOffset * sideToggle
         const lz = pz + perpZ * swOffset * sideToggle
 
-        // On bridges, elevate lamps to match the deck height
         const baseY = (isBridge && this.elevation)
           ? this.elevation.getElevation(px, pz)
           : 0
@@ -168,7 +176,7 @@ export default class MapGenerator {
     instances.register('coneStripe', cone.stripeGeo, cone.stripeMat)
 
     for (let i = 0; i < 40; i++) {
-      const seg = STREETS[Math.floor(Math.random() * STREETS.length)]
+      const seg = config.streets[Math.floor(Math.random() * config.streets.length)]
       if (seg.type === 'bridge') continue
       const t = Math.random()
       const x = seg.start.x + (seg.end.x - seg.start.x) * t
@@ -186,31 +194,40 @@ export default class MapGenerator {
     }
 
     // Build all instanced meshes
-    instances.build(this.scene)
+    instances.build(root)
+
+    this.scene.add(root)
+    return root
   }
 
-  _createGround() {
+  _createGround(root) {
+    const config = this.config
     const pad = 100
-    const minX = MAP_BOUNDS.minX - pad
-    const maxX = MAP_BOUNDS.maxX + pad
-    const minZ = MAP_BOUNDS.minZ - pad
-    const maxZ = MAP_BOUNDS.maxZ + pad
+    const minX = config.mapBounds.minX - pad
+    const maxX = config.mapBounds.maxX + pad
+    const minZ = config.mapBounds.minZ - pad
+    const maxZ = config.mapBounds.maxZ + pad
     const groundMat = new THREE.MeshBasicMaterial({ color: PALETTE.ground })
 
-    // Split ground into 4 pieces around water zone
-    const wz = WATER_ZONES[0].bounds
+    if (config.waterZones.length > 0) {
+      // Split ground into pieces around water zones
+      const wz = config.waterZones[0].bounds
 
-    // Left piece (west of water)
-    this._addGroundRect(minX, minZ, wz.minX, maxZ, groundMat)
-    // Right piece (east of water)
-    this._addGroundRect(wz.maxX, minZ, maxX, maxZ, groundMat)
-    // Top strip (above water, between left and right pieces)
-    this._addGroundRect(wz.minX, wz.maxZ, wz.maxX, maxZ, groundMat)
-    // Bottom strip (below water, between left and right pieces)
-    this._addGroundRect(wz.minX, minZ, wz.maxX, wz.minZ, groundMat)
+      // Left piece (west of water)
+      this._addGroundRect(root, minX, minZ, wz.minX, maxZ, groundMat)
+      // Right piece (east of water)
+      this._addGroundRect(root, wz.maxX, minZ, maxX, maxZ, groundMat)
+      // Top strip (above water)
+      this._addGroundRect(root, wz.minX, wz.maxZ, wz.maxX, maxZ, groundMat)
+      // Bottom strip (below water)
+      this._addGroundRect(root, wz.minX, minZ, wz.maxX, wz.minZ, groundMat)
+    } else {
+      // Single ground plane
+      this._addGroundRect(root, minX, minZ, maxX, maxZ, groundMat)
+    }
   }
 
-  _addGroundRect(x0, z0, x1, z1, mat) {
+  _addGroundRect(parent, x0, z0, x1, z1, mat) {
     const w = x1 - x0
     const d = z1 - z0
     if (w <= 0 || d <= 0) return
@@ -218,7 +235,7 @@ export default class MapGenerator {
     const mesh = new THREE.Mesh(geo, mat)
     mesh.rotation.x = -Math.PI / 2
     mesh.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2)
-    this.scene.add(mesh)
+    parent.add(mesh)
   }
 
   _splitBlock(block) {

@@ -317,6 +317,7 @@ export default {
   id: 'tokyo',
   name: 'Tokyo',
   subtitle: 'Shibuya \u2022 Harajuku \u2022 Shinjuku',
+  musicTrack: 'babymetal - Gimme chocolate!!.mp3',
 
   spawnPoint: { x: 0, z: -250, heading: 0 },
   mapBounds: MAP_BOUNDS,

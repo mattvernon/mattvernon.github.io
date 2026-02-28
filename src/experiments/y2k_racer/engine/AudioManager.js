@@ -47,6 +47,7 @@ export default class AudioManager {
     this.musicSource = null
     this.musicGain = null
     this.musicStarted = false
+    this._pendingTrack = null
 
     // Driving sounds gain (muted on pause, full on play)
     this.drivingGain = null
@@ -96,7 +97,7 @@ export default class AudioManager {
     this._initLoop('wind', 0)    // starts silent
 
     // Prepare music (HTML audio element for streaming)
-    this._initMusic()
+    this._initMusic(this._pendingTrack)
 
     this.ready = true
   }
@@ -119,14 +120,24 @@ export default class AudioManager {
     this.gains[name] = gain
   }
 
-  _initMusic() {
+  _initMusic(track) {
     this.musicEl = new Audio()
     this.musicEl.loop = true
     this.musicEl.preload = 'auto'
-    this.musicEl.src = MUSIC_DIR + 'mall grab - new york.mp3'
+    this.musicEl.src = MUSIC_DIR + (track || 'mall grab - new york.mp3')
 
     this.musicSource = this.ctx.createMediaElementSource(this.musicEl)
     this.musicSource.connect(this.musicGain)
+  }
+
+  setMusic(track) {
+    if (!this.musicEl || !track) return
+    const newSrc = MUSIC_DIR + track
+    if (this.musicEl.src.endsWith(track)) return
+    this.musicEl.src = newSrc
+    if (this.musicStarted) {
+      this.musicEl.play().catch(() => {})
+    }
   }
 
   startMusic() {

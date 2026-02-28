@@ -355,6 +355,7 @@ export default {
   id: 'nyc',
   name: 'New York City',
   subtitle: 'Manhattan & Brooklyn',
+  musicTrack: 'mall grab - new york.mp3',
 
   spawnPoint: { x: 400, z: 105, heading: 0 },
   mapBounds: MAP_BOUNDS,

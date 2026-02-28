@@ -94,6 +94,7 @@ export default class GameEngine {
 
     // Audio
     this.audio = new AudioManager()
+    this.audio._pendingTrack = mapConfig.musicTrack
     this.audio.init()
 
     // Resize handler
@@ -121,6 +122,9 @@ export default class GameEngine {
     this.elevationSystem = new ElevationSystem(mapConfig)
     this.mapGenerator = new MapGenerator(this.scene, this.collision, this.elevationSystem, mapConfig)
     this.mapRoot = this.mapGenerator.build()
+
+    // Switch music track
+    if (this.audio) this.audio.setMusic(mapConfig.musicTrack)
 
     // Reset car to new spawn
     const spawn = mapConfig.spawnPoint

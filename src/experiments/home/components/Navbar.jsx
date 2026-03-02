@@ -1,11 +1,71 @@
+import { useState, useEffect } from 'react'
+
+const SOCIAL_LINKS = [
+  { label: 'twitter', href: 'https://x.com/dApp_boi' },
+  { label: 'instagram', href: 'https://www.instagram.com/matthewvernon' },
+  { label: 'linkedin', href: 'https://www.linkedin.com/in/matthew-vernon-7394b597/' },
+  { label: 'foundation', href: 'https://foundation.app/@matt' },
+  { label: 'github', href: 'https://github.com/mattvernon' },
+]
+
+const NAV_LINKS = [
+  { label: 'home', active: true },
+  { label: 'about', active: false },
+  { label: 'experiments', active: false },
+]
+
 export default function Navbar() {
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    const videos = document.querySelectorAll('video')
+    if (open) {
+      videos.forEach((v) => v.pause())
+    } else {
+      videos.forEach((v) => v.play())
+    }
+  }, [open])
+
   return (
-    <nav className="hm-navbar">
-      <span className="hm-navbar-title">matthewvernon.co</span>
-      <button className="hm-navbar-hamburger" aria-label="Menu">
-        <span />
-        <span />
-      </button>
-    </nav>
+    <>
+      <nav className="hm-navbar">
+        <span className="hm-navbar-title">matthewvernon.co</span>
+        <button
+          className={`hm-navbar-hamburger${open ? ' hm-navbar-hamburger--open' : ''}`}
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span />
+          <span />
+        </button>
+      </nav>
+
+      <div className={`hm-fullnav${open ? ' hm-fullnav--open' : ''}`}>
+        <div className="hm-fullnav-links">
+          {NAV_LINKS.map((link) => (
+            <span
+              key={link.label}
+              className={`hm-fullnav-link${link.active ? ' hm-fullnav-link--active' : ''}`}
+            >
+              {link.label}
+            </span>
+          ))}
+        </div>
+
+        <div className="hm-fullnav-socials">
+          {SOCIAL_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hm-fullnav-social"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </>
   )
 }

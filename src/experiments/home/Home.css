@@ -234,7 +234,7 @@
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1001;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -270,6 +270,83 @@
   height: 2px;
   background: white;
   border-radius: 1px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+
+/* Hamburger → X animation */
+.hm-navbar-hamburger--open span:first-child {
+  transform: translateY(3.5px) rotate(45deg);
+}
+
+.hm-navbar-hamburger--open span:last-child {
+  transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* ── Fullscreen Nav Overlay ── */
+.hm-fullnav {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(150px);
+  -webkit-backdrop-filter: blur(150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.hm-fullnav--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hm-fullnav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.hm-fullnav-link {
+  font-size: 72px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: default;
+  transition: color 0.2s ease;
+  line-height: 1.2;
+}
+
+.hm-fullnav-link--active {
+  color: rgba(255, 255, 255, 1);
+}
+
+.hm-fullnav-link:not(.hm-fullnav-link--active):hover {
+  color: rgba(255, 255, 255, 1);
+  cursor: pointer;
+}
+
+.hm-fullnav-socials {
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.hm-fullnav-social {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.hm-fullnav-social:hover {
+  color: rgba(255, 255, 255, 1);
 }
 
 /* ── Color Picker ── */
@@ -424,5 +501,17 @@
 
   .hm-welcome-body p {
     font-size: 18px;
+  }
+
+  .hm-fullnav-link {
+    font-size: 48px;
+  }
+
+  .hm-fullnav-socials {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 24px;
+    bottom: 32px;
   }
 }

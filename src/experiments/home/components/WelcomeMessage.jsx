@@ -9,8 +9,8 @@ export default function WelcomeMessage({ mobile }) {
         <div className="hm-welcome-body">
           <p>
             I&rsquo;m Matthew Vernon.
-            <br />A founder, product designer &amp; creative director based in
-            New York City.
+            <br />A founder, product designer &amp; creative director based in{' '}
+            <span style={{ whiteSpace: 'nowrap' }}>New York City.</span>
           </p>
         </div>
       </div>

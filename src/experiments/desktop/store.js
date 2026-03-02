@@ -3,40 +3,40 @@ import { APPS } from './constants'
 
 // Initial windows open on load
 // Order in array = back-to-front z-order
-const INITIAL_WINDOWS = [
-  {
-    id: 'textedit-init',
-    appId: 'textedit',
-    title: 'TextEdit',
-    position: { x: 25, y: 35 },
-    size: { w: 375, h: 240 },
-    isMinimized: false,
-  },
-  {
-    id: 'browser-init',
-    appId: 'browser',
-    title: 'Safari',
-    position: { x: 420, y: 35 },
-    size: { w: 650, h: 550 },
-    isMinimized: false,
-  },
-  {
-    id: 'y2kracer-init',
-    appId: 'y2kracer',
-    title: 'y2k_racer',
-    position: { x: 475, y: 370 },
-    size: { w: 1000, h: 600 },
-    isMinimized: false,
-  },
-  {
-    id: 'quicktime-init',
-    appId: 'quicktime',
-    title: 'Welcome.mp4 — QuickTime Player',
-    position: { x: 85, y: 255 },
-    size: { w: 750, h: 510 },
-    isMinimized: false,
-  },
-]
+// Helper to centre windows above the dock on first load
+function centredWindows() {
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 1440
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 900
+
+  const te = { w: 375, h: 240 }
+  const qt = { w: 750, h: 510 }
+  const gap = 10
+
+  // Stack height: TextEdit + gap + QuickTime
+  const stackH = te.h + gap + qt.h
+  const topY = Math.max(30, Math.round((vh - stackH) / 2) - 20)
+
+  return [
+    {
+      id: 'textedit-init',
+      appId: 'textedit',
+      title: 'TextEdit',
+      position: { x: Math.round((vw - te.w) / 2), y: topY },
+      size: te,
+      isMinimized: false,
+    },
+    {
+      id: 'quicktime-init',
+      appId: 'quicktime',
+      title: 'Welcome.mp4 — QuickTime Player',
+      position: { x: Math.round((vw - qt.w) / 2), y: topY + te.h + gap },
+      size: qt,
+      isMinimized: false,
+    },
+  ]
+}
+
+const INITIAL_WINDOWS = centredWindows()
 
 const useDesktopStore = create((set) => ({
   windows: INITIAL_WINDOWS,

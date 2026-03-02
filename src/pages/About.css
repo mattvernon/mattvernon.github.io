@@ -450,6 +450,7 @@
 
   .about-product-card {
     width: 100%;
+    margin-left: 0;
   }
 
   .about-email a {

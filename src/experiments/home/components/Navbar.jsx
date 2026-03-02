@@ -49,7 +49,7 @@ export default function Navbar({ variant = 'home' }) {
         </button>
       </nav>
 
-      <div className={`hm-fullnav${open ? ' hm-fullnav--open' : ''}`}>
+      <div className={`hm-fullnav hm-fullnav--${variant}${open ? ' hm-fullnav--open' : ''}`}>
         <div className="hm-fullnav-links">
           {NAV_LINKS.map((link) => {
             const isActive = link.label === activePage

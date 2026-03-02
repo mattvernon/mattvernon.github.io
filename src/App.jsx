@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import About from './pages/About'
 import Experiments from './pages/Experiments'
 import Desktop from './experiments/desktop/Desktop'
 import Y2KRacer from './experiments/y2k_racer/Y2KRacer'
@@ -11,6 +12,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/experiments" element={<Experiments />} />
         <Route path="/experiments/mattOS" element={<Desktop />} />
         <Route path="/experiments/y2kracer" element={<Y2KRacer />} />

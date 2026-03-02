@@ -11,12 +11,13 @@ const SOCIAL_LINKS = [
 
 const NAV_LINKS = [
   { label: 'home', to: '/experiments/home' },
-  { label: 'about', to: null },
+  { label: 'about', to: '/about' },
   { label: 'experiments', to: '/experiments' },
 ]
 
 const ACTIVE_MAP = {
   '/experiments/home': 'home',
+  '/about': 'about',
   '/experiments': 'experiments',
 }
 

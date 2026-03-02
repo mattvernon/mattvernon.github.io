@@ -251,6 +251,10 @@
   background: rgba(0, 0, 0, 0.6);
 }
 
+.hm-navbar--about {
+  background: rgba(80, 80, 80, 0.85);
+}
+
 .hm-navbar--experiments {
   background: rgba(255, 255, 255, 0.2);
 }

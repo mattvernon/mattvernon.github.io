@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import ArtifactCard from './ArtifactCard'
 import WelcomeMessage from './WelcomeMessage'
 import { ARTIFACTS, getCanvasDimensions, getArtifactLayout } from '../constants'
 
 const MOBILE_BREAKPOINT = 768
+const PAN_THRESHOLD = 4
 
 export default function Canvas() {
   const scrollRef = useRef(null)
   const welcomeRef = useRef(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT)
+  const isPanning = useRef(false)
+  const panStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 })
 
   const canvas = useMemo(() => getCanvasDimensions(), [])
 
@@ -18,6 +21,45 @@ export default function Canvas() {
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Click-and-drag canvas panning (desktop only)
+  const handleCanvasPointerDown = useCallback((e) => {
+    // Only pan when clicking directly on the canvas background
+    if (e.target !== e.currentTarget) return
+
+    isPanning.current = false
+    panStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      scrollLeft: scrollRef.current.scrollLeft,
+      scrollTop: scrollRef.current.scrollTop,
+    }
+
+    const handlePointerMove = (moveE) => {
+      const dx = moveE.clientX - panStart.current.x
+      const dy = moveE.clientY - panStart.current.y
+
+      if (!isPanning.current && Math.abs(dx) + Math.abs(dy) > PAN_THRESHOLD) {
+        isPanning.current = true
+        document.body.style.cursor = 'grabbing'
+      }
+
+      if (isPanning.current) {
+        scrollRef.current.scrollLeft = panStart.current.scrollLeft - dx
+        scrollRef.current.scrollTop = panStart.current.scrollTop - dy
+      }
+    }
+
+    const handlePointerUp = () => {
+      isPanning.current = false
+      document.body.style.cursor = ''
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
   }, [])
 
   // On mount (desktop), scroll to center of canvas
@@ -74,6 +116,7 @@ export default function Canvas() {
       <div
         className="hm-canvas-inner"
         style={{ width: canvas.w, height: canvas.h }}
+        onPointerDown={handleCanvasPointerDown}
       >
         {ARTIFACTS.map((artifact, i) => {
           const layout = getArtifactLayout(i)

@@ -21,6 +21,7 @@
 
 .hm-canvas-inner {
   position: relative;
+  cursor: grab;
 }
 
 /* ── Mobile Canvas ── */

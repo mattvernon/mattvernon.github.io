@@ -24,7 +24,7 @@ export default function WelcomeMessage({ mobile }) {
             <path d="M3.25 10.75L0.75 8.25L3.25 5.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M13.25 10.75L15.75 8.25L13.25 5.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="hm-scroll-indicator-text">Scroll to explore</span>
+          <span className="hm-scroll-indicator-text">Scroll or drag to explore</span>
         </div>
       )}
     </div>

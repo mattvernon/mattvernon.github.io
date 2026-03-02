@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <div className="hm-app">
-      <Navbar />
+      <Navbar variant="home" />
       <Canvas />
       {!isMobile && <WelcomeMessage />}
       <ColorPicker />

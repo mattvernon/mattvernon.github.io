@@ -238,14 +238,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
-  background: rgba(10, 10, 40, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 999px;
+  padding: 12px 10px 12px 20px;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-radius: 16px;
   color: white;
   min-width: 300px;
   box-sizing: border-box;
+}
+
+.hm-navbar--home {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.hm-navbar--experiments {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .hm-navbar-title {
@@ -319,6 +326,7 @@
   cursor: default;
   transition: color 0.2s ease;
   line-height: 1.2;
+  text-decoration: none;
 }
 
 .hm-fullnav-link--active {
@@ -514,4 +522,5 @@
     padding: 0 24px;
     bottom: 32px;
   }
+
 }

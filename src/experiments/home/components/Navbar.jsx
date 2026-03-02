@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 const SOCIAL_LINKS = [
   { label: 'twitter', href: 'https://x.com/dApp_boi' },
@@ -9,13 +10,20 @@ const SOCIAL_LINKS = [
 ]
 
 const NAV_LINKS = [
-  { label: 'home', active: true },
-  { label: 'about', active: false },
-  { label: 'experiments', active: false },
+  { label: 'home', to: '/experiments/home' },
+  { label: 'about', to: null },
+  { label: 'experiments', to: '/experiments' },
 ]
 
-export default function Navbar() {
+const ACTIVE_MAP = {
+  '/experiments/home': 'home',
+  '/experiments': 'experiments',
+}
+
+export default function Navbar({ variant = 'home' }) {
   const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const activePage = ACTIVE_MAP[location.pathname] || 'home'
 
   useEffect(() => {
     const videos = document.querySelectorAll('video')
@@ -28,7 +36,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="hm-navbar">
+      <nav className={`hm-navbar hm-navbar--${variant}`}>
         <span className="hm-navbar-title">matthewvernon.co</span>
         <button
           className={`hm-navbar-hamburger${open ? ' hm-navbar-hamburger--open' : ''}`}
@@ -42,14 +50,31 @@ export default function Navbar() {
 
       <div className={`hm-fullnav${open ? ' hm-fullnav--open' : ''}`}>
         <div className="hm-fullnav-links">
-          {NAV_LINKS.map((link) => (
-            <span
-              key={link.label}
-              className={`hm-fullnav-link${link.active ? ' hm-fullnav-link--active' : ''}`}
-            >
-              {link.label}
-            </span>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = link.label === activePage
+
+            if (isActive || !link.to) {
+              return (
+                <span
+                  key={link.label}
+                  className={`hm-fullnav-link${isActive ? ' hm-fullnav-link--active' : ''}`}
+                >
+                  {link.label}
+                </span>
+              )
+            }
+
+            return (
+              <Link
+                key={link.label}
+                to={link.to}
+                className="hm-fullnav-link"
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </div>
 
         <div className="hm-fullnav-socials">

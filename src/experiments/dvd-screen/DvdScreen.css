@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'Favorit';
-  src: url('../webfonts/Favorit_Regular.ttf') format('TrueType');
+  src: url('../../webfonts/Favorit_Regular.ttf') format('TrueType');
 }
 
 @font-face {
   font-family: 'Violet';
-  src: url('../webfonts/VioletSans-Regular.otf') format('OpenType');
+  src: url('../../webfonts/VioletSans-Regular.otf') format('OpenType');
 }
 
 * {

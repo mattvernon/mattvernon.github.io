@@ -25,6 +25,13 @@ const EXPERIMENTS = [
       "A single use app I'm building to create social media assets based on a dump of screenshots, GIFs and videos. Still a WIP.",
     color: '#FFE600',
   },
+  {
+    slug: 'dvd-screen',
+    title: 'dvd screen',
+    description:
+      'The original homepage — a bouncing text box that drifts around the screen like a DVD screensaver, changing colors on click.',
+    color: '#FF4500',
+  },
 ]
 
 export default function Experiments() {

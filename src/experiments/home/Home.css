@@ -29,10 +29,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   overflow-y: auto;
   height: 100vh;
   box-sizing: border-box;
+}
+
+.hm-canvas-mobile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
 }
 
 /* ── Artifact Card ── */
@@ -66,7 +73,6 @@
 
 .hm-artifact-card--mobile {
   width: 100%;
-  max-width: 400px;
   transform: none !important;
   position: relative !important;
   left: auto !important;
@@ -520,11 +526,31 @@
   }
 
   .hm-fullnav-socials {
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 0 24px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
     bottom: 32px;
   }
 
+  .hm-layout-editor {
+    display: none;
+  }
+
+  .hm-artifact-header {
+    padding: 6px 10px;
+  }
+
+  .hm-artifact-filename {
+    font-size: 11px;
+  }
+
+  .hm-artifact-type-pill {
+    font-size: 9px;
+    padding: 2px 7px;
+  }
+
+  .hm-artifact-body {
+    min-height: 80px;
+    padding: 0 4px 4px;
+  }
 }

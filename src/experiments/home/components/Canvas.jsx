@@ -7,6 +7,7 @@ const MOBILE_BREAKPOINT = 768
 
 export default function Canvas() {
   const scrollRef = useRef(null)
+  const welcomeRef = useRef(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth <= MOBILE_BREAKPOINT)
 
   const canvas = useMemo(() => getCanvasDimensions(), [])
@@ -28,13 +29,42 @@ export default function Canvas() {
     el.scrollTop = (canvas.h - el.clientHeight) / 2
   }, [isMobile, canvas])
 
+  // On mount (mobile), scroll so welcome message is centered in viewport
+  useEffect(() => {
+    if (!isMobile || !welcomeRef.current) return
+    const el = scrollRef.current
+    if (!el) return
+
+    requestAnimationFrame(() => {
+      const welcomeEl = welcomeRef.current
+      if (!welcomeEl) return
+      const welcomeTop = welcomeEl.offsetTop
+      const welcomeHeight = welcomeEl.offsetHeight
+      const viewportHeight = el.clientHeight
+      el.scrollTop = welcomeTop - (viewportHeight - welcomeHeight) / 2
+    })
+  }, [isMobile])
+
   if (isMobile) {
+    const mid = Math.floor(ARTIFACTS.length / 2)
+    const topArtifacts = ARTIFACTS.slice(0, mid)
+    const bottomArtifacts = ARTIFACTS.slice(mid)
+
     return (
-      <div className="hm-canvas-mobile">
-        <WelcomeMessage mobile />
-        {ARTIFACTS.map((artifact, i) => (
-          <ArtifactCard key={artifact.filename} artifact={artifact} index={i} mobile />
-        ))}
+      <div className="hm-canvas-mobile" ref={scrollRef}>
+        <div className="hm-canvas-mobile-grid">
+          {topArtifacts.map((artifact, i) => (
+            <ArtifactCard key={artifact.filename} artifact={artifact} index={i} mobile />
+          ))}
+        </div>
+        <div ref={welcomeRef}>
+          <WelcomeMessage mobile />
+        </div>
+        <div className="hm-canvas-mobile-grid">
+          {bottomArtifacts.map((artifact, i) => (
+            <ArtifactCard key={artifact.filename} artifact={artifact} index={mid + i} mobile />
+          ))}
+        </div>
       </div>
     )
   }

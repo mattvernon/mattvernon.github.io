@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react'
-import '../styles/Home.css'
+import './DvdScreen.css'
 
 const NAMED_COLORS = [
   'blue', 'red', 'green', 'yellow', 'orange', 'purple', 'pink',
@@ -7,7 +7,7 @@ const NAMED_COLORS = [
   'coral', 'indigo', 'violet', 'turquoise', 'crimson', 'gold',
 ]
 
-export default function Home() {
+export default function DvdScreen() {
   const containerRef = useRef(null)
   const animationRef = useRef(null)
   const posRef = useRef({ x: 0, y: 0, vx: 0, vy: 0 })

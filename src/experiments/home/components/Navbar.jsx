@@ -10,13 +10,13 @@ const SOCIAL_LINKS = [
 ]
 
 const NAV_LINKS = [
-  { label: 'home', to: '/experiments/home' },
+  { label: 'home', to: '/' },
   { label: 'about', to: '/about' },
   { label: 'experiments', to: '/experiments' },
 ]
 
 const ACTIVE_MAP = {
-  '/experiments/home': 'home',
+  '/': 'home',
   '/about': 'about',
   '/experiments': 'experiments',
 }

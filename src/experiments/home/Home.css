@@ -1,0 +1,348 @@
+/* ── App Shell ── */
+.hm-app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ── Infinite Canvas (Desktop) ── */
+.hm-canvas-scroll {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
+  scrollbar-width: none;
+}
+
+.hm-canvas-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.hm-canvas-inner {
+  position: relative;
+}
+
+/* ── Mobile Canvas ── */
+.hm-canvas-mobile {
+  padding: 80px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ── Artifact Card ── */
+.hm-artifact-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  user-select: none;
+  transition: box-shadow 0.15s ease;
+}
+
+.hm-artifact-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.hm-artifact-card--mobile {
+  width: 100%;
+  max-width: 400px;
+  transform: none !important;
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+}
+
+.hm-artifact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.hm-artifact-filename {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 12px;
+}
+
+.hm-artifact-type-pill {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hm-artifact-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  min-height: 120px;
+}
+
+.hm-artifact-media {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Welcome Message ── */
+.hm-welcome {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.hm-welcome--mobile {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  z-index: 1;
+  pointer-events: auto;
+  width: 100%;
+  max-width: 400px;
+}
+
+.hm-welcome-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  width: 420px;
+  max-width: 90vw;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.hm-welcome--mobile .hm-welcome-card {
+  width: 100%;
+}
+
+.hm-welcome-body {
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.hm-welcome-body p {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #111;
+  font-weight: 500;
+}
+
+/* ── Navbar ── */
+.hm-navbar {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(10, 10, 40, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 999px;
+  color: white;
+  min-width: 300px;
+  box-sizing: border-box;
+}
+
+.hm-navbar-title {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.hm-navbar-hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px;
+}
+
+.hm-navbar-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: white;
+  border-radius: 1px;
+}
+
+/* ── Color Picker ── */
+.hm-colorpicker {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  background: rgba(10, 10, 40, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px;
+  color: white;
+}
+
+.hm-colorpicker-label {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hm-colorpicker-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 220px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    hsl(0, 100%, 50%),
+    hsl(30, 100%, 50%),
+    hsl(60, 100%, 50%),
+    hsl(90, 100%, 50%),
+    hsl(120, 100%, 50%),
+    hsl(150, 100%, 50%),
+    hsl(180, 100%, 50%),
+    hsl(210, 100%, 50%),
+    hsl(240, 100%, 50%),
+    hsl(270, 100%, 50%),
+    hsl(300, 100%, 50%),
+    hsl(330, 100%, 50%),
+    hsl(360, 100%, 50%)
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.hm-colorpicker-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+.hm-colorpicker-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+/* ── Scroll Hint ── */
+.hm-scroll-hint {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(10, 10, 40, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px;
+  color: white;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ── Layout Editor (dev only) ── */
+.hm-layout-editor {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+}
+
+.hm-layout-editor-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #111;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s;
+}
+
+.hm-layout-editor-btn:hover {
+  background: #333;
+}
+
+.hm-layout-editor-btn--reset {
+  background: #661111;
+}
+
+.hm-layout-editor-btn--reset:hover {
+  background: #882222;
+}
+
+/* ── Mobile Overrides ── */
+@media (max-width: 768px) {
+  .hm-navbar {
+    min-width: auto;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    width: auto;
+  }
+
+  .hm-colorpicker {
+    left: 16px;
+    right: 16px;
+    transform: none;
+    width: auto;
+    box-sizing: border-box;
+  }
+
+  .hm-colorpicker-slider {
+    width: 100%;
+  }
+
+  .hm-welcome-body p {
+    font-size: 18px;
+  }
+}

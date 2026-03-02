@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useMemo } from 'react'
 import useHomeStore from '../store'
 
 function getTypeLabel(filename) {
@@ -8,7 +8,13 @@ function getTypeLabel(filename) {
   return 'Image'
 }
 
-export default function ArtifactCard({ artifact, style, mobile }) {
+// Simple hash to get a pseudo-random but stable delay per card
+function staggerDelay(index) {
+  const shuffled = ((index * 7 + 3) % 18)
+  return 0.15 + shuffled * 0.06 // 0.15s–1.17s range
+}
+
+export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
   const dragRef = useRef(null)
   const isDragging = useRef(false)
   const startPos = useRef({ x: 0, y: 0 })
@@ -63,13 +69,16 @@ export default function ArtifactCard({ artifact, style, mobile }) {
   const dx = dragOffset?.dx || 0
   const dy = dragOffset?.dy || 0
 
+  const delay = useMemo(() => staggerDelay(index), [index])
+
   const mergedStyle = mobile
-    ? undefined
+    ? { animationDelay: `${delay}s` }
     : {
         ...style,
         transform: `${style?.transform || ''} translate(${dx}px, ${dy}px)`,
         zIndex: resolvedZ,
         cursor: 'grab',
+        animationDelay: `${delay}s`,
       }
 
   return (

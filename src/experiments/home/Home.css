@@ -37,12 +37,27 @@
 
 /* ── Artifact Card ── */
 .hm-artifact-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   user-select: none;
   transition: box-shadow 0.15s ease;
+  opacity: 0;
+  animation: artifact-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes artifact-enter {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 .hm-artifact-card:hover {
@@ -67,7 +82,7 @@
 
 .hm-artifact-filename {
   font-size: 13px;
-  color: #333;
+  color: #fff;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -79,8 +94,8 @@
   font-size: 11px;
   padding: 3px 10px;
   border-radius: 999px;
-  background: #f0f0f0;
-  color: #666;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
@@ -90,14 +105,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f8f8;
   min-height: 120px;
+  padding: 0 8px 8px;
 }
 
 .hm-artifact-media {
   width: 100%;
   display: block;
   object-fit: cover;
+  border-radius: 6px;
 }
 
 /* ── Welcome Message ── */
@@ -122,7 +138,9 @@
 }
 
 .hm-welcome-card {
-  background: white;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border-radius: 12px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
   width: 420px;
@@ -135,6 +153,28 @@
   width: 100%;
 }
 
+.hm-welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.hm-welcome-filename {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.hm-welcome-pill {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-weight: 500;
+}
+
 .hm-welcome-body {
   padding: 40px 32px;
   text-align: center;
@@ -144,8 +184,48 @@
   margin: 0;
   font-size: 20px;
   line-height: 1.5;
-  color: #111;
+  color: #fff;
   font-weight: 500;
+}
+
+.hm-scroll-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px auto 0;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  width: fit-content;
+  pointer-events: none;
+}
+
+.hm-scroll-indicator svg {
+  flex-shrink: 0;
+}
+
+.hm-scroll-indicator-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.7) 40%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0.7) 60%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 /* ── Navbar ── */

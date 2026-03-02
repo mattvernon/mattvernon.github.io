@@ -143,3 +143,29 @@
   font-style: italic;
   font-display: swap;
 }
+
+/* ── Suisse Intl Mono ── */
+
+@font-face {
+  font-family: 'Suisse Intl Mono';
+  src: url('./webfonts/SuisseIntlMono-Thin-WebS.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Suisse Intl Mono';
+  src: url('./webfonts/SuisseIntlMono-Regular-WebS.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Suisse Intl Mono';
+  src: url('./webfonts/SuisseIntlMono-Bold-WebS.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

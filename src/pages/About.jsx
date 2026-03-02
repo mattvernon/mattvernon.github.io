@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from '../experiments/home/components/Navbar'
 import './About.css'
 
@@ -11,6 +11,8 @@ export default function About() {
       document.body.style.backgroundColor = ''
     }
   }, [])
+
+  const [copied, setCopied] = useState(false)
 
   return (
     <div className="about-page">
@@ -30,6 +32,20 @@ export default function About() {
             commerce.
           </p>
           <p>This page is a WIP.</p>
+
+          <div className="about-email">
+            <a href="mailto:hello@matthewvernon.co">hello@matthewvernon.co</a>
+            <button
+              className="copy-btn"
+              onClick={() => {
+                navigator.clipboard.writeText('hello@matthewvernon.co')
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              }}
+            >
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
         </div>
       </main>
     </div>

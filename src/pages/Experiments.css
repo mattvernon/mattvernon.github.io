@@ -42,7 +42,7 @@
 .exp-card {
   display: block;
   border-radius: 12px;
-  padding: 20px 24px 28px;
+  padding: 12px 14px;
   text-decoration: none;
   color: #fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -78,8 +78,9 @@
 }
 
 .exp-card-title {
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.0;
   margin: 0 0 8px;
   text-align: left;
 }

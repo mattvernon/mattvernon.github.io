@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { buildRoadNetwork } from './RoadNetworkBuilder.js'
 import { createBuilding, createNeonSign, randomBuildingHeight } from './BuildingFactory.js'
+import { createStorefrontSign } from './StorefrontSignFactory.js'
 import { getLampAssets, getConeAssets } from './PropsFactory.js'
 import { createSky } from './Skybox.js'
 import InstanceManager from './InstanceManager.js'
@@ -120,6 +121,25 @@ export default class MapGenerator {
             const faces = ['front', 'back', 'left', 'right']
             const face = faces[Math.floor(Math.random() * faces.length)]
             neonGroup.add(createNeonSign(building, face))
+          }
+
+          // Storefront signs (NYC-only, district-aware)
+          if (config.storefrontSigns) {
+            const sfChance = district.storefrontSignChance ?? 0
+            if (Math.random() < sfChance) {
+              const faces = ['front', 'back', 'left', 'right']
+              const face = faces[Math.floor(Math.random() * faces.length)]
+              const sfSign = createStorefrontSign(building, face)
+              if (sfSign) neonGroup.add(sfSign)
+
+              // 30% chance for a second sign on a different face
+              if (Math.random() < 0.3) {
+                const otherFaces = faces.filter((f) => f !== face)
+                const face2 = otherFaces[Math.floor(Math.random() * otherFaces.length)]
+                const sfSign2 = createStorefrontSign(building, face2)
+                if (sfSign2) neonGroup.add(sfSign2)
+              }
+            }
           }
         }
       }

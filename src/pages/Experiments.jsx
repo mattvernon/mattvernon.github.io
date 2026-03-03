@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, useCallback } from 'react'
 import Navbar from '../experiments/home/components/Navbar'
 import './Experiments.css'
 
@@ -35,6 +34,19 @@ const EXPERIMENTS = [
 ]
 
 export default function Experiments() {
+  const [activeExp, setActiveExp] = useState(null)
+  const [closing, setClosing] = useState(false)
+  const [iframeLoaded, setIframeLoaded] = useState(false)
+
+  const closeModal = useCallback(() => {
+    if (!activeExp || closing) return
+    setClosing(true)
+    setTimeout(() => {
+      setActiveExp(null)
+      setClosing(false)
+    }, 250)
+  }, [activeExp, closing])
+
   useEffect(() => {
     document.title = 'Experiments — Matthew Vernon'
     document.body.style.backgroundColor = '#000'
@@ -44,9 +56,32 @@ export default function Experiments() {
     }
   }, [])
 
+  useEffect(() => {
+    if (activeExp) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [activeExp])
+
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === 'Escape' && activeExp) closeModal()
+    },
+    [activeExp, closeModal],
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
+
   return (
     <div className="exp-page">
-      <Navbar variant="experiments" />
+      <Navbar variant="experiments" onMenuOpen={() => { setActiveExp(null); setClosing(false) }} />
 
       <main className="exp-content">
         <h1 className="exp-title">/experiments</h1>
@@ -58,11 +93,20 @@ export default function Experiments() {
 
         <div className="exp-cards">
           {EXPERIMENTS.map((exp) => (
-            <Link
+            <div
               key={exp.slug}
-              to={`/experiments/${exp.slug}`}
               className={`exp-card${exp.color === '#FFE600' ? ' exp-card--dark' : ''}`}
               style={{ background: exp.color }}
+              onClick={() => { setIframeLoaded(false); setActiveExp(exp) }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setIframeLoaded(false)
+                  setActiveExp(exp)
+                }
+              }}
             >
               <div className="exp-card-header">
                 <span className="exp-card-route">/{exp.slug}</span>
@@ -70,10 +114,61 @@ export default function Experiments() {
               </div>
               <h3 className="exp-card-title">{exp.title}</h3>
               <p className="exp-card-desc">{exp.description}</p>
-            </Link>
+            </div>
           ))}
         </div>
       </main>
+
+      {activeExp && (
+        <div className={`exp-modal-overlay${closing ? ' exp-modal-overlay--closing' : ''}`} onClick={closeModal}>
+          <div className={`exp-modal${closing ? ' exp-modal--closing' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="exp-modal-toolbar">
+              <span
+                className={`exp-modal-title${activeExp.color === '#FFE600' ? ' exp-modal-title--dark' : ''}`}
+                style={{ background: activeExp.color }}
+              >
+                {activeExp.title}
+              </span>
+              <a
+                className="exp-modal-btn exp-modal-btn--open"
+                href={`/experiments/${activeExp.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open in New Tab
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </a>
+              <button
+                className="exp-modal-btn exp-modal-btn--close"
+                onClick={closeModal}
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="exp-modal-body">
+              {!iframeLoaded && (
+                <div className="exp-modal-loader">
+                  <div className="exp-modal-spinner" />
+                </div>
+              )}
+              <iframe
+                src={`/experiments/${activeExp.slug}`}
+                className={`exp-modal-iframe${iframeLoaded ? '' : ' exp-modal-iframe--hidden'}`}
+                title={activeExp.title}
+                onLoad={() => setIframeLoaded(true)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

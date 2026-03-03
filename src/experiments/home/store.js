@@ -12,6 +12,13 @@ const useHomeStore = create((set) => ({
       dragOffsets: { ...state.dragOffsets, [filename]: { dx, dy } },
     })),
 
+  // Width overrides: { [filename]: widthPx }
+  widthOverrides: {},
+  setWidthOverride: (filename, width) =>
+    set((state) => ({
+      widthOverrides: { ...state.widthOverrides, [filename]: width },
+    })),
+
   // Z-order tracking: last item = highest z-index
   zOrder: [],
   bringToFront: (filename) =>

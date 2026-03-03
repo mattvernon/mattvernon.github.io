@@ -31,14 +31,14 @@ function seededRand(seed, offset) {
 }
 
 // Canvas dimensions scale to the viewport so content fills the screen
-// Canvas is ~1.8x viewport in each dimension for some scroll room
+// Canvas is ~3.6x viewport width and ~4.4x height for an infinite feel
 export function getCanvasDimensions() {
-  if (typeof window === 'undefined') return { w: 2800, h: 2800 }
+  if (typeof window === 'undefined') return { w: 5600, h: 5600 }
   const vw = window.innerWidth
   const vh = window.innerHeight
   return {
-    w: Math.round(vw * 1.8),
-    h: Math.round(vh * 2.2),
+    w: Math.round(vw * 3.6),
+    h: Math.round(vh * 4.4),
   }
 }
 
@@ -47,23 +47,23 @@ export function getCanvasDimensions() {
 // Positions are stored as % of canvas, widths as % of viewport.
 // When this array has entries, it overrides the algorithmic layout.
 export const MANUAL_LAYOUT = [
-  { filename: 'aura_discovery.mp4', x: 0.1704, y: -0.0071, w: 0.2292 },
-  { filename: 'aura_predictflow.mp4', x: 0.2524, y: 0.5745, w: 0.215 },
-  { filename: 'foundation_create.gif', x: 0.4106, y: 0.1974, w: 0.1997 },
-  { filename: 'foundation_drops.mp4', x: 0.3268, y: 0.1187, w: 0.1866 },
-  { filename: 'foundation_worlds.mp4', x: 0.6495, y: 0.4091, w: 0.2425 },
-  { filename: 'friendzoned.mp4', x: 0.811, y: 0.2446, w: 0.2281 },
-  { filename: 'new_drop.mp4', x: 0.2062, y: 0.3654, w: 0.2145 },
-  { filename: 'rode_Secondary.mp4', x: 0.8267, y: 0.4774, w: 0.1997 },
-  { filename: 'rodeo_1millionmints.mp4', x: 0.5555, y: 0.2194, w: 0.1866 },
-  { filename: 'rodeo_darkmode.mp4', x: 0.5076, y: 0.4713, w: 0.2421 },
-  { filename: 'rodeo_iosLaunch.mp4', x: 0.32, y: 0.2954, w: 0.2281 },
-  { filename: 'rodeo_launchvideo.mp4', x: 0.6641, y: 0.554, w: 0.2139 },
-  { filename: 'rodeo_merch.jpeg', x: 0.6867, y: 0.1393, w: 0.1996 },
-  { filename: 'rodeo_runs_on_dollars.mp4', x: 0.3614, y: 0.5297, w: 0.1855 },
-  { filename: 'rodeo_Tags.mp4', x: 0.0935, y: 0.5791, w: 0.2413 },
-  { filename: 'rodeo_tools.mp4', x: 0.4982, y: 0.7461, w: 0.2281 },
-  { filename: 'rodeoIRL.mp4', x: 0.768, y: 0.7724, w: 0.2128 },
+  { filename: 'aura_discovery.mp4', x: 0.3352, y: 0.2465, w: 0.2292 },
+  { filename: 'aura_predictflow.mp4', x: 0.3762, y: 0.5373, w: 0.215 },
+  { filename: 'foundation_create.gif', x: 0.2246, y: 0.3994, w: 0.4118 },
+  { filename: 'foundation_drops.mp4', x: 0.4104, y: 0.3018, w: 0.3863 },
+  { filename: 'foundation_worlds.mp4', x: 0.5894, y: 0.4397, w: 0.3684 },
+  { filename: 'friendzoned.mp4', x: 0.6671, y: 0.3738, w: 0.2281 },
+  { filename: 'new_drop.mp4', x: 0.3531, y: 0.4327, w: 0.2145 },
+  { filename: 'rode_Secondary.mp4', x: 0.673, y: 0.5003, w: 0.1997 },
+  { filename: 'rodeo_1millionmints.mp4', x: 0.5278, y: 0.3597, w: 0.1866 },
+  { filename: 'rodeo_darkmode.mp4', x: 0.5038, y: 0.4857, w: 0.2421 },
+  { filename: 'rodeo_iosLaunch.mp4', x: 0.41, y: 0.3977, w: 0.2281 },
+  { filename: 'rodeo_launchvideo.mp4', x: 0.5821, y: 0.527, w: 0.2139 },
+  { filename: 'rodeo_merch.jpeg', x: 0.5934, y: 0.3197, w: 0.1996 },
+  { filename: 'rodeo_runs_on_dollars.mp4', x: 0.4307, y: 0.5149, w: 0.1855 },
+  { filename: 'rodeo_Tags.mp4', x: 0.2968, y: 0.5396, w: 0.2413 },
+  { filename: 'rodeo_tools.mp4', x: 0.4991, y: 0.6231, w: 0.2281 },
+  { filename: 'rodeoIRL.mp4', x: 0.634, y: 0.6362, w: 0.2128 },
 ]
 
 // Build a lookup map for quick access

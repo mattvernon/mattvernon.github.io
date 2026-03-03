@@ -1,6 +1,9 @@
 import { useRef, useCallback, useMemo } from 'react'
 import useHomeStore from '../store'
 
+const IS_DEV = typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+
 function getTypeLabel(filename) {
   const ext = filename.split('.').pop().toLowerCase()
   if (ext === 'mp4' || ext === 'webm') return 'Video'
@@ -21,8 +24,10 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
   const startOffset = useRef({ dx: 0, dy: 0 })
 
   const setDragOffset = useHomeStore((s) => s.setDragOffset)
+  const setWidthOverride = useHomeStore((s) => s.setWidthOverride)
   const bringToFront = useHomeStore((s) => s.bringToFront)
   const dragOffset = useHomeStore((s) => s.dragOffsets[artifact.filename])
+  const widthOverride = useHomeStore((s) => s.widthOverrides[artifact.filename])
   const zOrder = useHomeStore((s) => s.zOrder)
 
   const zIndex = zOrder.indexOf(artifact.filename)
@@ -32,8 +37,29 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
   const typeLabel = getTypeLabel(artifact.filename)
   const src = `/artifacts/${artifact.filename}`
 
+  const handleResizeDown = useCallback((e) => {
+    e.stopPropagation()
+    const startX = e.clientX
+    const startWidth = dragRef.current?.offsetWidth || 200
+    bringToFront(artifact.filename)
+
+    const handleResizeMove = (e) => {
+      const delta = e.clientX - startX
+      setWidthOverride(artifact.filename, Math.max(120, startWidth + delta))
+    }
+
+    const handleResizeUp = () => {
+      window.removeEventListener('pointermove', handleResizeMove)
+      window.removeEventListener('pointerup', handleResizeUp)
+    }
+
+    window.addEventListener('pointermove', handleResizeMove)
+    window.addEventListener('pointerup', handleResizeUp)
+  }, [artifact.filename, setWidthOverride, bringToFront])
+
   const handlePointerDown = useCallback((e) => {
     if (mobile) return
+    if (e.target.closest('.hm-artifact-resize-handle')) return
     isDragging.current = false
     startPos.current = { x: e.clientX, y: e.clientY }
     startOffset.current = dragOffset || { dx: 0, dy: 0 }
@@ -71,10 +97,15 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
 
   const delay = useMemo(() => staggerDelay(index), [index])
 
+  const widthStyle = widthOverride
+    ? { width: `${widthOverride}px`, minWidth: 'unset', maxWidth: 'unset' }
+    : {}
+
   const mergedStyle = mobile
     ? { animationDelay: `${delay}s` }
     : {
         ...style,
+        ...widthStyle,
         transform: `${style?.transform || ''} translate(${dx}px, ${dy}px)`,
         zIndex: resolvedZ,
         cursor: 'grab',
@@ -113,6 +144,9 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
           />
         )}
       </div>
+      {IS_DEV && !mobile && (
+        <div className="hm-artifact-resize-handle" onPointerDown={handleResizeDown} />
+      )}
     </div>
   )
 }

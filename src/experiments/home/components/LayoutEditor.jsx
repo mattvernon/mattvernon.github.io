@@ -8,6 +8,7 @@ export default function LayoutEditor() {
   if (!IS_DEV) return null
 
   const dragOffsets = useHomeStore((s) => s.dragOffsets)
+  const widthOverrides = useHomeStore((s) => s.widthOverrides)
 
   const handleCopy = useCallback(() => {
     const { w: canvasW, h: canvasH } = getCanvasDimensions()
@@ -16,6 +17,7 @@ export default function LayoutEditor() {
     const layout = ARTIFACTS.map((artifact, i) => {
       const base = getArtifactLayout(i)
       const offset = dragOffsets[artifact.filename] || { dx: 0, dy: 0 }
+      const widthPx = widthOverrides[artifact.filename] || base.width
 
       // Final position = base + drag offset, normalized to canvas %
       const finalX = base.x + offset.dx
@@ -27,7 +29,7 @@ export default function LayoutEditor() {
         x: Math.round((finalX / canvasW) * 10000) / 10000,
         y: Math.round((finalY / canvasH) * 10000) / 10000,
         // Width as % of viewport width
-        w: Math.round((base.width / vw) * 10000) / 10000,
+        w: Math.round((widthPx / vw) * 10000) / 10000,
       }
     })
 
@@ -38,11 +40,11 @@ export default function LayoutEditor() {
 
     console.log('--- LAYOUT DATA ---')
     console.log(json)
-  }, [dragOffsets])
+  }, [dragOffsets, widthOverrides])
 
   const handleReset = useCallback(() => {
-    // Clear all drag offsets to reset to algorithmic positions
-    useHomeStore.setState({ dragOffsets: {}, zOrder: [] })
+    // Clear all drag offsets and width overrides to reset
+    useHomeStore.setState({ dragOffsets: {}, widthOverrides: {}, zOrder: [] })
   }, [])
 
   return (

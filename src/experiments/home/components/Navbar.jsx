@@ -21,7 +21,7 @@ const ACTIVE_MAP = {
   '/experiments': 'experiments',
 }
 
-export default function Navbar({ variant = 'home' }) {
+export default function Navbar({ variant = 'home', onMenuOpen }) {
   const [open, setOpen] = useState(false)
   const location = useLocation()
   const activePage = ACTIVE_MAP[location.pathname] || 'home'
@@ -42,7 +42,11 @@ export default function Navbar({ variant = 'home' }) {
         <button
           className={`hm-navbar-hamburger${open ? ' hm-navbar-hamburger--open' : ''}`}
           aria-label={open ? 'Close menu' : 'Open menu'}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => {
+            const opening = !open
+            setOpen(opening)
+            if (opening && onMenuOpen) onMenuOpen()
+          }}
         >
           <span />
           <span />

@@ -17,7 +17,7 @@ function staggerDelay(index) {
   return 0.15 + shuffled * 0.06 // 0.15s–1.17s range
 }
 
-export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
+export default function ArtifactCard({ artifact, index = 0, style, mobile, baseZ }) {
   const dragRef = useRef(null)
   const isDragging = useRef(false)
   const startPos = useRef({ x: 0, y: 0 })
@@ -25,13 +25,16 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
 
   const setDragOffset = useHomeStore((s) => s.setDragOffset)
   const setWidthOverride = useHomeStore((s) => s.setWidthOverride)
+  const setZOverride = useHomeStore((s) => s.setZOverride)
   const bringToFront = useHomeStore((s) => s.bringToFront)
   const dragOffset = useHomeStore((s) => s.dragOffsets[artifact.filename])
   const widthOverride = useHomeStore((s) => s.widthOverrides[artifact.filename])
+  const zOverride = useHomeStore((s) => s.zOverrides[artifact.filename])
   const zOrder = useHomeStore((s) => s.zOrder)
 
-  const zIndex = zOrder.indexOf(artifact.filename)
-  const resolvedZ = zIndex === -1 ? 1 : zIndex + 2
+  // Dev z-override > drag z-order > layout z > default
+  const dragZ = zOrder.indexOf(artifact.filename)
+  const resolvedZ = zOverride != null ? zOverride : (dragZ === -1 ? (baseZ || 1) : dragZ + 100)
 
   const isVideo = artifact.type === 'video'
   const typeLabel = getTypeLabel(artifact.filename)
@@ -145,7 +148,20 @@ export default function ArtifactCard({ artifact, index = 0, style, mobile }) {
         )}
       </div>
       {IS_DEV && !mobile && (
-        <div className="hm-artifact-resize-handle" onPointerDown={handleResizeDown} />
+        <>
+          <div className="hm-artifact-resize-handle" onPointerDown={handleResizeDown} />
+          <div className="hm-artifact-z-controls">
+            <button
+              className="hm-artifact-z-btn"
+              onClick={(e) => { e.stopPropagation(); setZOverride(artifact.filename, resolvedZ + 1) }}
+            >↑</button>
+            <span className="hm-artifact-z-label">{resolvedZ}</span>
+            <button
+              className="hm-artifact-z-btn"
+              onClick={(e) => { e.stopPropagation(); setZOverride(artifact.filename, Math.max(1, resolvedZ - 1)) }}
+            >↓</button>
+          </div>
+        </>
       )}
     </div>
   )

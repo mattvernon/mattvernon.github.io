@@ -38,7 +38,7 @@ export default function Navbar({ variant = 'home', onMenuOpen }) {
   return (
     <>
       <nav className={`hm-navbar hm-navbar--${variant}`}>
-        <span className="hm-navbar-title">matthewvernon.co</span>
+        <Link to="/" className="hm-navbar-title">matthewvernon.co</Link>
         <button
           className={`hm-navbar-hamburger${open ? ' hm-navbar-hamburger--open' : ''}`}
           aria-label={open ? 'Close menu' : 'Open menu'}

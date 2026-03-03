@@ -9,15 +9,17 @@ export default function LayoutEditor() {
 
   const dragOffsets = useHomeStore((s) => s.dragOffsets)
   const widthOverrides = useHomeStore((s) => s.widthOverrides)
+  const zOverrides = useHomeStore((s) => s.zOverrides)
+  const canvasScrollRef = useHomeStore((s) => s.canvasScrollRef)
 
   const handleCopy = useCallback(() => {
     const { w: canvasW, h: canvasH } = getCanvasDimensions()
-    const vw = window.innerWidth
 
     const layout = ARTIFACTS.map((artifact, i) => {
       const base = getArtifactLayout(i)
       const offset = dragOffsets[artifact.filename] || { dx: 0, dy: 0 }
       const widthPx = widthOverrides[artifact.filename] || base.width
+      const z = zOverrides[artifact.filename] ?? base.z ?? 1
 
       // Final position = base + drag offset, normalized to canvas %
       const finalX = base.x + offset.dx
@@ -25,11 +27,10 @@ export default function LayoutEditor() {
 
       return {
         filename: artifact.filename,
-        // Store as % of canvas so it scales to any viewport
         x: Math.round((finalX / canvasW) * 10000) / 10000,
         y: Math.round((finalY / canvasH) * 10000) / 10000,
-        // Width as % of viewport width
-        w: Math.round((widthPx / vw) * 10000) / 10000,
+        w: Math.round(widthPx),
+        z,
       }
     })
 
@@ -40,15 +41,28 @@ export default function LayoutEditor() {
 
     console.log('--- LAYOUT DATA ---')
     console.log(json)
-  }, [dragOffsets, widthOverrides])
+  }, [dragOffsets, widthOverrides, zOverrides])
 
   const handleReset = useCallback(() => {
-    // Clear all drag offsets and width overrides to reset
-    useHomeStore.setState({ dragOffsets: {}, widthOverrides: {}, zOrder: [] })
+    useHomeStore.setState({ dragOffsets: {}, widthOverrides: {}, zOverrides: {}, zOrder: [] })
   }, [])
+
+  const handleRecenter = useCallback(() => {
+    const el = canvasScrollRef?.current
+    if (!el) return
+    const { w, h } = getCanvasDimensions()
+    el.scrollTo({
+      left: (w - el.clientWidth) / 2,
+      top: (h - el.clientHeight) / 2,
+      behavior: 'smooth',
+    })
+  }, [canvasScrollRef])
 
   return (
     <div className="hm-layout-editor">
+      <button className="hm-layout-editor-btn" onClick={handleRecenter}>
+        ⊹ Re-center
+      </button>
       <button className="hm-layout-editor-btn" onClick={handleCopy}>
         📋 Copy Layout
       </button>

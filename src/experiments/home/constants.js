@@ -30,40 +30,35 @@ function seededRand(seed, offset) {
   return (v & 0xffff) / 0xffff
 }
 
-// Canvas dimensions scale to the viewport so content fills the screen
-// Canvas is ~3.6x viewport width and ~4.4x height for an infinite feel
+// Fixed canvas size — layout is viewport-independent.
+// Smaller screens scroll more, larger screens see more empty space.
 export function getCanvasDimensions() {
-  if (typeof window === 'undefined') return { w: 5600, h: 5600 }
-  const vw = window.innerWidth
-  const vh = window.innerHeight
-  return {
-    w: Math.round(vw * 3.6),
-    h: Math.round(vh * 4.4),
-  }
+  return { w: 5600, h: 5600 }
 }
 
 // ── Manual layout ──
 // Paste output from the "Copy Layout" dev tool here.
-// Positions are stored as % of canvas, widths as % of viewport.
+// Positions are stored as % of canvas, widths as absolute pixels.
 // When this array has entries, it overrides the algorithmic layout.
+// w values are absolute pixel widths (screen-size independent)
 export const MANUAL_LAYOUT = [
-  { filename: 'aura_discovery.mp4', x: 0.3352, y: 0.2465, w: 0.2292 },
-  { filename: 'aura_predictflow.mp4', x: 0.3762, y: 0.5373, w: 0.215 },
-  { filename: 'foundation_create.gif', x: 0.2246, y: 0.3994, w: 0.4118 },
-  { filename: 'foundation_drops.mp4', x: 0.4104, y: 0.3018, w: 0.3863 },
-  { filename: 'foundation_worlds.mp4', x: 0.5894, y: 0.4397, w: 0.3684 },
-  { filename: 'friendzoned.mp4', x: 0.6671, y: 0.3738, w: 0.2281 },
-  { filename: 'new_drop.mp4', x: 0.3531, y: 0.4327, w: 0.2145 },
-  { filename: 'rode_Secondary.mp4', x: 0.673, y: 0.5003, w: 0.1997 },
-  { filename: 'rodeo_1millionmints.mp4', x: 0.5278, y: 0.3597, w: 0.1866 },
-  { filename: 'rodeo_darkmode.mp4', x: 0.5038, y: 0.4857, w: 0.2421 },
-  { filename: 'rodeo_iosLaunch.mp4', x: 0.41, y: 0.3977, w: 0.2281 },
-  { filename: 'rodeo_launchvideo.mp4', x: 0.5821, y: 0.527, w: 0.2139 },
-  { filename: 'rodeo_merch.jpeg', x: 0.5934, y: 0.3197, w: 0.1996 },
-  { filename: 'rodeo_runs_on_dollars.mp4', x: 0.4307, y: 0.5149, w: 0.1855 },
-  { filename: 'rodeo_Tags.mp4', x: 0.2968, y: 0.5396, w: 0.2413 },
-  { filename: 'rodeo_tools.mp4', x: 0.4991, y: 0.6231, w: 0.2281 },
-  { filename: 'rodeoIRL.mp4', x: 0.634, y: 0.6362, w: 0.2128 },
+  { filename: 'aura_discovery.mp4', x: 0.3038, y: 0.3922, w: 411, z: 1 },
+  { filename: 'aura_predictflow.mp4', x: 0.5041, y: 0.2026, w: 432, z: 1 },
+  { filename: 'foundation_create.gif', x: 0.2295, y: 0.5414, w: 819, z: 1 },
+  { filename: 'foundation_drops.mp4', x: 0.3407, y: 0.3092, w: 664, z: 1 },
+  { filename: 'foundation_worlds.mp4', x: 0.6086, y: 0.4158, w: 667, z: 100 },
+  { filename: 'friendzoned.mp4', x: 0.7028, y: 0.3583, w: 413, z: 1 },
+  { filename: 'new_drop.mp4', x: 0.4403, y: 0.2908, w: 254, z: 1 },
+  { filename: 'rode_Secondary.mp4', x: 0.7093, y: 0.4732, w: 422, z: 1 },
+  { filename: 'rodeo_1millionmints.mp4', x: 0.5171, y: 0.3555, w: 415, z: 1 },
+  { filename: 'rodeo_darkmode.mp4', x: 0.5323, y: 0.4634, w: 365, z: 1 },
+  { filename: 'rodeo_iosLaunch.mp4', x: 0.3983, y: 0.3923, w: 470, z: 1 },
+  { filename: 'rodeo_launchvideo.mp4', x: 0.6098, y: 0.5025, w: 354, z: 1 },
+  { filename: 'rodeo_merch.jpeg', x: 0.5956, y: 0.2966, w: 415, z: 1 },
+  { filename: 'rodeo_runs_on_dollars.mp4', x: 0.2262, y: 0.3615, w: 389, z: 1 },
+  { filename: 'rodeo_Tags.mp4', x: 0.3862, y: 0.5023, w: 513, z: 1 },
+  { filename: 'rodeo_tools.mp4', x: 0.4968, y: 0.5511, w: 455, z: 1 },
+  { filename: 'rodeoIRL.mp4', x: 0.6889, y: 0.5626, w: 556, z: 1 },
 ]
 
 // Build a lookup map for quick access
@@ -85,14 +80,16 @@ export function getArtifactLayout(index, total) {
       x: manual.x * canvasW,
       y: manual.y * canvasH,
       rotation: 0,
-      width: manual.w * vw,
+      width: manual.w, // absolute pixels — no scaling
+      z: manual.z || 1,
     }
   }
 
-  // Fallback: jittered grid
-  const baseCardW = vw * 0.18
+  // Fallback: jittered grid (still capped for consistency)
+  const cardVw = Math.min(vw, 1440)
+  const baseCardW = cardVw * 0.18
   const seed = ((index + 1) * 2654435761) >>> 0
-  const cardWidth = baseCardW + seededRand(seed, 4) * vw * 0.07
+  const cardWidth = baseCardW + seededRand(seed, 4) * cardVw * 0.07
 
   const cols = Math.ceil(Math.sqrt(count * 1.5))
   const rows = Math.ceil(count / cols)

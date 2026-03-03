@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import ArtifactCard from './ArtifactCard'
 import WelcomeMessage from './WelcomeMessage'
+import useHomeStore from '../store'
 import { ARTIFACTS, getCanvasDimensions, getArtifactLayout } from '../constants'
 
 const MOBILE_BREAKPOINT = 768
@@ -61,6 +62,12 @@ export default function Canvas() {
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerup', handlePointerUp)
   }, [])
+
+  // Store scroll ref so LayoutEditor re-center button can use it
+  const setCanvasScrollRef = useHomeStore((s) => s.setCanvasScrollRef)
+  useEffect(() => {
+    setCanvasScrollRef(scrollRef)
+  }, [setCanvasScrollRef])
 
   // On mount (desktop), scroll to center of canvas
   useEffect(() => {
@@ -125,6 +132,7 @@ export default function Canvas() {
               key={artifact.filename}
               artifact={artifact}
               index={i}
+              baseZ={layout.z || 1}
               style={{
                 position: 'absolute',
                 left: layout.x,

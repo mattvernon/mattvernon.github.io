@@ -78,20 +78,22 @@ export default function Canvas() {
     el.scrollTop = (canvas.h - el.clientHeight) / 2
   }, [isMobile, canvas])
 
-  // On mount (mobile), scroll so welcome message is centered in viewport
+  // On mount (mobile), scroll so welcome message is centered in viewport.
+  // Center immediately and again after media loads settle the grid height.
   useEffect(() => {
-    if (!isMobile || !welcomeRef.current) return
+    if (!isMobile) return
     const el = scrollRef.current
     if (!el) return
 
-    requestAnimationFrame(() => {
+    const center = () => {
       const welcomeEl = welcomeRef.current
       if (!welcomeEl) return
-      const welcomeTop = welcomeEl.offsetTop
-      const welcomeHeight = welcomeEl.offsetHeight
-      const viewportHeight = el.clientHeight
-      el.scrollTop = welcomeTop - (viewportHeight - welcomeHeight) / 2
-    })
+      welcomeEl.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+
+    requestAnimationFrame(center)
+    const timer = setTimeout(center, 600)
+    return () => clearTimeout(timer)
   }, [isMobile])
 
   if (isMobile) {

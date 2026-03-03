@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Navbar from '../experiments/home/components/Navbar'
 import './Experiments.css'
 
@@ -47,12 +47,21 @@ export default function Experiments() {
     }, 250)
   }, [activeExp, closing])
 
+  const pageRef = useRef(null)
+
   useEffect(() => {
     document.title = 'Experiments — Matthew Vernon'
     document.body.style.backgroundColor = '#000'
+    document.documentElement.style.backgroundColor = '#000'
     document.body.style.margin = '0'
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', '#000')
+    // Scroll to top on mount
+    if (pageRef.current) pageRef.current.scrollTop = 0
+    window.scrollTo(0, 0)
     return () => {
       document.body.style.backgroundColor = ''
+      document.documentElement.style.backgroundColor = ''
     }
   }, [])
 
@@ -80,7 +89,7 @@ export default function Experiments() {
   }, [handleKeyDown])
 
   return (
-    <div className="exp-page">
+    <div className="exp-page" ref={pageRef}>
       <Navbar variant="experiments" onMenuOpen={() => { setActiveExp(null); setClosing(false) }} />
 
       <main className="exp-content">

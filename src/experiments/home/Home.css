@@ -1,15 +1,15 @@
 /* ── App Shell ── */
 .hm-app {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
   font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* ── Infinite Canvas (Desktop) ── */
 .hm-canvas-scroll {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: auto;
   position: relative;
   scrollbar-width: none;
@@ -26,14 +26,16 @@
 
 /* ── Mobile Canvas ── */
 .hm-canvas-mobile {
-  padding: 80px 16px 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  height: 100%;
   overflow-y: auto;
-  height: 100vh;
   box-sizing: border-box;
+  padding: calc(80px + env(safe-area-inset-top, 0px)) 16px calc(120px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  z-index: 0;
 }
 
 .hm-canvas-mobile-grid {
@@ -306,7 +308,7 @@
 /* ── Navbar ── */
 .hm-navbar {
   position: fixed;
-  top: 16px;
+  top: calc(16px + env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1100;
@@ -374,9 +376,13 @@
 /* ── Fullscreen Nav Overlay ── */
 .hm-fullnav {
   position: fixed;
-  inset: 0;
+  /* Extend past safe areas so the overlay covers the full physical screen on iOS */
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
   z-index: 1050;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(150px);
   -webkit-backdrop-filter: blur(150px);
   display: flex;
@@ -386,6 +392,9 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.35s ease;
+  /* Compensate for negative offsets so content stays in the safe area */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .hm-fullnav--about {
@@ -426,7 +435,7 @@
 
 .hm-fullnav-socials {
   position: absolute;
-  bottom: 40px;
+  bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   display: flex;
   gap: 32px;
   align-items: center;
@@ -582,6 +591,11 @@
     width: auto;
   }
 
+  .hm-navbar-hamburger {
+    padding: 12px;
+    margin: -8px;
+  }
+
   .hm-colorpicker {
     left: 16px;
     right: 16px;
@@ -618,7 +632,7 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    bottom: 32px;
+    bottom: calc(32px + env(safe-area-inset-bottom, 0px));
   }
 
   .hm-layout-editor {

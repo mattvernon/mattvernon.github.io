@@ -259,20 +259,29 @@ function ProductCard({ variant, logo, url, urlLabel, name, description }) {
 /* ── Main About Page ── */
 
 export default function About() {
+  const pageRef = useRef(null)
+
   useEffect(() => {
     document.title = 'About \u2014 Matthew Vernon'
     document.body.style.backgroundColor = '#fff'
+    document.documentElement.style.backgroundColor = '#fff'
     document.body.style.margin = '0'
     document.body.style.overflow = ''
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', '#fff')
+    // Scroll to top on mount
+    if (pageRef.current) pageRef.current.scrollTop = 0
+    window.scrollTo(0, 0)
     return () => {
       document.body.style.backgroundColor = ''
+      document.documentElement.style.backgroundColor = ''
     }
   }, [])
 
   const [copied, setCopied] = useState(false)
 
   return (
-    <div className="about-page">
+    <div className="about-page" ref={pageRef}>
       <Navbar variant="about" />
       <AboutLayoutEditor />
 

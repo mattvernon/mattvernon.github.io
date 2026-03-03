@@ -14,22 +14,25 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'Matthew Vernon'
-    const prevOverflow = document.body.style.overflow
     const prevBg = document.body.style.backgroundColor
+    const prevHtmlBg = document.documentElement.style.backgroundColor
     const prevMargin = document.body.style.margin
 
-    document.body.style.overflow = 'hidden'
     document.body.style.margin = '0'
 
     return () => {
-      document.body.style.overflow = prevOverflow
       document.body.style.backgroundColor = prevBg
+      document.documentElement.style.backgroundColor = prevHtmlBg
       document.body.style.margin = prevMargin
     }
   }, [])
 
   useEffect(() => {
     document.body.style.backgroundColor = bgColor
+    document.documentElement.style.backgroundColor = bgColor
+    // Update iOS Safari chrome color to match
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', bgColor)
   }, [bgColor])
 
   const isMobile = window.innerWidth <= MOBILE_BREAKPOINT

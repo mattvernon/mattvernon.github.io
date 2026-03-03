@@ -1,13 +1,12 @@
 /* ── Page Shell ── */
 .about-page {
-  min-height: 100vh;
-  height: 100vh;
-  overflow-x: hidden;
+  position: fixed;
+  inset: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #000;
-  position: relative;
 }
 
 /* ── Main Content Column ── */

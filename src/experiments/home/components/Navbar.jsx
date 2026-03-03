@@ -27,11 +27,17 @@ export default function Navbar({ variant = 'home', onMenuOpen }) {
   const activePage = ACTIVE_MAP[location.pathname] || 'home'
 
   useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    const prevThemeColor = meta?.getAttribute('content')
     const videos = document.querySelectorAll('video')
     if (open) {
       videos.forEach((v) => v.pause())
+      // Set Safari chrome to dark to match the fullnav overlay
+      if (meta) meta.setAttribute('content', '#0a0014')
     } else {
       videos.forEach((v) => v.play())
+      // Restore the page's theme color
+      if (meta && prevThemeColor) meta.setAttribute('content', prevThemeColor)
     }
   }, [open])
 

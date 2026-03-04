@@ -22,6 +22,12 @@ export const ARTIFACTS = [
   { filename: 'rodeo_Tags.mp4', type: 'video' },
   { filename: 'rodeo_tools.mp4', type: 'video' },
   { filename: 'rodeoIRL.mp4', type: 'video' },
+  { filename: 'Dharma_iOS.mp4', type: 'video' },
+  { filename: 'dharma_brandvideo.mp4', type: 'video' },
+  { filename: 'dharma_webparallax.mp4', type: 'video' },
+  { filename: 'Rodeo_3Dcharms.mp4', type: 'video' },
+  { filename: 'Rodeo_siteexploration.mp4', type: 'video' },
+  { filename: 'wildwildweb.png', type: 'image' },
 ]
 
 // Seeded pseudo-random so layout is stable across reloads
@@ -57,8 +63,14 @@ export const MANUAL_LAYOUT = [
   { filename: 'rodeo_merch.jpeg', x: 0.5956, y: 0.2966, w: 415, z: 1 },
   { filename: 'rodeo_runs_on_dollars.mp4', x: 0.2262, y: 0.3615, w: 389, z: 1 },
   { filename: 'rodeo_Tags.mp4', x: 0.3862, y: 0.5023, w: 513, z: 1 },
-  { filename: 'rodeo_tools.mp4', x: 0.4968, y: 0.5511, w: 455, z: 1 },
+  { filename: 'rodeo_tools.mp4', x: 0.4983, y: 0.5508, w: 455, z: 1 },
   { filename: 'rodeoIRL.mp4', x: 0.6889, y: 0.5626, w: 556, z: 1 },
+  { filename: 'Dharma_iOS.mp4', x: 0.6857, y: 0.277, w: 598, z: 1 },
+  { filename: 'dharma_brandvideo.mp4', x: 0.1629, y: 0.4484, w: 702, z: 1 },
+  { filename: 'dharma_webparallax.mp4', x: 0.3994, y: 0.626, w: 767, z: 77 },
+  { filename: 'Rodeo_3Dcharms.mp4', x: 0.839, y: 0.444, w: 658, z: 1 },
+  { filename: 'Rodeo_siteexploration.mp4', x: 0.2798, y: 0.654, w: 706, z: 1 },
+  { filename: 'wildwildweb.png', x: 0.7902, y: 0.3826, w: 661, z: 1 },
 ]
 
 // Build a lookup map for quick access

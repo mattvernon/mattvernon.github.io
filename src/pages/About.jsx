@@ -448,6 +448,20 @@ export default function About() {
             </button>
           </div>
 
+          <a
+            href="/Matthew_Vernon_CV.pdf"
+            download
+            className="about-cv-btn"
+          >
+            <span className="about-cv-icon">
+              <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
+                <path d="M6 1V15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 10L6 15L11 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            Download my CV
+          </a>
+
           <nav className="about-socials">
             <a href="https://x.com/dApp_boi" target="_blank" rel="noopener noreferrer">twitter</a>
             <a href="https://www.instagram.com/matthewvernon" target="_blank" rel="noopener noreferrer">instagram</a>

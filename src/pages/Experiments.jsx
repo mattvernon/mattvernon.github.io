@@ -29,7 +29,7 @@ const EXPERIMENTS = [
     title: 'moodboard',
     description:
       'An infinite canvas moodboard viewer powered by Cosmos. Enter any cosmos.so profile to explore their saves on a draggable, zoomable canvas.',
-    color: '#08080c',
+    color: '#FFCBA4',
   },
   {
     slug: 'dvd-screen',
@@ -37,6 +37,13 @@ const EXPERIMENTS = [
     description:
       'The original homepage — a bouncing text box that drifts around the screen like a DVD screensaver, changing colors on click.',
     color: '#FF4500',
+  },
+  {
+    slug: 'ioscart',
+    title: 'iOS cart',
+    description:
+      'A pixel-perfect recreation of an iOS shopping cart screen, built in React. A sandbox for hacking on mobile design exercises.',
+    color: '#8ACE00',
   },
 ]
 
@@ -111,7 +118,7 @@ export default function Experiments() {
           {EXPERIMENTS.map((exp) => (
             <div
               key={exp.slug}
-              className={`exp-card${exp.color === '#FFE600' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
+              className={`exp-card${exp.color === '#FFE600' || exp.color === '#8ACE00' || exp.color === '#FFCBA4' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
               style={{ background: exp.color }}
               onClick={() => { setIframeLoaded(false); setActiveExp(exp) }}
               role="button"

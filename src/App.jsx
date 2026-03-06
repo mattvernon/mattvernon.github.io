@@ -6,6 +6,7 @@ import Desktop from './experiments/desktop/Desktop'
 import Y2KRacer from './experiments/y2k_racer/Y2KRacer'
 import ReelMaker from './experiments/reel-maker/ReelMaker'
 import DvdScreen from './experiments/dvd-screen/DvdScreen'
+import Moodboard from './experiments/moodboard/Moodboard'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/experiments/y2kracer" element={<Y2KRacer />} />
         <Route path="/experiments/reelmaker" element={<ReelMaker />} />
         <Route path="/experiments/dvd-screen" element={<DvdScreen />} />
+        <Route path="/experiments/moodboard" element={<Moodboard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

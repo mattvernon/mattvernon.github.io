@@ -25,6 +25,13 @@ const EXPERIMENTS = [
     color: '#FFE600',
   },
   {
+    slug: 'moodboard',
+    title: 'moodboard',
+    description:
+      'An infinite canvas moodboard viewer powered by Cosmos. Enter any cosmos.so profile to explore their saves on a draggable, zoomable canvas.',
+    color: '#08080c',
+  },
+  {
     slug: 'dvd-screen',
     title: 'dvd screen',
     description:
@@ -104,7 +111,7 @@ export default function Experiments() {
           {EXPERIMENTS.map((exp) => (
             <div
               key={exp.slug}
-              className={`exp-card${exp.color === '#FFE600' ? ' exp-card--dark' : ''}`}
+              className={`exp-card${exp.color === '#FFE600' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
               style={{ background: exp.color }}
               onClick={() => { setIframeLoaded(false); setActiveExp(exp) }}
               role="button"

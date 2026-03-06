@@ -1,0 +1,367 @@
+/* ── Container ──────────────────────────────────────── */
+
+.mb-container {
+  position: fixed;
+  inset: 0;
+  background: #08080c;
+  overflow: hidden;
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.mb-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Canvas ─────────────────────────────────────────── */
+
+.mb-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.mb-canvas--animating {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+
+.mb-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: grab;
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
+
+.mb-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.mb-card:active {
+  cursor: grabbing;
+}
+
+/* ── Card image ─────────────────────────────────────── */
+
+.mb-card-image {
+  width: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mb-card-image img {
+  width: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.mb-card-image--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+
+.mb-card-image--error::after {
+  content: 'Image unavailable';
+  color: rgba(255, 255, 255, 0.12);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Card info ──────────────────────────────────────── */
+
+.mb-card-info {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.mb-card-title {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.5);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+/* ── Toolbar ────────────────────────────────────────── */
+
+.mb-toolbar {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  width: 360px;
+  height: 50px;
+  padding: 0 16px;
+  background: rgba(60, 60, 65, 0.65);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+.mb-toolbar-logo {
+  width: 16px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.45);
+  flex-shrink: 0;
+}
+
+.mb-toolbar-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}
+
+.mb-toolbar-prefix {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+.mb-search-input {
+  width: 80px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  caret-color: rgba(255, 255, 255, 0.6);
+}
+
+.mb-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mb-search-input:focus::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.mb-toolbar-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.mb-toolbar-submit:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Toolbar error ─────────────────────────────────── */
+
+.mb-toolbar-error {
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 120, 120, 0.8);
+  white-space: nowrap;
+  z-index: 100;
+  animation: mb-fade-in 0.2s ease-out;
+}
+
+/* ── Loading overlay ───────────────────────────────── */
+
+.mb-loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 12, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 150;
+  animation: mb-fade-in 0.2s ease-out;
+}
+
+.mb-loading-logo {
+  width: 36px;
+  height: 40px;
+}
+
+/* ── Modal ──────────────────────────────────────────── */
+
+.mb-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 4, 8, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  cursor: pointer;
+  animation: mb-fade-in 0.2s ease-out;
+}
+
+@keyframes mb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mb-modal {
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 92vw;
+  animation: mb-modal-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes mb-modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mb-modal-image-wrap {
+  position: relative;
+  width: 88vw;
+  height: 78vh;
+}
+
+.mb-modal-img-lo,
+.mb-modal-img-hi {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.mb-modal-img-hi {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.mb-modal-img-hi--loaded {
+  opacity: 1;
+}
+
+.mb-modal-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.mb-cosmos-spin {
+  width: 28px;
+  height: 32px;
+  color: rgba(255, 255, 255, 0.3);
+  animation: mb-spin 1.2s linear infinite;
+}
+
+@keyframes mb-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mb-modal-title {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.mb-modal-cosmos-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-family: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.mb-modal-cosmos-link:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.mb-cosmos-logo-sm {
+  width: 14px;
+  height: 15px;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .mb-toolbar {
+    top: 12px;
+    width: min(360px, calc(100vw - 24px));
+    height: 44px;
+    padding: 0 14px;
+  }
+
+  .mb-toolbar-prefix {
+    font-size: 13px;
+  }
+
+  .mb-search-input {
+    width: 70px;
+    font-size: 13px;
+  }
+
+  .mb-modal {
+    max-width: 92vw;
+  }
+}

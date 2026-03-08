@@ -1,22 +1,353 @@
 /* ================================================================
-   iOS Cart Experiment — iPhone frame + cart screen
+   iOS Cart Presentation — Slide Deck + iPhone Prototype
    ================================================================ */
 
-/* ── page background ── */
-.ios-page {
+/* ── deck container (scroll-snap) ── */
+.deck {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #111;
-  overflow: hidden;
-  font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  background: #4a25e8;
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── iPhone device frame ── */
+/* ── each slide ── */
+.deck-slide {
+  scroll-snap-align: start;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 80px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── intro slide: centered column ── */
+.deck-slide--intro {
+  justify-content: center;
+}
+
+.slide-intro-content {
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.slide-intro-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+
+.slide-badge {
+  flex-shrink: 0;
+}
+.slide-badge svg {
+  width: 200px;
+  height: auto;
+}
+
+/* ── hand-draw animation for badge SVG paths ── */
+@keyframes handDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── outro slide: centered, whiteboard ── */
+.deck-slide--outro {
+  flex-direction: column;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.slide-outro-content {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.slide-thanks-wrap {
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 12;
+}
+.slide-thanks-svg {
+  width: min(730px, 80vw);
+  height: auto;
+}
+
+.slide-body--outro {
+  max-width: 520px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.slide-cta--outro {
+  pointer-events: auto;
+}
+
+/* ── whiteboard canvas ── */
+.whiteboard-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  touch-action: none;
+}
+
+/* ── whiteboard toolbar (vertical, left side) ── */
+.whiteboard-toolbar {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.wb-tool {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.wb-tool:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+.wb-tool--active {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.wb-divider {
+  width: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 4px 0;
+}
+
+.wb-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+.wb-color:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.15);
+}
+.wb-color--active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+  transform: scale(1.15);
+}
+
+/* ── split slide: copy left, phone right ── */
+.deck-slide--split {
+  flex-direction: row;
+  gap: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 80px;
+}
+
+.slide-copy {
+  flex: 1;
+  max-width: 520px;
+}
+
+.slide-phone-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* visually scale + collapse layout box to match */
+  height: calc(852px * 0.78);
+  width: calc(393px * 0.78);
+}
+.slide-phone-wrap .ios-device {
+  transform: scale(0.78);
+  transform-origin: center center;
+}
+
+/* ── slide typography ── */
+.slide-heading {
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 38px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 40px;
+  margin: 0 0 28px;
+  letter-spacing: -0.03em;
+}
+
+/* ── "shop!" wordmark SVG ── */
+.slide-shop-wordmark {
+  display: block;
+  width: 260px;
+  height: auto;
+  margin-top: 4px;
+}
+
+.slide-body {
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 350;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.02em;
+  max-width: 460px;
+}
+.slide-body p {
+  margin: 0 0 16px;
+}
+.slide-body p:last-child {
+  margin-bottom: 0;
+}
+.slide-body em {
+  font-style: italic;
+}
+.slide-body strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.slide-body ul {
+  margin: 12px 0 16px;
+  padding-left: 22px;
+}
+.slide-body ul li {
+  margin-bottom: 10px;
+  line-height: 1.55;
+}
+.slide-body ul ul {
+  margin: 8px 0 4px;
+}
+.slide-body ul ul li {
+  margin-bottom: 4px;
+}
+
+.slide-sign-off {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── CTA button ── */
+.slide-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 40px;
+  background: #111;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  letter-spacing: 0.01em;
+  font-family: inherit;
+}
+.slide-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.slide-cta:active {
+  transform: translateY(-1px) scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+/* ── dot navigation ── */
+.deck-dots {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+
+.deck-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.deck-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.deck-dot--active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
+/* ── fade-in animations ── */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    translate: 0 30px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.slide-heading,
+.slide-body,
+.slide-cta,
+.slide-phone-wrap {
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+.slide-body { animation-delay: 0.1s; }
+.slide-cta { animation-delay: 0.2s; }
+.slide-phone-wrap { animation-delay: 0.15s; }
+
+
+/* ================================================================
+   iPhone Device Frame (preserved from original)
+   ================================================================ */
+
 .ios-device {
   position: relative;
   width: 393px;
@@ -26,26 +357,10 @@
   overflow: hidden;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 40px 120px rgba(0, 0, 0, 0.6);
+    0 40px 120px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  /* scale down on small viewports */
-  max-height: 95vh;
-  max-width: 95vw;
-}
-
-/* ── responsive scaling ── */
-@media (max-height: 900px) {
-  .ios-device {
-    transform: scale(0.85);
-    transform-origin: center;
-  }
-}
-@media (max-height: 720px) {
-  .ios-device {
-    transform: scale(0.7);
-    transform-origin: center;
-  }
+  flex-shrink: 0;
 }
 
 /* ── status bar ── */
@@ -258,6 +573,7 @@
   cursor: pointer;
   transition: background 0.15s;
   letter-spacing: 0.01em;
+  font-family: inherit;
 }
 .cart-checkout-btn:hover {
   background: #3d5ce0;
@@ -292,6 +608,7 @@
   font-weight: 500;
   letter-spacing: 0.01em;
   transition: color 0.15s, background 0.15s;
+  font-family: inherit;
 }
 .ios-tab svg {
   width: 22px;
@@ -316,4 +633,78 @@
   border-radius: 3px;
   background: #000;
   opacity: 0.18;
+}
+
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+
+/* scale phone on smaller screens */
+@media (max-height: 900px) {
+  .slide-phone-wrap {
+    height: calc(852px * 0.7);
+    width: calc(393px * 0.7);
+  }
+  .slide-phone-wrap .ios-device {
+    transform: scale(0.7);
+  }
+}
+@media (max-height: 720px) {
+  .slide-phone-wrap {
+    height: calc(852px * 0.58);
+    width: calc(393px * 0.58);
+  }
+  .slide-phone-wrap .ios-device {
+    transform: scale(0.58);
+  }
+}
+
+/* tablet and below: stack vertically */
+@media (max-width: 1024px) {
+  .deck-slide--split {
+    flex-direction: column;
+    gap: 40px;
+    padding: 40px 40px;
+    text-align: center;
+  }
+  .slide-copy {
+    max-width: 600px;
+  }
+  .slide-body ul {
+    text-align: left;
+  }
+  .slide-heading {
+    font-size: 32px;
+    line-height: 36px;
+  }
+  .slide-shop-wordmark {
+    width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .deck-slide {
+    padding: 32px 24px;
+  }
+  .deck-slide--split {
+    padding: 32px 24px;
+  }
+  .slide-heading {
+    font-size: 26px;
+    line-height: 30px;
+  }
+  .slide-shop-wordmark {
+    width: 160px;
+  }
+  .slide-body {
+    font-size: 15px;
+  }
+  .deck-dots {
+    right: 16px;
+  }
+  .ios-device {
+    transform: scale(0.55);
+    transform-origin: center;
+  }
 }

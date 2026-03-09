@@ -792,12 +792,49 @@ function DebugHotspot({ id, screenId, vals, onClick, onUpdate, debug, currentScr
   )
 }
 
+/* ── Custom cursor + scroll lock for interactive prototypes ── */
+function useProtoCursor() {
+  const screenRef = useRef(null)
+  const cursorRef = useRef(null)
+
+  useEffect(() => {
+    const screen = screenRef.current
+    const cursor = cursorRef.current
+    if (!screen || !cursor) return
+
+    const phone = screen.closest('.bez-phone')
+
+    const onMouseMove = (e) => {
+      const rect = screen.getBoundingClientRect()
+      cursor.style.transform = `translate(${e.clientX - rect.left}px, ${e.clientY - rect.top}px)`
+    }
+    const onEnter = () => { cursor.style.opacity = '1' }
+    const onLeave = () => { cursor.style.opacity = '0' }
+    const onWheel = (e) => { e.preventDefault() }
+
+    screen.addEventListener('mousemove', onMouseMove)
+    screen.addEventListener('mouseenter', onEnter)
+    screen.addEventListener('mouseleave', onLeave)
+    if (phone) phone.addEventListener('wheel', onWheel, { passive: false })
+
+    return () => {
+      screen.removeEventListener('mousemove', onMouseMove)
+      screen.removeEventListener('mouseenter', onEnter)
+      screen.removeEventListener('mouseleave', onLeave)
+      if (phone) phone.removeEventListener('wheel', onWheel)
+    }
+  }, [])
+
+  return { screenRef, cursorRef }
+}
+
 /* ── Interactive image phone (Slide 3) ── */
 function InteractiveImagePhone({ isActive }) {
   const [screen, setScreen] = useState('lock') // 'lock' | 'cart' | 'pdp-cream' | 'sheet' | 'pdp-olive'
   const [debug, setDebug] = useState(false)
   const [hotspots, setHotspots] = useState(DEFAULT_HOTSPOTS)
   const prevActive = useRef(false)
+  const { screenRef: protoScreenRef, cursorRef } = useProtoCursor()
 
   // Reset when slide becomes active
   useEffect(() => {
@@ -870,7 +907,7 @@ function InteractiveImagePhone({ isActive }) {
         </div>
       )}
 
-      <div className="bez-phone-screen">
+      <div className="bez-phone-screen" ref={protoScreenRef}>
         {/* Lock Screen */}
         <div className={`bez-screen bez-screen--lock${!isLock ? ' bez-exit' : ''}`}>
           <img src={`${PROTO_BASE}/lock.png`} alt="Lock screen" className="bez-screen-img" />
@@ -934,6 +971,7 @@ function InteractiveImagePhone({ isActive }) {
             stopProp
           />
         </div>
+        <div className="bez-cursor" ref={cursorRef} />
       </div>
       <img src={`${PROTO_BASE}/bezel.png`} alt="" className="bez-phone-bezel" />
     </div>
@@ -951,6 +989,7 @@ function SwapImagePhone({ isActive }) {
   const [debug, setDebug] = useState(false)
   const [hotspots, setHotspots] = useState(DEFAULT_SWAP_HOTSPOTS)
   const prevActive = useRef(false)
+  const { screenRef: protoScreenRef, cursorRef } = useProtoCursor()
 
   // Reset when slide becomes active
   useEffect(() => {
@@ -1015,7 +1054,7 @@ function SwapImagePhone({ isActive }) {
         </div>
       )}
 
-      <div className="bez-phone-screen">
+      <div className="bez-phone-screen" ref={protoScreenRef}>
         {/* Base: Cart with Swap Option */}
         <div className="bez-screen">
           <img src={`${PROTO_BASE}/cart-swap.png`} alt="Cart with swap option" className="bez-screen-img" />
@@ -1070,6 +1109,7 @@ function SwapImagePhone({ isActive }) {
             stopProp
           />
         </div>
+        <div className="bez-cursor" ref={cursorRef} />
       </div>
       <img src={`${PROTO_BASE}/bezel.png`} alt="" className="bez-phone-bezel" />
     </div>

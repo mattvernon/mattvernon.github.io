@@ -1233,7 +1233,7 @@ const SLIDES = [
    Main presentation component
    ═══════════════════════════════════════════════════ */
 export default function IosCart() {
-  const scrollRef = useRef(null)
+  const [deckEl, setDeckEl] = useState(null)
   const slideRefs = useRef([])
   const [activeSlide, setActiveSlide] = useState(0)
 
@@ -1246,13 +1246,11 @@ export default function IosCart() {
 
   /* track which slide is in view via scroll position */
   useEffect(() => {
-    const container = scrollRef.current
-    if (!container) return
+    if (!deckEl) return
     const update = () => {
-      const sections = container.querySelectorAll('.deck-slide')
+      const sections = deckEl.querySelectorAll('.deck-slide')
       if (!sections.length) return
-      const st = container.scrollTop
-      const vh = container.clientHeight
+      const st = deckEl.scrollTop
       let best = 0
       let bestDist = Infinity
       sections.forEach((sec, i) => {
@@ -1261,10 +1259,10 @@ export default function IosCart() {
       })
       setActiveSlide((prev) => best !== prev ? best : prev)
     }
-    container.addEventListener('scroll', update, { passive: true })
+    deckEl.addEventListener('scroll', update, { passive: true })
     update()
-    return () => container.removeEventListener('scroll', update)
-  }, [])
+    return () => deckEl.removeEventListener('scroll', update)
+  }, [deckEl])
 
   const scrollToSlide = useCallback((idx) => {
     const container = document.querySelector('.deck')
@@ -1320,7 +1318,7 @@ export default function IosCart() {
         </svg>
         <p>Please view this on a computer.</p>
       </div>
-      <div className="deck" ref={scrollRef}>
+      <div className="deck" ref={setDeckEl}>
         {SLIDES.map((slide, i) => (
           <section
             key={slide.id}

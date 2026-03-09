@@ -2,6 +2,35 @@
    iOS Cart Presentation — Slide Deck + iPhone Prototype
    ================================================================ */
 
+/* ── mobile gate ── */
+.deck-mobile-gate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #4a25e8;
+  color: rgba(255, 255, 255, 0.7);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  z-index: 9999;
+  text-align: center;
+  padding: 40px;
+}
+.deck-mobile-gate svg {
+  opacity: 0.6;
+}
+.deck-mobile-gate p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .deck-mobile-gate { display: flex; }
+  .deck { display: none; }
+}
+
 /* ── deck container (scroll-snap) ── */
 .deck {
   position: fixed;
@@ -202,6 +231,14 @@
   transform-origin: center center;
 }
 
+/* larger wrap when containing image-based phone */
+.slide-phone-wrap:has(.bez-phone) {
+  position: relative;
+  width: auto;
+  height: auto;
+  flex-direction: column;
+}
+
 /* ── slide typography ── */
 .slide-heading {
   font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -289,6 +326,42 @@
   transform: translateY(-1px) scale(0.96);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+/* ── Figma link ── */
+.slide-figma-link {
+  display: block;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.slide-figma-link:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Restart prototype button ── */
+.bez-restart-btn {
+  position: absolute;
+  bottom: -56px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.55);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+.bez-restart-btn:hover {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ── dot navigation ── */
@@ -635,6 +708,229 @@
   opacity: 0.18;
 }
 
+
+/* ================================================================
+   Image-based Phone Prototypes
+   ================================================================ */
+
+/* ── bezel phone frame ── */
+.bez-phone {
+  position: relative;
+  height: min(82vh, 820px);
+  aspect-ratio: 900 / 1840;
+}
+
+/* ── bezel image overlay ── */
+.bez-phone-bezel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ── screen area inside bezel ── */
+.bez-phone-screen {
+  position: absolute;
+  /* inset percentages matching bezel inner screen area */
+  left: 5.33%;
+  right: 5.33%;
+  top: 2.5%;
+  bottom: 2.5%;
+  border-radius: 42px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* ── screen image ── */
+.bez-screen-img {
+  width: 100%;
+  display: block;
+}
+
+/* ── individual screen layers ── */
+.bez-screen {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease;
+  will-change: transform, opacity;
+  overflow: hidden;
+}
+
+/* ── lock screen (z-index on top, exits left + fade) ── */
+.bez-screen--lock {
+  z-index: 3;
+}
+.bez-screen--lock.bez-exit {
+  opacity: 0;
+  transform: translateX(-30%);
+  pointer-events: none;
+}
+
+/* ── slide-in screens (cart, pdp) ── */
+.bez-screen--slide {
+  transform: translateX(100%);
+  z-index: 4;
+}
+.bez-screen--slide.bez-active {
+  transform: translateX(0);
+}
+.bez-screen--slide.bez-behind {
+  transform: translateX(-30%);
+  pointer-events: none;
+}
+/* PDP needs higher z than cart */
+.bez-screen--slide + .bez-screen--slide {
+  z-index: 5;
+}
+
+/* ── dissolve screens (swap prototype result states) ── */
+.bez-screen--dissolve {
+  opacity: 0;
+  z-index: 4;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.bez-screen--dissolve.bez-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── hotspot (transparent tap zone) ── */
+.bez-hotspot {
+  position: absolute;
+  cursor: pointer;
+  z-index: 6;
+  /* background: rgba(255,0,0,0.15); /* uncomment to debug hotspot areas */
+}
+
+/* ── bottom sheet overlay ── */
+.bez-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  transition: background 0.3s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+.bez-sheet-backdrop--visible {
+  background: rgba(0,0,0,0.4);
+  pointer-events: auto;
+}
+.bez-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 11;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+.bez-sheet--visible {
+  transform: translateY(0);
+}
+
+/* ── Hotspot Debug Tool (dev only) ── */
+.bez-debug-toolbar {
+  position: absolute;
+  top: -36px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 30;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 11px;
+}
+
+.bez-debug-toggle {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.bez-debug-toggle:hover {
+  background: rgba(0,0,0,0.8);
+}
+.bez-debug-toggle--active {
+  background: rgba(255,0,0,0.6);
+  border-color: rgba(255,0,0,0.8);
+}
+
+.bez-debug-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+}
+.bez-debug-stepper button {
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.bez-debug-stepper button:hover {
+  background: rgba(0,0,0,0.8);
+}
+.bez-debug-stepper span {
+  min-width: 76px;
+  text-align: center;
+  color: rgba(255,255,255,0.8);
+}
+
+.bez-hotspot--debug {
+  background: rgba(255, 0, 0, 0.15);
+  border: 1.5px dashed rgba(255, 0, 0, 0.6);
+  box-sizing: border-box;
+}
+
+.bez-hotspot-label {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 9px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 3px;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  z-index: 100;
+  line-height: 1.4;
+}
+
+.bez-hotspot-resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 0, 0, 0.5);
+  cursor: nwse-resize;
+  z-index: 101;
+  border-radius: 2px 0 0 0;
+}
+.bez-hotspot-resize:hover {
+  background: rgba(255, 0, 0, 0.8);
+}
 
 /* ================================================================
    Responsive

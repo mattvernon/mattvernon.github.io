@@ -602,6 +602,486 @@ function CartPhone() {
 }
 
 /* ═══════════════════════════════════════════════════
+   Image-based Phone Prototypes
+   ═══════════════════════════════════════════════════ */
+
+const PROTO_BASE = '/experiments/ios-cart/proto'
+
+/* ── Static image phone (Slide 2) ── */
+function StaticImagePhone() {
+  return (
+    <div className="bez-phone">
+      <div className="bez-phone-screen">
+        <img src={`${PROTO_BASE}/01.png`} alt="Cart with out-of-stock error" className="bez-screen-img" />
+      </div>
+      <img src={`${PROTO_BASE}/bezel.png`} alt="" className="bez-phone-bezel" />
+    </div>
+  )
+}
+
+/* ── Screen order for debug stepper ── */
+const SCREEN_ORDER = ['lock', 'cart', 'pdp-cream', 'sheet', 'pdp-olive']
+
+/* ── Which hotspots belong to which screen ── */
+const SCREEN_HOTSPOTS = {
+  'lock':      ['lock-notification'],
+  'cart':      ['cart-plant'],
+  'pdp-cream': ['pdp-back', 'pdp-color'],
+  'sheet':     ['sheet-olive', 'sheet-close'],
+  'pdp-olive': ['pdp-back'],
+}
+
+/* ── Default hotspot positions (percentages) ── */
+const DEFAULT_HOTSPOTS = {
+  'lock-notification': { top: 73, left: 3, right: 3.3, height: 9.4 },
+  'cart-plant':        { top: 13.7, left: 0.6, right: 0, height: 19.9 },
+  'pdp-back':          { top: 6.4, left: 3.6, width: 12, height: 6 },
+  'pdp-color':         { top: 71, left: 0, right: 0, height: 6 },
+  'sheet-olive':       { top: 14.6, left: 5, width: 43.7, height: 35.3 },
+  'sheet-close':       { top: 3.3, left: 5.9, width: 14, height: 8 },
+}
+
+/* ── Swap prototype constants ── */
+const SWAP_SCREEN_ORDER = ['cart-swap', 'cart-swapped', 'sheet', 'cart-olive']
+
+const SWAP_SCREEN_HOTSPOTS = {
+  'cart-swap':     ['swap-btn', 'swap-other'],
+  'cart-swapped':  [],
+  'sheet':         ['swap-sheet-olive', 'swap-sheet-close'],
+  'cart-olive':    [],
+}
+
+const DEFAULT_SWAP_HOTSPOTS = {
+  'swap-btn':          { top: 29.2, left: 60, width: 33.6, height: 6.3 },
+  'swap-other':        { top: 29.6, left: 29, width: 30.8, height: 5.9 },
+  'swap-sheet-olive':  { top: 14.8, left: 5.6, width: 43.7, height: 35.3 },
+  'swap-sheet-close':  { top: 3.3, left: 5.9, width: 14, height: 8 },
+}
+
+/* ── Convert numeric hotspot values to CSS style object ── */
+function hotspotStyle(vals) {
+  const s = {}
+  if (vals.top != null) s.top = vals.top + '%'
+  if (vals.left != null) s.left = vals.left + '%'
+  if (vals.right != null) s.right = vals.right + '%'
+  if (vals.width != null) s.width = vals.width + '%'
+  if (vals.height != null) s.height = vals.height + '%'
+  return s
+}
+
+/* ── DebugHotspot: invisible tap zone with optional drag/resize in debug mode ── */
+function DebugHotspot({ id, screenId, vals, onClick, onUpdate, debug, currentScreen, stopProp, screenHotspotsMap }) {
+  const ref = useRef(null)
+  const dragState = useRef(null)
+
+  // Is this hotspot's debug overlay visible?
+  const map = screenHotspotsMap || SCREEN_HOTSPOTS
+  const showDebug = debug && map[currentScreen]?.includes(id)
+
+  const style = hotspotStyle(vals)
+
+  // Move handler
+  const handleMouseDown = useCallback((e) => {
+    if (!showDebug) return
+    e.preventDefault()
+    e.stopPropagation()
+    const parent = ref.current.offsetParent
+    if (!parent) return
+    const pRect = parent.getBoundingClientRect()
+    dragState.current = {
+      type: 'move',
+      startX: e.clientX,
+      startY: e.clientY,
+      origTop: vals.top,
+      origLeft: vals.left,
+      pW: pRect.width,
+      pH: pRect.height,
+    }
+
+    const onMove = (ev) => {
+      const d = dragState.current
+      if (!d) return
+      const dx = ((ev.clientX - d.startX) / d.pW) * 100
+      const dy = ((ev.clientY - d.startY) / d.pH) * 100
+      const next = { ...vals }
+      if (d.origTop != null) next.top = Math.max(0, Math.round((d.origTop + dy) * 10) / 10)
+      if (d.origLeft != null) next.left = Math.max(0, Math.round((d.origLeft + dx) * 10) / 10)
+      onUpdate(id, next)
+    }
+
+    const onUp = () => {
+      dragState.current = null
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      console.log(`[Hotspot Debug] ${id}:`, JSON.stringify(vals))
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [showDebug, vals, id, onUpdate])
+
+  // Resize handler
+  const handleResizeDown = useCallback((e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const parent = ref.current.offsetParent
+    if (!parent) return
+    const pRect = parent.getBoundingClientRect()
+    dragState.current = {
+      type: 'resize',
+      startX: e.clientX,
+      startY: e.clientY,
+      origWidth: vals.width,
+      origHeight: vals.height,
+      origRight: vals.right,
+      pW: pRect.width,
+      pH: pRect.height,
+    }
+
+    const onMove = (ev) => {
+      const d = dragState.current
+      if (!d) return
+      const dx = ((ev.clientX - d.startX) / d.pW) * 100
+      const dy = ((ev.clientY - d.startY) / d.pH) * 100
+      const next = { ...vals }
+      next.height = Math.max(1, Math.round((d.origHeight + dy) * 10) / 10)
+      // If hotspot uses width, adjust width; if it uses right, adjust right
+      if (d.origWidth != null) {
+        next.width = Math.max(1, Math.round((d.origWidth + dx) * 10) / 10)
+      } else if (d.origRight != null) {
+        next.right = Math.max(0, Math.round((d.origRight - dx) * 10) / 10)
+      }
+      onUpdate(id, next)
+    }
+
+    const onUp = () => {
+      dragState.current = null
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      console.log(`[Hotspot Debug] ${id}:`, JSON.stringify(vals))
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [vals, id, onUpdate])
+
+  const handleClick = useCallback((e) => {
+    if (showDebug) {
+      e.stopPropagation()
+      return // Suppress navigation in debug mode
+    }
+    if (stopProp) e.stopPropagation()
+    onClick()
+  }, [showDebug, stopProp, onClick])
+
+  return (
+    <div
+      ref={ref}
+      className={`bez-hotspot${showDebug ? ' bez-hotspot--debug' : ''}`}
+      style={style}
+      onClick={handleClick}
+      onMouseDown={showDebug ? handleMouseDown : undefined}
+    >
+      {showDebug && (
+        <>
+          <span className="bez-hotspot-label">{id}</span>
+          <div className="bez-hotspot-resize" onMouseDown={handleResizeDown} />
+        </>
+      )}
+    </div>
+  )
+}
+
+/* ── Interactive image phone (Slide 3) ── */
+function InteractiveImagePhone({ isActive }) {
+  const [screen, setScreen] = useState('lock') // 'lock' | 'cart' | 'pdp-cream' | 'sheet' | 'pdp-olive'
+  const [debug, setDebug] = useState(false)
+  const [hotspots, setHotspots] = useState(DEFAULT_HOTSPOTS)
+  const prevActive = useRef(false)
+
+  // Reset when slide becomes active
+  useEffect(() => {
+    if (isActive && !prevActive.current) {
+      setScreen('lock')
+    }
+    prevActive.current = isActive
+  }, [isActive])
+
+  const updateHotspot = useCallback((id, next) => {
+    setHotspots((prev) => ({ ...prev, [id]: next }))
+  }, [])
+
+  // Screen stepper
+  const stepScreen = useCallback((dir) => {
+    setScreen((cur) => {
+      const idx = SCREEN_ORDER.indexOf(cur)
+      const next = (idx + dir + SCREEN_ORDER.length) % SCREEN_ORDER.length
+      return SCREEN_ORDER[next]
+    })
+  }, [])
+
+  // Copy all hotspot positions to clipboard
+  const [copied, setCopied] = useState(false)
+  const copyHotspots = useCallback(() => {
+    const json = JSON.stringify(hotspots, null, 2)
+    navigator.clipboard.writeText(json).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+      console.log('[Hotspot Debug] Copied to clipboard:\n' + json)
+    })
+  }, [hotspots])
+
+  const isLock = screen === 'lock'
+  const isCart = screen === 'cart'
+  const isPdpCream = screen === 'pdp-cream'
+  const isSheet = screen === 'sheet'
+  const isPdpOlive = screen === 'pdp-olive'
+
+  const showCart = isCart || isPdpCream || isSheet || isPdpOlive
+  const showPdp = isPdpCream || isSheet || isPdpOlive
+  const cartBehind = isPdpCream || isSheet || isPdpOlive
+
+  // Determine which PDP image to show
+  const pdpImg = isPdpOlive ? 'pdp-olive' : 'pdp-cream'
+
+  return (<>
+    <div className="bez-phone">
+      {/* Debug toolbar — dev only */}
+      {import.meta.env.DEV && (
+        <div className="bez-debug-toolbar">
+          <button
+            className={`bez-debug-toggle${debug ? ' bez-debug-toggle--active' : ''}`}
+            onClick={() => setDebug((d) => !d)}
+          >
+            🎯 {debug ? 'Debug ON' : 'Debug'}
+          </button>
+          {debug && (
+            <>
+              <div className="bez-debug-stepper">
+                <button onClick={() => stepScreen(-1)}>◀</button>
+                <span>{screen}</span>
+                <button onClick={() => stepScreen(1)}>▶</button>
+              </div>
+              <button className="bez-debug-toggle" onClick={copyHotspots}>
+                {copied ? '✅ Copied!' : '📋 Copy'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      <div className="bez-phone-screen">
+        {/* Lock Screen */}
+        <div className={`bez-screen bez-screen--lock${!isLock ? ' bez-exit' : ''}`}>
+          <img src={`${PROTO_BASE}/lock.png`} alt="Lock screen" className="bez-screen-img" />
+          <DebugHotspot
+            id="lock-notification" screenId="lock"
+            vals={hotspots['lock-notification']}
+            onClick={() => setScreen('cart')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+          />
+        </div>
+
+        {/* Cart Screen */}
+        <div className={`bez-screen bez-screen--slide${showCart ? ' bez-active' : ''}${cartBehind ? ' bez-behind' : ''}`}>
+          <img src={`${PROTO_BASE}/cart.png`} alt="Cart" className="bez-screen-img" />
+          <DebugHotspot
+            id="cart-plant" screenId="cart"
+            vals={hotspots['cart-plant']}
+            onClick={() => setScreen('pdp-cream')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+          />
+        </div>
+
+        {/* PDP Screen */}
+        <div className={`bez-screen bez-screen--slide${showPdp ? ' bez-active' : ''}`}>
+          <img src={`${PROTO_BASE}/${pdpImg}.png`} alt="Product detail" className="bez-screen-img" />
+          <DebugHotspot
+            id="pdp-back" screenId={isPdpOlive ? 'pdp-olive' : 'pdp-cream'}
+            vals={hotspots['pdp-back']}
+            onClick={() => setScreen('cart')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+          />
+          {!isPdpOlive && (
+            <DebugHotspot
+              id="pdp-color" screenId="pdp-cream"
+              vals={hotspots['pdp-color']}
+              onClick={() => setScreen('sheet')}
+              onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            />
+          )}
+        </div>
+
+        {/* Sheet backdrop + panel */}
+        <div
+          className={`bez-sheet-backdrop${isSheet ? ' bez-sheet-backdrop--visible' : ''}`}
+          onClick={() => setScreen('pdp-cream')}
+        />
+        <div className={`bez-sheet${isSheet ? ' bez-sheet--visible' : ''}`}>
+          <img src={`${PROTO_BASE}/sheet.png`} alt="Color picker" className="bez-screen-img" style={{ position: 'relative' }} />
+          <DebugHotspot
+            id="sheet-olive" screenId="sheet"
+            vals={hotspots['sheet-olive']}
+            onClick={() => setScreen('pdp-olive')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            stopProp
+          />
+          <DebugHotspot
+            id="sheet-close" screenId="sheet"
+            vals={hotspots['sheet-close']}
+            onClick={() => setScreen('pdp-cream')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            stopProp
+          />
+        </div>
+      </div>
+      <img src={`${PROTO_BASE}/bezel.png`} alt="" className="bez-phone-bezel" />
+    </div>
+    {screen !== 'lock' && (
+      <button className="bez-restart-btn" onClick={() => setScreen('lock')}>
+        ↺ Restart
+      </button>
+    )}
+  </>)
+}
+
+/* ── Swap image phone (Slide 4 — "suggest an alternative") ── */
+function SwapImagePhone({ isActive }) {
+  const [screen, setScreen] = useState('cart-swap') // 'cart-swap' | 'cart-swapped' | 'sheet' | 'cart-olive'
+  const [debug, setDebug] = useState(false)
+  const [hotspots, setHotspots] = useState(DEFAULT_SWAP_HOTSPOTS)
+  const prevActive = useRef(false)
+
+  // Reset when slide becomes active
+  useEffect(() => {
+    if (isActive && !prevActive.current) {
+      setScreen('cart-swap')
+    }
+    prevActive.current = isActive
+  }, [isActive])
+
+  const updateHotspot = useCallback((id, next) => {
+    setHotspots((prev) => ({ ...prev, [id]: next }))
+  }, [])
+
+  // Screen stepper
+  const stepScreen = useCallback((dir) => {
+    setScreen((cur) => {
+      const idx = SWAP_SCREEN_ORDER.indexOf(cur)
+      const next = (idx + dir + SWAP_SCREEN_ORDER.length) % SWAP_SCREEN_ORDER.length
+      return SWAP_SCREEN_ORDER[next]
+    })
+  }, [])
+
+  // Copy hotspot positions to clipboard
+  const [copied, setCopied] = useState(false)
+  const copyHotspots = useCallback(() => {
+    const json = JSON.stringify(hotspots, null, 2)
+    navigator.clipboard.writeText(json).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+      console.log('[Hotspot Debug] Copied to clipboard:\n' + json)
+    })
+  }, [hotspots])
+
+  const isCartSwap = screen === 'cart-swap'
+  const isSheet = screen === 'sheet'
+  const isCartSwapped = screen === 'cart-swapped'
+  const isCartOlive = screen === 'cart-olive'
+
+  return (<>
+    <div className="bez-phone">
+      {/* Debug toolbar — dev only */}
+      {import.meta.env.DEV && (
+        <div className="bez-debug-toolbar">
+          <button
+            className={`bez-debug-toggle${debug ? ' bez-debug-toggle--active' : ''}`}
+            onClick={() => setDebug((d) => !d)}
+          >
+            🎯 {debug ? 'Debug ON' : 'Debug'}
+          </button>
+          {debug && (
+            <>
+              <div className="bez-debug-stepper">
+                <button onClick={() => stepScreen(-1)}>◀</button>
+                <span>{screen}</span>
+                <button onClick={() => stepScreen(1)}>▶</button>
+              </div>
+              <button className="bez-debug-toggle" onClick={copyHotspots}>
+                {copied ? '✅ Copied!' : '📋 Copy'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      <div className="bez-phone-screen">
+        {/* Base: Cart with Swap Option */}
+        <div className="bez-screen">
+          <img src={`${PROTO_BASE}/cart-swap.png`} alt="Cart with swap option" className="bez-screen-img" />
+          <DebugHotspot
+            id="swap-btn" screenId="cart-swap"
+            vals={hotspots['swap-btn']}
+            onClick={() => setScreen('cart-swapped')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            screenHotspotsMap={SWAP_SCREEN_HOTSPOTS}
+          />
+          <DebugHotspot
+            id="swap-other" screenId="cart-swap"
+            vals={hotspots['swap-other']}
+            onClick={() => setScreen('sheet')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            screenHotspotsMap={SWAP_SCREEN_HOTSPOTS}
+          />
+        </div>
+
+        {/* Cart Product Swapped (dissolve) */}
+        <div className={`bez-screen bez-screen--dissolve${isCartSwapped ? ' bez-active' : ''}`}>
+          <img src={`${PROTO_BASE}/cart-swapped.png`} alt="Cart product swapped" className="bez-screen-img" />
+        </div>
+
+        {/* Cart Swapped for Olive (dissolve) */}
+        <div className={`bez-screen bez-screen--dissolve${isCartOlive ? ' bez-active' : ''}`}>
+          <img src={`${PROTO_BASE}/cart-olive.png`} alt="Cart swapped for olive" className="bez-screen-img" />
+        </div>
+
+        {/* Sheet backdrop */}
+        <div
+          className={`bez-sheet-backdrop${isSheet ? ' bez-sheet-backdrop--visible' : ''}`}
+          onClick={() => setScreen('cart-swap')}
+        />
+        {/* Sheet panel */}
+        <div className={`bez-sheet${isSheet ? ' bez-sheet--visible' : ''}`}>
+          <img src={`${PROTO_BASE}/sheet.png`} alt="Options sheet" className="bez-screen-img" style={{ position: 'relative' }} />
+          <DebugHotspot
+            id="swap-sheet-olive" screenId="sheet"
+            vals={hotspots['swap-sheet-olive']}
+            onClick={() => setScreen('cart-olive')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            screenHotspotsMap={SWAP_SCREEN_HOTSPOTS}
+            stopProp
+          />
+          <DebugHotspot
+            id="swap-sheet-close" screenId="sheet"
+            vals={hotspots['swap-sheet-close']}
+            onClick={() => setScreen('cart-swap')}
+            onUpdate={updateHotspot} debug={debug} currentScreen={screen}
+            screenHotspotsMap={SWAP_SCREEN_HOTSPOTS}
+            stopProp
+          />
+        </div>
+      </div>
+      <img src={`${PROTO_BASE}/bezel.png`} alt="" className="bez-phone-bezel" />
+    </div>
+    {screen !== 'cart-swap' && (
+      <button className="bez-restart-btn" onClick={() => setScreen('cart-swap')}>
+        ↺ Restart
+      </button>
+    )}
+  </>)
+}
+
+/* ═══════════════════════════════════════════════════
    Slide definitions
    ═══════════════════════════════════════════════════ */
 const SLIDES = [
@@ -729,13 +1209,17 @@ export default function IosCart() {
     const container = scrollRef.current
     if (!container) return
     const update = () => {
-      const h = container.clientHeight
-      if (!h) return
-      const idx = Math.round(container.scrollTop / h)
-      setActiveSlide((prev) => {
-        const clamped = Math.max(0, Math.min(idx, SLIDES.length - 1))
-        return clamped !== prev ? clamped : prev
+      const sections = container.querySelectorAll('.deck-slide')
+      if (!sections.length) return
+      const st = container.scrollTop
+      const vh = container.clientHeight
+      let best = 0
+      let bestDist = Infinity
+      sections.forEach((sec, i) => {
+        const dist = Math.abs(sec.offsetTop - st)
+        if (dist < bestDist) { bestDist = dist; best = i }
       })
+      setActiveSlide((prev) => best !== prev ? best : prev)
     }
     container.addEventListener('scroll', update, { passive: true })
     update()
@@ -745,7 +1229,8 @@ export default function IosCart() {
   const scrollToSlide = useCallback((idx) => {
     const container = document.querySelector('.deck')
     if (!container) return
-    const target = container.clientHeight * idx
+    const sections = container.querySelectorAll('.deck-slide')
+    const target = sections[idx] ? sections[idx].offsetTop : container.clientHeight * idx
     const start = container.scrollTop
     const diff = target - start
     if (Math.abs(diff) < 2) return
@@ -789,6 +1274,12 @@ export default function IosCart() {
 
   return (
     <PasswordGate hash={PW_HASH} slug="ioscart">
+      <div className="deck-mobile-gate">
+        <svg width="24" height="19" viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 16C24 17.6573 22.6573 19 21 19H3C1.34272 19 0 17.6573 0 16V13H24V16ZM2 16C2 16.5527 2.44728 17 3 17H21C21.5527 17 22 16.5527 22 16V15H2V16ZM19 0C20.6573 0 22 1.34272 22 3V12H20V3C20 2.44728 19.5527 2 19 2H5C4.44728 2 4 2.44728 4 3V12H2V3C2 1.34272 3.34272 0 5 0H19ZM16 10H14V7.41406L9.70703 11.707L8.29297 10.293L12.5859 6H10V4H16V10Z" fill="white"/>
+        </svg>
+        <p>Please view this on a computer.</p>
+      </div>
       <div className="deck" ref={scrollRef}>
         {SLIDES.map((slide, i) => (
           <section
@@ -825,6 +1316,16 @@ export default function IosCart() {
               <>
                 <div className="slide-copy">
                   <h1 className="slide-heading">{slide.heading}</h1>
+                  {slide.id === 'prompt' && (
+                    <a
+                      className="slide-figma-link"
+                      href="https://www.figma.com/design/nqexZdbsHZRsZpH8bSetjy/Matthew-Vernon---March-2026?node-id=1-45&t=gnAk0uQX4v4q2Wrw-1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View original prompt in Figma ↗
+                    </a>
+                  )}
                   <div className="slide-body">{slide.body}</div>
                   {slide.cta && (
                     <button className="slide-cta" onClick={nextSlide}>
@@ -834,7 +1335,13 @@ export default function IosCart() {
                 </div>
                 {slide.phone && (
                   <div className="slide-phone-wrap">
-                    <CartPhone />
+                    {slide.id === 'prompt'
+                      ? <StaticImagePhone />
+                      : slide.id === 'prevent'
+                      ? <InteractiveImagePhone isActive={activeSlide === i} />
+                      : slide.id === 'alternative'
+                      ? <SwapImagePhone isActive={activeSlide === i} />
+                      : <CartPhone />}
                   </div>
                 )}
               </>

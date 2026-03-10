@@ -14,6 +14,7 @@ export class MusicManager {
     this.onTrackChange = null
 
     this.muted = false
+    this.volume = 1
 
     this.audioA.addEventListener('ended', () => this._handleEnded('A'))
     this.audioB.addEventListener('ended', () => this._handleEnded('B'))
@@ -87,13 +88,13 @@ export class MusicManager {
     this._fadeInterval = setInterval(() => {
       step++
       const progress = step / steps
-      outAudio.volume = Math.max(0, 1 - progress)
-      inAudio.volume = Math.min(1, progress)
+      outAudio.volume = Math.max(0, (1 - progress) * this.volume)
+      inAudio.volume = Math.min(this.volume, progress * this.volume)
 
       if (step >= steps) {
         clearInterval(this._fadeInterval)
         outAudio.pause()
-        outAudio.volume = 1
+        outAudio.volume = this.volume
         outAudio.currentTime = 0
 
         this.current = this.current === 'A' ? 'B' : 'A'
@@ -112,6 +113,13 @@ export class MusicManager {
     this.audioA.muted = this.muted
     this.audioB.muted = this.muted
     return this.muted
+  }
+
+  setVolume(val) {
+    this.volume = val
+    if (!this.crossfading) {
+      this.currentAudio.volume = val
+    }
   }
 
   skipTrack() {

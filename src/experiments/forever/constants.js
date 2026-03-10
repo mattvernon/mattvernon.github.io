@@ -1,4 +1,4 @@
-export const SLIDE_DURATION = 1200
+export const SLIDE_DURATION = 1120
 export const TRANSITION_DURATION = 800
 export const CROSSFADE_DURATION = 3000
 export const PRELOAD_AHEAD = 5

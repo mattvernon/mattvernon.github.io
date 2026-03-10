@@ -10,6 +10,7 @@ export default function MusicPlayer() {
   const setCurrentTrackIndex = useForeverStore((s) => s.setCurrentTrackIndex)
   const managerRef = useRef(null)
   const [muted, setMuted] = useState(false)
+  const [volume, setVolume] = useState(1)
 
   useEffect(() => {
     const mgr = new MusicManager()
@@ -46,6 +47,14 @@ export default function MusicPlayer() {
     }
   }
 
+  const handleVolume = (e) => {
+    const val = parseFloat(e.target.value)
+    setVolume(val)
+    if (managerRef.current) {
+      managerRef.current.setVolume(val)
+    }
+  }
+
   if (music.length === 0) return null
 
   const track = music[currentTrackIndex]
@@ -64,6 +73,18 @@ export default function MusicPlayer() {
           </svg>
         )}
       </button>
+
+      {/* Volume slider */}
+      <input
+        type="range"
+        className="music-volume"
+        min="0"
+        max="1"
+        step="0.01"
+        value={volume}
+        onChange={handleVolume}
+        aria-label="Volume"
+      />
 
       {/* Track title */}
       <div className="music-icon">

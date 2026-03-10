@@ -40,6 +40,7 @@
 }
 
 .exp-card {
+  position: relative;
   display: block;
   border-radius: 12px;
   padding: 12px 14px;
@@ -73,6 +74,13 @@
   font-size: 13px;
   font-weight: 500;
   opacity: 0.85;
+}
+
+.exp-card-lock {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  opacity: 0.4;
 }
 
 .exp-card-badge {

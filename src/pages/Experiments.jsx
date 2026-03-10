@@ -44,6 +44,15 @@ const EXPERIMENTS = [
     description:
       'A pixel-perfect recreation of an iOS shopping cart screen, built in React. A sandbox for hacking on mobile design exercises.',
     color: '#8ACE00',
+    locked: true,
+  },
+  {
+    slug: 'forever',
+    title: 'foundation forever',
+    description:
+      'A goodbye photo montage for Foundation — auto-playing slideshow with music, confetti, and WordArt.',
+    color: '#7C4DFF',
+    locked: true,
   },
 ]
 
@@ -137,6 +146,9 @@ export default function Experiments() {
               </div>
               <h3 className="exp-card-title">{exp.title}</h3>
               <p className="exp-card-desc">{exp.description}</p>
+              {exp.locked && (
+                <svg className="exp-card-lock" width="14" height="14" viewBox="0 0 24 24"><path d="M20,10H4c-1.105,0-2,.895-2,2v10c0,1.105,.895,2,2,2H20c1.105,0,2-.895,2-2V12c0-1.105-.895-2-2-2Zm-8,9c-1.105,0-2-.895-2-2s.895-2,2-2,2,.895,2,2-.895,2-2,2Z" fill="currentColor" /><path d="M18,8h-2v-2c.023-2.184-1.727-3.974-3.911-4h-.042c-2.197-.038-4.009,1.711-4.047,3.908,0,.001,0,.002,0,.003v2.089h-2v-2.1C6.033,2.636,8.685,.006,11.949,0h.061c3.302-.006,5.984,2.666,5.99,5.968,0,.014,0,.028,0,.042v1.99Z" fill="currentColor" /></svg>
+              )}
             </div>
           ))}
         </div>

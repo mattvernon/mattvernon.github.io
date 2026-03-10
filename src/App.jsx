@@ -8,6 +8,7 @@ import ReelMaker from './experiments/reel-maker/ReelMaker'
 import DvdScreen from './experiments/dvd-screen/DvdScreen'
 import Moodboard from './experiments/moodboard/Moodboard'
 import IosCart from './experiments/ios-cart/IosCart'
+import Forever from './experiments/forever/Forever'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/experiments/dvd-screen" element={<DvdScreen />} />
         <Route path="/experiments/moodboard" element={<Moodboard />} />
         <Route path="/experiments/ioscart" element={<IosCart />} />
+        <Route path="/experiments/forever" element={<Forever />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

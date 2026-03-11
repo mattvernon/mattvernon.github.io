@@ -47,6 +47,13 @@ const EXPERIMENTS = [
     locked: true,
   },
   {
+    slug: 'gameboy',
+    title: 'gameboy color',
+    description:
+      'A GameBoy Color emulator running in the browser via WebAssembly.',
+    color: '#7B2FBE',
+  },
+  {
     slug: 'forever',
     title: 'foundation forever',
     description:

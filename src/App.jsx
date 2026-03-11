@@ -9,6 +9,7 @@ import DvdScreen from './experiments/dvd-screen/DvdScreen'
 import Moodboard from './experiments/moodboard/Moodboard'
 import IosCart from './experiments/ios-cart/IosCart'
 import Forever from './experiments/forever/Forever'
+import GameBoy from './experiments/gameboy/GameBoy'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/experiments/moodboard" element={<Moodboard />} />
         <Route path="/experiments/ioscart" element={<IosCart />} />
         <Route path="/experiments/forever" element={<Forever />} />
+        <Route path="/experiments/gameboy" element={<GameBoy />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

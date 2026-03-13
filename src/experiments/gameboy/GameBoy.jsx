@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react'
 import useEmulator from './useEmulator'
 import GameBoyBezel from './GameBoyBezel'
+import GameBoyControls from './GameBoyControls'
+import nintendoSvg from './assets/Nintendo.svg'
 import './GameBoy.css'
+
+function isTouchDevice() {
+  if (typeof window === 'undefined') return false
+  if (new URLSearchParams(window.location.search).has('touch')) return true
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia('(pointer: coarse)').matches
+  )
+}
 
 export default function GameBoy() {
   const { canvasRef, status, error, init, play } = useEmulator()
   const [started, setStarted] = useState(false)
+  const [hasTouch, setHasTouch] = useState(false)
 
   useEffect(() => {
     document.title = 'GameBoy Color'
     document.body.style.overflow = 'hidden'
     document.body.style.backgroundColor = '#E8E532'
     document.body.style.margin = '0'
+    setHasTouch(isTouchDevice())
 
     return () => {
       document.body.style.overflow = ''
@@ -30,7 +44,7 @@ export default function GameBoy() {
   }
 
   return (
-    <div className="gb-container">
+    <div className={`gb-container ${hasTouch ? 'gb-container--touch' : ''}`}>
       <div className="gb-device">
         <GameBoyBezel className="gb-bezel" />
         <canvas
@@ -62,9 +76,20 @@ export default function GameBoy() {
         )}
       </div>
 
-      <div className="gb-controls-hint">
-        Arrows: D-Pad &middot; Z: B &middot; X: A &middot; Enter: Start &middot; Shift: Select
-      </div>
+      {hasTouch && (
+        <>
+          <div className="gb-ctrl-nintendo">
+            <img src={nintendoSvg} alt="" draggable={false} />
+          </div>
+          <GameBoyControls className="gb-touch-controls" />
+        </>
+      )}
+
+      {!hasTouch && (
+        <div className="gb-controls-hint">
+          Arrows: D-Pad &middot; Z: B &middot; X: A &middot; Enter: Start &middot; Shift: Select
+        </div>
+      )}
     </div>
   )
 }

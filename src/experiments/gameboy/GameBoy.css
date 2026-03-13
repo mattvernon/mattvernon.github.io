@@ -11,11 +11,24 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Touch layout: vertical stack */
+.gb-container--touch {
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Match horizontal margin (4vw each side) so bezel has equal spacing */
+  padding-top: calc(4vw + env(safe-area-inset-top, 0px));
+}
+
 .gb-device {
   position: relative;
   aspect-ratio: 1036 / 932;
   width: min(90vw, 90vh * (1036 / 932));
   max-width: 700px;
+}
+
+.gb-container--touch .gb-device {
+  width: min(92vw, 50vh * (1036 / 932));
+  flex-shrink: 0;
 }
 
 .gb-bezel {
@@ -98,7 +111,123 @@
   to { transform: rotate(360deg); }
 }
 
-/* Controls hint */
+/* Touch controls */
+.gb-touch-controls {
+  width: min(92vw, 50vh * (1036 / 932));
+  max-width: 700px;
+  flex: 1;
+  min-height: 0;
+}
+
+.gb-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  height: 100%;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.gb-controls img {
+  display: block;
+}
+
+/* Nintendo logo — sits between bezel and controls */
+.gb-ctrl-nintendo {
+  margin-top: 35px;
+  flex-shrink: 0;
+}
+
+.gb-ctrl-nintendo img {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+/* Main row: D-pad left, A/B right */
+.gb-ctrl-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 8px;
+}
+
+/* D-Pad */
+.gb-ctrl-dpad {
+  position: relative;
+  width: min(35vw, 150px);
+  aspect-ratio: 1;
+}
+
+.gb-ctrl-dpad > img {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Triangular touch zones split the d-pad diagonally */
+.gb-dpad-zone {
+  position: absolute;
+  inset: 0;
+}
+
+.gb-dpad-up    { clip-path: polygon(0 0, 100% 0, 50% 50%); }
+.gb-dpad-down  { clip-path: polygon(0 100%, 100% 100%, 50% 50%); }
+.gb-dpad-left  { clip-path: polygon(0 0, 0 100%, 50% 50%); }
+.gb-dpad-right { clip-path: polygon(100% 0, 100% 100%, 50% 50%); }
+
+/* A/B buttons — diagonal arrangement */
+.gb-ctrl-ab {
+  position: relative;
+  width: min(35vw, 150px);
+  aspect-ratio: 1;
+}
+
+.gb-ctrl-btn {
+  position: absolute;
+  width: 52%;
+}
+
+/* A button: upper-right */
+.gb-ctrl-btn:first-child {
+  top: 0;
+  right: 0;
+}
+
+/* B button: lower-left */
+.gb-ctrl-btn:last-child {
+  bottom: 0;
+  left: 0;
+}
+
+.gb-ctrl-btn img {
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* Select / Start */
+.gb-ctrl-meta {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.gb-ctrl-meta-btn img {
+  /* 42/100 of dpad width keeps proportions from Figma */
+  width: min(14.7vw, 63px);
+  height: auto;
+  pointer-events: none;
+}
+
+/* Controls hint (desktop only) */
 .gb-controls-hint {
   position: fixed;
   bottom: 16px;

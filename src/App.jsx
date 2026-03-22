@@ -10,6 +10,7 @@ import Moodboard from './experiments/moodboard/Moodboard'
 import IosCart from './experiments/ios-cart/IosCart'
 import Forever from './experiments/forever/Forever'
 import GameBoy from './experiments/gameboy/GameBoy'
+import QrCode from './experiments/qr-code/QrCode'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/experiments/ioscart" element={<IosCart />} />
         <Route path="/experiments/forever" element={<Forever />} />
         <Route path="/experiments/gameboy" element={<GameBoy />} />
+        <Route path="/experiments/qrcode" element={<QrCode />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

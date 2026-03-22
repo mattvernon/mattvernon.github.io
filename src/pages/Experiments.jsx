@@ -47,6 +47,13 @@ const EXPERIMENTS = [
     locked: true,
   },
   {
+    slug: 'qrcode',
+    title: 'qr code',
+    description:
+      'Generate and customize QR codes with different pixel styles, colors, and an optional logo. Download as SVG.',
+    color: '#6C3AED',
+  },
+  {
     slug: 'gameboy',
     title: 'gameboy color',
     description:

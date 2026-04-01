@@ -68,6 +68,14 @@ const EXPERIMENTS = [
     color: '#7C4DFF',
     locked: true,
   },
+  {
+    slug: 'spiral-tool',
+    title: 'spiral tool',
+    description:
+      'A brand image generator that arranges photos in a configurable spiral layout with real-time controls and PNG export.',
+    color: '#f5f5f0',
+    locked: true,
+  },
 ]
 
 export default function Experiments() {
@@ -141,7 +149,7 @@ export default function Experiments() {
           {EXPERIMENTS.map((exp) => (
             <div
               key={exp.slug}
-              className={`exp-card${exp.color === '#FFE600' || exp.color === '#8ACE00' || exp.color === '#FFCBA4' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
+              className={`exp-card${exp.color === '#FFE600' || exp.color === '#8ACE00' || exp.color === '#FFCBA4' || exp.color === '#f5f5f0' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
               style={{ background: exp.color }}
               onClick={() => { setIframeLoaded(false); setActiveExp(exp) }}
               role="button"

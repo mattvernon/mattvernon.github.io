@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiral Image Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  @font-face {
+    font-family: 'Cosmos Oracle';
+    src: url('fonts/CosmosOracle-Book.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Cosmos Oracle';
+    src: url('fonts/CosmosOracle-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Cosmos Oracle';
+    src: url('fonts/CosmosOracle-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Cosmos Oracle';
+    src: url('fonts/CosmosOracle-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f5f0;
+    overflow: hidden;
+    font-family: 'Cosmos Oracle', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.02em;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: border-radius 0.25s ease;
+  }
+
+  body.framed {
+    background: #1a1a1a !important;
+  }
+
+  body.framed #canvas {
+    border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    clip-path: inset(0 round 6px);
+  }
+
+  .spiral-item {
+    position: absolute;
+    overflow: hidden;
+    background: #ddd;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    will-change: transform;
+    transition: none;
+  }
+
+  .spiral-item .inner {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: inherit;
+  }
+
+  /* Control Panel — frosted glass */
+  #controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(60, 55, 50, 0.42);
+    backdrop-filter: blur(50px) saturate(1.5);
+    -webkit-backdrop-filter: blur(50px) saturate(1.5);
+    border-radius: 22px;
+    padding: 22px 24px;
+    width: 310px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    z-index: 1000;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.06) inset,
+      0 12px 48px rgba(0, 0, 0, 0.2),
+      0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  #controls::-webkit-scrollbar { width: 3px; }
+  #controls::-webkit-scrollbar-track { background: transparent; }
+  #controls::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  #controls h2 {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    margin-bottom: 18px;
+    color: rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+  }
+
+  .control-group {
+    margin-bottom: 14px;
+  }
+
+  .control-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .control-group label span.value {
+    color: rgba(255, 255, 255, 0.35);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    min-width: 40px;
+    text-align: right;
+    cursor: text;
+  }
+  .value-edit-input {
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.75);
+    font-size: 11px;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    width: 44px;
+    text-align: right;
+    outline: none;
+    padding: 0;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 1px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 0 0 0.5px rgba(255,255,255,0.1);
+  }
+
+  .separator {
+    height: 0.5px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 18px 0;
+  }
+
+  .toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    background: rgba(60, 55, 50, 0.42);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 13px;
+    color: rgba(255,255,255,0.6);
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 1001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(40px) saturate(1.6);
+    -webkit-backdrop-filter: blur(40px) saturate(1.6);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.3) inset,
+      0 4px 24px rgba(0,0,0,0.08);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .toggle-btn:hover {
+    background: rgba(60, 55, 50, 0.55);
+    transform: scale(1.06);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.4) inset,
+      0 6px 28px rgba(0,0,0,0.1);
+  }
+
+  .toggle-btn:active { transform: scale(0.96); }
+
+  #controls.collapsed { display: none; }
+  #controls.collapsed + .toggle-btn { display: flex; }
+
+  .btn-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 18px;
+  }
+
+  .btn-row button {
+    flex: 1;
+    padding: 9px 10px;
+    border: 0.5px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.2, 0, 0, 1);
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.04) inset;
+  }
+
+  .btn-row button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-0.5px);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.08) inset,
+      0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .btn-row button:active {
+    transform: translateY(0.5px) scale(0.98);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Background color picker */
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .color-row label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .color-row input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .color-row input[type="color"]:hover {
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+  .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
+
+  /* Export section */
+  .export-row label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .export-inputs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .export-inputs input[type="number"] {
+    width: 72px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 0.5px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 9px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    box-shadow: 0 0 0 0.5px rgba(255,255,255,0.04) inset;
+    outline: none;
+    transition: all 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .export-inputs input[type="number"]::-webkit-inner-spin-button,
+  .export-inputs input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .export-inputs input[type="number"]:focus {
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+  }
+
+  .export-inputs .dim-sep {
+    color: rgba(255,255,255,0.2);
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  .export-inputs .dim-unit {
+    color: rgba(255,255,255,0.22);
+    font-size: 11px;
+  }
+
+  .download-btn {
+    margin-top: 12px;
+    width: 100%;
+    padding: 11px;
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.06) inset,
+      0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .download-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.1) inset,
+      0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-0.5px);
+  }
+
+  .download-btn:active {
+    transform: translateY(0.5px) scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Frame overlay */
+  #frame-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+  #frame-overlay.active { display: block; }
+
+  #frame-overlay .dim-outside {
+    position: absolute;
+    background: rgba(0,0,0,0.45);
+  }
+
+  #frame-box {
+    position: absolute;
+    border: 1.5px solid rgba(255,255,255,0.6);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 4px 24px rgba(0,0,0,0.12);
+  }
+
+  #frame-label {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Image Picker ── */
+  .picker-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    align-items: center;
+    justify-content: center;
+  }
+  .picker-overlay.open { display: flex; }
+
+  .picker-load-btn {
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.09);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.14s;
+    flex-shrink: 0;
+  }
+  .picker-load-btn:hover { background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.9); }
+
+  .picker-restore-btn {
+    padding: 8px 14px;
+    background: rgba(100,180,255,0.12);
+    border: 0.5px solid rgba(100,180,255,0.3);
+    border-radius: 10px;
+    color: rgba(140,200,255,0.85);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.14s;
+    flex-shrink: 0;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .picker-restore-btn:hover { background: rgba(100,180,255,0.2); }
+
+  .picker-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .picker-tree-panel {
+    width: 210px;
+    flex-shrink: 0;
+    border-right: 0.5px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+  .picker-tree-panel::-webkit-scrollbar { width: 3px; }
+  .picker-tree-panel::-webkit-scrollbar-track { background: transparent; }
+  .picker-tree-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .tree-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px 6px 0;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    gap: 4px;
+    transition: background 0.1s, color 0.1s;
+    user-select: none;
+  }
+  .tree-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+  .tree-item.active { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.9); }
+
+  .tree-chevron {
+    width: 16px;
+    text-align: center;
+    font-size: 10px;
+    color: rgba(255,255,255,0.22);
+    flex-shrink: 0;
+    display: inline-block;
+    transition: transform 0.15s;
+    line-height: 1;
+  }
+  .tree-chevron.has-children { color: rgba(255,255,255,0.4); }
+  .tree-chevron.open { transform: rotate(90deg); }
+
+  .tree-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .tree-badge {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    padding-right: 8px;
+  }
+  .tree-badge.partial { color: rgba(255,255,255,0.5); }
+  .tree-badge.full { color: rgba(255,255,255,0.75); }
+
+  .picker-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.35);
+    font-size: 13px;
+    padding: 40px;
+    text-align: center;
+  }
+  .picker-empty-icon { font-size: 44px; opacity: 0.35; margin-bottom: 4px; }
+  .picker-empty p { line-height: 1.5; max-width: 260px; }
+  .picker-empty button {
+    padding: 10px 22px;
+    background: rgba(255,255,255,0.1);
+    border: 0.5px solid rgba(255,255,255,0.18);
+    border-radius: 11px;
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .picker-empty button:hover { background: rgba(255,255,255,0.18); }
+
+  .picker-panel {
+    background: rgba(38, 36, 33, 0.88);
+    backdrop-filter: blur(60px) saturate(1.4);
+    -webkit-backdrop-filter: blur(60px) saturate(1.4);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    border-radius: 20px;
+    width: min(960px, calc(100vw - 40px));
+    height: min(700px, calc(100vh - 60px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.06) inset;
+  }
+
+  .picker-header {
+    padding: 20px 22px 16px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+
+  .picker-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 5px;
+  }
+
+  .picker-count {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+  .picker-count strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .picker-count .needs { color: rgba(255,255,255,0.28); }
+
+  .picker-needs-warn { color: #f0a060 !important; }
+
+  .picker-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 80px);
+    grid-auto-rows: 80px;
+    gap: 5px;
+    justify-content: start;
+    align-content: start;
+    min-width: 0;
+  }
+  .picker-grid::-webkit-scrollbar { width: 3px; }
+  .picker-grid::-webkit-scrollbar-track { background: transparent; }
+  .picker-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .picker-item {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.22;
+    border: 1.5px solid transparent;
+    transition: opacity 0.14s, transform 0.12s, border-color 0.14s;
+    user-select: none;
+  }
+  .picker-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+  .picker-item.selected {
+    opacity: 1;
+    border-color: rgba(255,255,255,0.65);
+  }
+  .picker-item:hover { transform: scale(1.05); opacity: 0.55; }
+  .picker-item.selected:hover { opacity: 1; }
+
+  .picker-item .check {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 15px;
+    height: 15px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #222;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  .picker-item.selected .check { display: flex; }
+
+  /* Presets section inside tree panel */
+  .presets-section {
+    padding: 8px 0 4px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.07);
+    margin-bottom: 4px;
+  }
+  .presets-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    padding: 0 14px 6px;
+    display: block;
+  }
+  .preset-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px 5px 14px;
+    cursor: pointer;
+    gap: 6px;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .preset-row:hover { background: rgba(255,255,255,0.05); }
+  .preset-row:hover .preset-delete { opacity: 1; }
+  .preset-name {
+    flex: 1;
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .preset-count {
+    font-size: 10px;
+    color: rgba(255,255,255,0.28);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+  .preset-actions {
+    display: flex;
+    gap: 3px;
+    opacity: 0;
+    transition: opacity 0.1s;
+    flex-shrink: 0;
+  }
+  .preset-row:hover .preset-actions { opacity: 1; }
+  .preset-row.editing .preset-actions { opacity: 1; }
+  .preset-action-btn {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: background 0.1s, color 0.1s;
+  }
+  .preset-action-btn:hover { background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.9); }
+  .preset-action-btn.del:hover { background: rgba(255,80,80,0.25); color: rgba(255,120,120,0.9); }
+  .preset-row.editing { background: rgba(255,255,255,0.06); }
+  .preset-row.editing .preset-name { color: rgba(255,255,255,0.9); }
+
+  /* Edit preset mode row in footer */
+  .preset-edit-row {
+    display: none;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+  }
+  .preset-edit-row.visible { display: flex; }
+  .preset-edit-label {
+    flex: 1;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .preset-edit-label strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* Save preset inline input in footer */
+  .preset-save-row {
+    display: none;
+    flex: 1;
+    align-items: center;
+    gap: 6px;
+  }
+  .preset-save-row.visible { display: flex; }
+  .preset-name-input {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 0.5px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    font-family: inherit;
+    letter-spacing: inherit;
+    padding: 7px 10px;
+    outline: none;
+    min-width: 0;
+  }
+  .preset-name-input::placeholder { color: rgba(255,255,255,0.25); }
+  .preset-name-input:focus { border-color: rgba(255,255,255,0.35); }
+  .preset-confirm-btn {
+    padding: 7px 11px !important;
+    background: rgba(255,255,255,0.13) !important;
+    color: rgba(255,255,255,0.85) !important;
+  }
+
+  .picker-footer {
+    padding: 13px 18px;
+    border-top: 0.5px solid rgba(255,255,255,0.07);
+    display: flex;
+    gap: 7px;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .picker-footer .spacer { flex: 1; }
+  .picker-footer button {
+    padding: 8px 14px;
+    border: 0.5px solid rgba(255,255,255,0.13);
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.65);
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    transition: all 0.14s;
+  }
+  .picker-footer button:hover {
+    background: rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.9);
+  }
+  .picker-footer .btn-done {
+    background: rgba(255,255,255,0.16);
+    color: rgba(255,255,255,0.92);
+    border-color: rgba(255,255,255,0.2);
+    font-weight: 600;
+    padding: 8px 20px;
+  }
+  .picker-footer .btn-done:hover { background: rgba(255,255,255,0.24); }
+</style>
+</head>
+<body>
+
+<div id="canvas"></div>
+<div id="frame-overlay">
+  <div class="dim-outside" id="dim-top"></div>
+  <div class="dim-outside" id="dim-bottom"></div>
+  <div class="dim-outside" id="dim-left"></div>
+  <div class="dim-outside" id="dim-right"></div>
+  <div id="frame-box"><span id="frame-label"></span></div>
+</div>
+<div id="controls">
+  <h2>Spiral Layout</h2>
+
+  <div class="control-group">
+    <label>Density <span class="value" id="val-density">60</span></label>
+    <input type="range" id="density" min="8" max="100" value="60" step="1">
+  </div>
+
+  <div class="control-group">
+    <label>Spacing <span class="value" id="val-spacing">0.62</span></label>
+    <input type="range" id="spacing" min="0.15" max="1.8" value="0.62" step="0.01">
+  </div>
+
+  <div class="control-group">
+    <label>Growth Rate <span class="value" id="val-growth">14</span></label>
+    <input type="range" id="growth" min="3" max="50" value="14" step="0.5">
+  </div>
+
+  <div class="control-group">
+    <label>Spread <span class="value" id="val-spread">1</span></label>
+    <input type="range" id="spread" min="0.5" max="3" value="1" step="0.05">
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="control-group">
+    <label>Start Radius <span class="value" id="val-startRadius">30</span></label>
+    <input type="range" id="startRadius" min="0" max="200" value="30" step="1">
+  </div>
+
+  <div class="control-group">
+    <label>Base Size <span class="value" id="val-baseSize">28</span></label>
+    <input type="range" id="baseSize" min="5" max="150" value="28" step="1">
+  </div>
+
+  <div class="control-group">
+    <label>Size Growth <span class="value" id="val-sizeGrowth">2.5</span></label>
+    <input type="range" id="sizeGrowth" min="0" max="4" value="2.5" step="0.05">
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="control-group">
+    <label>Aspect Ratio <span class="value" id="val-aspect">1.35</span></label>
+    <input type="range" id="aspect" min="0.5" max="2.5" value="1.35" step="0.05">
+  </div>
+
+  <div class="control-group" style="display:flex;align-items:center;gap:8px;">
+    <input type="checkbox" id="naturalAspect" style="width:15px;height:15px;accent-color:rgba(255,255,255,0.7);">
+    <label for="naturalAspect" style="cursor:pointer;font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:0;">Use original aspect ratios</label>
+  </div>
+
+  <div class="control-group">
+    <label>Border Radius <span class="value" id="val-borderRadius">15%</span></label>
+    <input type="range" id="borderRadius" min="0" max="50" value="15" step="1">
+  </div>
+
+  <div class="control-group">
+    <label>Rotation Offset <span class="value" id="val-rotOffset">0&deg;</span></label>
+    <input type="range" id="rotOffset" min="-90" max="90" value="0" step="1">
+  </div>
+
+
+  <div class="separator"></div>
+
+  <div class="control-group">
+    <label>Center Fade <span class="value" id="val-centerFade">0.1</span></label>
+    <input type="range" id="centerFade" min="0" max="1" value="0.1" step="0.01">
+  </div>
+
+  <div class="control-group">
+    <label>Edge Fade <span class="value" id="val-edgeFade">0.02</span></label>
+    <input type="range" id="edgeFade" min="0" max="1" value="0.02" step="0.01">
+  </div>
+
+  <div class="control-group">
+    <label>Spiral Rotation <span class="value" id="val-spiralRotation">90&deg;</span></label>
+    <input type="range" id="spiralRotation" min="0" max="360" value="90" step="1">
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="color-row">
+    <label>Background</label>
+    <input type="color" id="bgColor" value="#f5f5f0">
+  </div>
+
+  <div class="control-group">
+    <label>Shadow Strength <span class="value" id="val-shadow">0.06</span></label>
+    <input type="range" id="shadow" min="0" max="0.4" value="0.06" step="0.01">
+  </div>
+
+  <div class="color-row" style="margin-bottom:8px;">
+    <label style="display:flex;align-items:center;gap:7px;">
+      <input type="checkbox" id="strokeToggle" style="width:13px;height:13px;accent-color:rgba(255,255,255,0.7);margin:0;">
+      Stroke
+    </label>
+    <input type="color" id="strokeColor" value="#6E6A69">
+    <input type="number" id="strokeOpacity" value="18" min="0" max="100" step="1" style="width:36px;background:none;border:none;border-bottom:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);font-size:11px;font-family:inherit;text-align:right;outline:none;padding:0;">
+    <span style="color:rgba(255,255,255,0.35);font-size:11px;">%</span>
+  </div>
+
+  <div class="btn-row">
+    <button onclick="randomize()">Randomize</button>
+    <button onclick="resetDefaults()">Reset</button>
+    <button onclick="toggleControls()">Hide</button>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;margin-bottom:6px;">
+    <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.8);">Images</span>
+    <span id="img-count-label" style="font-size:11px;color:rgba(255,255,255,0.28);font-variant-numeric:tabular-nums;"></span>
+  </div>
+  <div style="display:flex;gap:7px;">
+    <button class="download-btn" style="margin-top:0;flex:1;" onclick="openPicker()">Select Images</button>
+    <button class="download-btn" style="margin-top:0;width:38px;padding:0;font-size:15px;" title="Shuffle image order" onclick="shuffleImages()">⇌</button>
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="control-group" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <input type="checkbox" id="animateToggle" style="width:15px;height:15px;accent-color:rgba(255,255,255,0.7);">
+    <label for="animateToggle" style="cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:0;font-weight:500;">Animate</label>
+  </div>
+
+  <div class="control-group">
+    <label>Speed <span class="value" id="val-animSpeed">0.5</span></label>
+    <input type="range" id="animSpeed" min="0.05" max="2" value="0.5" step="0.05">
+  </div>
+
+  <div class="separator"></div>
+
+  <div class="export-row">
+    <div class="control-group" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <input type="checkbox" id="frameToggle" style="width:15px;height:15px;accent-color:rgba(255,255,255,0.7);">
+      <label for="frameToggle" style="cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:0;font-weight:500;">Frame</label>
+    </div>
+    <div class="export-inputs">
+      <input type="number" id="exportW" value="1500" min="100" max="8000">
+      <span class="dim-sep">&times;</span>
+      <input type="number" id="exportH" value="500" min="100" max="8000">
+      <span class="dim-unit">px</span>
+    </div>
+    <button class="download-btn" onclick="exportImage()">Download PNG</button>
+  </div>
+</div>
+
+<button class="toggle-btn" onclick="toggleControls()">&#9881;</button>
+
+<div class="picker-overlay" id="pickerOverlay" onclick="pickerOverlayClick(event)">
+  <div class="picker-panel">
+    <div class="picker-header">
+      <div>
+        <div class="picker-title" id="pickerTitle">Images</div>
+        <div class="picker-count" id="pickerCount"></div>
+      </div>
+      <button id="restoreBtn" class="picker-restore-btn" style="display:none"></button>
+      <button class="picker-load-btn" onclick="pickFolder()">Load Folder</button>
+      <input type="file" id="folderInput" webkitdirectory multiple style="display:none" onchange="onFolderLoaded(event)">
+    </div>
+    <div class="picker-body">
+      <div class="picker-tree-panel" id="pickerTreePanel" style="display:none;"></div>
+      <div class="picker-empty" id="pickerEmpty">
+        <div class="picker-empty-icon">📁</div>
+        <p>Load your Licensed Imagery folder to browse and select images by subfolder</p>
+        <button onclick="pickFolder()">Choose Folder</button>
+      </div>
+      <div class="picker-grid" id="pickerGrid" style="display:none;"></div>
+    </div>
+    <div class="picker-footer">
+      <div class="preset-edit-row" id="presetEditRow">
+        <span class="preset-edit-label" id="presetEditLabel"></span>
+        <button onclick="cancelEditPreset()">Cancel</button>
+        <button class="preset-confirm-btn" onclick="confirmEditPreset()">Update Preset</button>
+      </div>
+      <div class="preset-save-row" id="presetSaveRow">
+        <input class="preset-name-input" id="presetNameInput" type="text" placeholder="Preset name…" maxlength="40"
+          onkeydown="if(event.key==='Enter')confirmSavePreset();if(event.key==='Escape')cancelSavePreset();">
+        <button class="preset-confirm-btn" onclick="confirmSavePreset()">Save</button>
+        <button onclick="cancelSavePreset()">✕</button>
+      </div>
+      <button id="btnSelectAll" onclick="pickerSelectAll()">Select All</button>
+      <button id="btnClearAll" onclick="pickerClearAll()">Clear All</button>
+      <button id="btnSelectFolder" onclick="pickerSelectFolder()" style="display:none">+ Folder</button>
+      <button id="btnClearFolder" onclick="pickerClearFolder()" style="display:none">− Folder</button>
+      <button id="btnSavePreset" onclick="showSavePreset()" style="display:none">Save Selection…</button>
+      <button id="btnDownloadZip" onclick="downloadSelectionZip()" style="display:none">Download ZIP</button>
+      <div class="spacer"></div>
+      <button class="btn-done" onclick="closePicker()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Image URLs from Licensed Imagery ──
+const IMAGE_URLS = [
+  '/spiral-images/01385bbf.jpg',
+  '/spiral-images/0486bc5e.jpg',
+  '/spiral-images/07155ae3.jpg',
+  '/spiral-images/0885cc0f.jpg',
+  '/spiral-images/0be94fb1.jpg',
+  '/spiral-images/15b0cab5.jpg',
+  '/spiral-images/160ca62b.jpg',
+  '/spiral-images/16dabff8.jpg',
+  '/spiral-images/17e1007b.jpg',
+  '/spiral-images/211dc4a6.jpg',
+  '/spiral-images/2298754c.jpg',
+  '/spiral-images/29279afa.jpg',
+  '/spiral-images/29e4f0b1.jpg',
+  '/spiral-images/2bfd384f.jpg',
+  '/spiral-images/2e8e31a4.jpg',
+  '/spiral-images/2f94e898.jpg',
+  '/spiral-images/3140adbb.jpg',
+  '/spiral-images/32a41039.jpg',
+  '/spiral-images/3323c9aa.jpg',
+  '/spiral-images/342dde96.jpg',
+  '/spiral-images/347f10b1.jpg',
+  '/spiral-images/34f920fc.jpg',
+  '/spiral-images/35141209.jpg',
+  '/spiral-images/384898af.jpg',
+  '/spiral-images/387103c8.jpg',
+  '/spiral-images/399b3096.jpg',
+  '/spiral-images/39d41700.jpg',
+  '/spiral-images/3ed3b989.jpg',
+  '/spiral-images/44667a5f.jpg',
+  '/spiral-images/48aed866.jpg',
+  '/spiral-images/531387a7.jpg',
+  '/spiral-images/6123da60.jpg',
+  '/spiral-images/63d5c786.jpg',
+  '/spiral-images/6456d868.jpg',
+  '/spiral-images/6a617e94.jpg',
+  '/spiral-images/6d64e549.jpg',
+  '/spiral-images/6de4dc9c.jpg',
+  '/spiral-images/6e81438b.jpg',
+  '/spiral-images/707dc6c4.jpg',
+  '/spiral-images/730889e0.jpg',
+  '/spiral-images/73829aac.jpg',
+  '/spiral-images/75b93c74.jpg',
+  '/spiral-images/75dca708.jpg',
+  '/spiral-images/7afde6a3.jpg',
+  '/spiral-images/7b8ec014.jpg',
+  '/spiral-images/7ea6c4bd.jpg',
+  '/spiral-images/87681ab3.jpg',
+  '/spiral-images/87ee940b.jpg',
+  '/spiral-images/883db1c3.jpg',
+  '/spiral-images/89333ef8.jpg',
+  '/spiral-images/94e5fe5f.jpg',
+  '/spiral-images/994aee6e.jpg',
+  '/spiral-images/9c1edd91.jpg',
+  '/spiral-images/9e98eeee.jpg',
+  '/spiral-images/a00dfa61.jpg',
+  '/spiral-images/a3405942.jpg',
+  '/spiral-images/aa562c24.jpg',
+  '/spiral-images/aecdfbb3.jpg',
+  '/spiral-images/b83fa8ec.jpg',
+  '/spiral-images/b92ca686.jpg',
+  '/spiral-images/bade66f6.jpg',
+  '/spiral-images/bd932e50.jpg',
+  '/spiral-images/c2557580.jpg',
+  '/spiral-images/c37522e7.jpg',
+  '/spiral-images/c4083260.jpg',
+  '/spiral-images/c9588ab5.jpg',
+  '/spiral-images/ca5a7c9c.jpg',
+  '/spiral-images/cade0f18.jpg',
+  '/spiral-images/cb2e49f2.jpg',
+  '/spiral-images/cb5009fd.jpg',
+  '/spiral-images/ce47ca5c.jpg',
+  '/spiral-images/d2ff567f.jpg',
+  '/spiral-images/d41284e3.jpg',
+  '/spiral-images/d6e1facb.jpg',
+  '/spiral-images/d7a1ee73.jpg',
+  '/spiral-images/d987e816.jpg',
+  '/spiral-images/e06124d7.jpg',
+  '/spiral-images/e270914d.jpg',
+  '/spiral-images/e9918872.jpg',
+  '/spiral-images/eb9f2402.jpg',
+  '/spiral-images/ef6b87f4.jpg',
+  '/spiral-images/f04062d1.jpg',
+  '/spiral-images/f52c17ff.jpg',
+  '/spiral-images/f6492296.jpg',
+  '/spiral-images/f70e851d.jpg',
+  '/spiral-images/f774dc8e.jpg',
+  '/spiral-images/f7c1b908.jpg',
+  '/spiral-images/f8fe443e.jpg',
+  '/spiral-images/f9d09e75.jpg',
+  '/spiral-images/fc74fea8.jpg',
+  '/spiral-images/fd0a1586.jpg',
+  '/spiral-images/fd10152b.jpg',
+  '/spiral-images/fe3d7f51.jpg',
+];
+
+// ── Defaults ──
+const DEFAULTS = {
+  density: 60,
+  spacing: 0.62,
+  growth: 14,
+  startRadius: 30,
+  baseSize: 28,
+  sizeGrowth: 2.5,
+  aspect: 1.35,
+  borderRadius: 15,
+  rotOffset: 0,
+  centerFade: 0.1,
+  edgeFade: 0.02,
+  spiralRotation: 90,
+  bgColor: '#f5f5f0',
+  shadow: 0.06,
+  spread: 1,
+};
+
+// ── State ──
+const canvas = document.getElementById('canvas');
+const sliders = {};
+const valueDisplays = {};
+let items = [];
+
+// ── Image selection ──
+let selectedImages = new Set(IMAGE_URLS); // fallback when no folder loaded
+let allImageFiles = {};       // folder mode: path -> { file, name }
+let selectedPaths = new Set(); // folder mode: selected paths
+let folderTreeData = null;    // folder mode: root tree node
+let currentBrowseNode = null; // currently browsed folder node
+let _treeExpanded = new Set();
+let _thumbCache = {};         // path -> thumbnail blob URL
+let _fullCache = {};          // path -> full-size blob URL (lazy, for spiral)
+
+function getFullUrl(path) {
+  const info = allImageFiles[path];
+  if (!info) return null;
+  if (!_fullCache[path]) _fullCache[path] = URL.createObjectURL(info.file);
+  return _fullCache[path];
+}
+
+// Throttle concurrent thumbnail generation — large files crash if all fire at once
+let _thumbActive = 0;
+const _thumbWaiters = [];
+const THUMB_CONCURRENCY = 3;
+
+function thumbSlot() {
+  return new Promise(res => {
+    if (_thumbActive < THUMB_CONCURRENCY) { _thumbActive++; res(); }
+    else _thumbWaiters.push(res);
+  });
+}
+function releaseThumbSlot() {
+  _thumbActive--;
+  if (_thumbWaiters.length > 0) { _thumbActive++; _thumbWaiters.shift()(); }
+}
+
+async function getThumbUrl(path) {
+  if (_thumbCache[path] !== undefined) return _thumbCache[path];
+  const info = allImageFiles[path];
+  if (!info) return null;
+
+  await thumbSlot();
+  try {
+    // Try createImageBitmap with resize (avoids decoding full image into memory)
+    let url = null;
+    try {
+      const bitmap = await createImageBitmap(info.file, {
+        resizeWidth: 160, resizeHeight: 160, resizeQuality: 'medium'
+      });
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      canvas.getContext('2d').drawImage(bitmap, 0, 0);
+      bitmap.close();
+      url = await new Promise(r =>
+        canvas.toBlob(b => r(b ? URL.createObjectURL(b) : null), 'image/jpeg', 0.8)
+      );
+    } catch(e) {}
+
+    // Fallback: load via object URL, draw downscaled to canvas
+    if (!url) {
+      url = await new Promise(resolve => {
+        const objUrl = URL.createObjectURL(info.file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(objUrl);
+          const size = 160;
+          const r = Math.min(size / img.naturalWidth, size / img.naturalHeight);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.naturalWidth * r);
+          canvas.height = Math.round(img.naturalHeight * r);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(b => resolve(b ? URL.createObjectURL(b) : null), 'image/jpeg', 0.8);
+        };
+        img.onerror = () => { URL.revokeObjectURL(objUrl); resolve(null); };
+        img.src = objUrl;
+      });
+    }
+
+    _thumbCache[path] = url;
+    return url;
+  } finally {
+    releaseThumbSlot();
+  }
+}
+
+function getActiveImages() {
+  if (folderTreeData) {
+    const paths = selectedPaths.size > 0 ? [...selectedPaths] : Object.keys(allImageFiles);
+    return paths.map(p => getFullUrl(p)).filter(Boolean);
+  }
+  return selectedImages.size > 0 ? [...selectedImages] : IMAGE_URLS;
+}
+
+// Shuffle image pool so no repeats within density count
+let _shuffledImages = [];
+function getShuffledImage(index) {
+  const active = getActiveImages();
+  if (_shuffledImages.length < index + 1) {
+    _shuffledImages = [];
+    const copies = Math.ceil((index + 1) / active.length);
+    for (let c = 0; c < copies; c++) {
+      const batch = [...active];
+      for (let i = batch.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [batch[i], batch[j]] = [batch[j], batch[i]];
+      }
+      _shuffledImages.push(...batch);
+    }
+  }
+  return _shuffledImages[index];
+}
+
+function shuffleImages() {
+  _shuffledImages = [];
+  refreshItemImages();
+  render();
+}
+
+let _aspectRerenderTimer = null;
+function refreshItemImages() {
+  _shuffledImages = [];
+  const useNatural = document.getElementById('naturalAspect').checked;
+  items.forEach((div, i) => {
+    const inner = div.querySelector('.inner');
+    if (!inner) return;
+    const imgUrl = getShuffledImage(i);
+    inner.style.backgroundImage = `url(${imgUrl})`;
+    inner._loadedImg = null; // clear stale aspect ratio immediately
+    const img = new Image();
+    if (!imgUrl.startsWith('blob:')) img.crossOrigin = 'anonymous';
+    img.src = imgUrl;
+    img.onload = () => {
+      inner._loadedImg = img;
+      // Debounce re-render so we don't fire 60 times in a row
+      if (useNatural) {
+        clearTimeout(_aspectRerenderTimer);
+        _aspectRerenderTimer = setTimeout(render, 80);
+      }
+    };
+  });
+}
+
+// ── Initialize slider references ──
+const sliderIds = [
+  'density', 'spacing', 'growth', 'spread', 'startRadius', 'baseSize',
+  'sizeGrowth', 'aspect', 'borderRadius', 'rotOffset',
+  'centerFade', 'edgeFade', 'spiralRotation', 'shadow'
+];
+
+sliderIds.forEach(id => {
+  sliders[id] = document.getElementById(id);
+  valueDisplays[id] = document.getElementById('val-' + id);
+  sliders[id].addEventListener('input', () => {
+    updateDisplay(id);
+    if (id === 'density') updatePickerCount();
+    render();
+  });
+});
+
+const bgColorInput = document.getElementById('bgColor');
+bgColorInput.addEventListener('input', () => {
+  const canvasEl = document.getElementById('canvas');
+  if (document.getElementById('frameToggle').checked) {
+    canvasEl.style.background = bgColorInput.value;
+  } else {
+    document.body.style.background = bgColorInput.value;
+  }
+});
+
+document.getElementById('naturalAspect').addEventListener('change', render);
+document.getElementById('strokeToggle').addEventListener('change', render);
+document.getElementById('strokeColor').addEventListener('input', render);
+document.getElementById('strokeOpacity').addEventListener('input', render);
+
+function updateDisplay(id) {
+  const val = sliders[id].value;
+  const el = valueDisplays[id];
+  if (id === 'borderRadius') el.textContent = val + '%';
+  else if (id === 'rotOffset' || id === 'spiralRotation') el.textContent = val + '\u00B0';
+  else el.textContent = val;
+}
+
+function makeValueEditable(id) {
+  const span = valueDisplays[id];
+  const slider = sliders[id];
+  span.addEventListener('click', () => {
+    if (span.querySelector('input')) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'value-edit-input';
+    input.value = slider.value;
+    span.textContent = '';
+    span.appendChild(input);
+    input.focus();
+    input.select();
+    let done = false;
+    function commit() {
+      if (done) return;
+      done = true;
+      const num = parseFloat(input.value.replace(/[°%]/g, ''));
+      if (!isNaN(num)) slider.value = num; // browser clamps/snaps to step
+      updateDisplay(id);
+      if (id === 'density') updatePickerCount();
+      render();
+    }
+    function discard() {
+      if (done) return;
+      done = true;
+      updateDisplay(id);
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') { ev.preventDefault(); commit(); input.blur(); }
+      if (ev.key === 'Escape') { ev.preventDefault(); discard(); input.blur(); }
+    });
+  });
+}
+
+sliderIds.forEach(id => makeValueEditable(id));
+
+// ── Get current params ──
+function getParams() {
+  return {
+    density: parseInt(sliders.density.value),
+    spacing: parseFloat(sliders.spacing.value),
+    growth: parseFloat(sliders.growth.value),
+    startRadius: parseFloat(sliders.startRadius.value),
+    baseSize: parseFloat(sliders.baseSize.value),
+    sizeGrowth: parseFloat(sliders.sizeGrowth.value),
+    aspect: parseFloat(sliders.aspect.value),
+    borderRadius: parseFloat(sliders.borderRadius.value),
+    rotOffset: parseFloat(sliders.rotOffset.value),
+
+    spread: parseFloat(sliders.spread.value),
+    centerFade: parseFloat(sliders.centerFade.value),
+    edgeFade: parseFloat(sliders.edgeFade.value),
+    spiralRotation: parseFloat(sliders.spiralRotation.value),
+    shadow: parseFloat(sliders.shadow.value),
+    bgColor: bgColorInput.value,
+    strokeOn: document.getElementById('strokeToggle').checked,
+    strokeColor: (() => {
+      const hex = document.getElementById('strokeColor').value;
+      const op = Math.max(0, Math.min(100, parseInt(document.getElementById('strokeOpacity').value) || 0)) / 100;
+      const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${op})`;
+    })(),
+  };
+}
+
+// ── Render spiral ──
+function render() {
+  const p = getParams();
+  const canvasEl = document.getElementById('canvas');
+  const cw = canvasEl.offsetWidth;
+  const ch = canvasEl.offsetHeight;
+  const cx = cw / 2;
+  const cy = ch / 2;
+  const globalRotRad = p.spiralRotation * Math.PI / 180;
+
+  // Calculate max radius for fade calculations
+  const maxTheta = p.density * p.spacing;
+  const maxRadius = p.startRadius + p.growth * maxTheta;
+
+  // Ensure we have enough DOM elements
+  while (items.length < p.density) {
+    const div = document.createElement('div');
+    div.className = 'spiral-item';
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+    const imgUrl = getShuffledImage(items.length);
+    inner.style.backgroundImage = `url(${imgUrl})`;
+    // Pre-load image for canvas rasterization
+    const img = new Image();
+    if (!imgUrl.startsWith('blob:')) img.crossOrigin = 'anonymous';
+    img.src = imgUrl;
+    img.onload = () => { inner._loadedImg = img; };
+    div.appendChild(inner);
+    canvas.appendChild(div);
+    items.push(div);
+  }
+
+  // Hide excess items
+  for (let i = 0; i < items.length; i++) {
+    items[i].style.display = i < p.density ? 'block' : 'none';
+  }
+
+  // Archimedean spiral with hybrid spacing:
+  // - Near center: use minimum angular step to maintain spiral shape
+  // - Further out: adapt to arc-length so items stay evenly spaced
+  const viewDiag = Math.sqrt(cx * cx + cy * cy);
+  const growthPx = (p.growth / 25) * 12; // px of radius per radian
+
+  // Spacing controls the desired arc gap between items (px)
+  const arcGap = p.spacing * 100;
+  // Min angular step prevents items from scattering at small radii
+  const minAngStep = 0.35;
+
+  // Pre-compute positions — generate extra for animation buffer
+  const animOff = typeof getAnimOffset === 'function' ? getAnimOffset() : 0;
+  const extraSlots = 20; // extra positions beyond density for smooth cycling
+  const totalSlots = p.density + extraSlots;
+
+  let theta = 0;
+  const posData = [];
+  for (let i = 0; i < totalSlots + 1; i++) {
+    const r = p.startRadius + growthPx * theta;
+    posData.push({ theta, r });
+    const adaptiveStep = r > 1 ? arcGap / r : arcGap;
+    theta += Math.max(minAngStep, adaptiveStep);
+  }
+
+  // Scale so outermost visible item reaches the viewport diagonal * spread
+  const maxR = posData.length > 0 ? posData[p.density - 1].r : 1;
+  const targetR = viewDiag * p.spread;
+  // Cap scale so the innermost item (item 0) stays within the canvas at low density
+  const maxScale = posData[0] && posData[0].r > 0 ? Math.min(targetR, viewDiag) / posData[0].r : targetR / maxR;
+  const scale = maxR > 0 ? Math.min(targetR / maxR, maxScale) : 1;
+
+  // Animation: fractional offset along the spiral path
+  // animOff is a continuous value; each 1.0 = shift by one position
+  const fracOff = ((animOff % totalSlots) + totalSlots) % totalSlots;
+
+  const useNatural = document.getElementById('naturalAspect').checked;
+
+  for (let i = 0; i < p.density; i++) {
+    // Animation: shift each item along the spiral path
+    const srcIdx = i + fracOff;
+    const srcFloor = Math.floor(srcIdx);
+    const srcFrac = srcIdx - srcFloor;
+    const idx0 = srcFloor % totalSlots;
+    const idx1 = idx0 + 1; // always valid — posData has totalSlots+1 entries
+    // Interpolate theta between two positions
+    const th = posData[idx0].theta * (1 - srcFrac) + posData[idx1].theta * srcFrac;
+    const norm = i / Math.max(1, p.density - 1);
+
+    // Scale only the growth component, not startRadius
+    let r = p.startRadius + (growthPx * th) * scale;
+
+    const angle = th + globalRotRad;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+
+    const size = p.baseSize * (1 + p.sizeGrowth * norm);
+    const inner = items[i] ? items[i].querySelector('div') : null;
+    let w, h;
+    if (useNatural && inner && inner._loadedImg && inner._loadedImg.naturalWidth) {
+      const imgAspect = inner._loadedImg.naturalWidth / inner._loadedImg.naturalHeight;
+      const sqrtA = Math.sqrt(imgAspect);
+      w = size * sqrtA;
+      h = size / sqrtA;
+    } else {
+      w = size * p.aspect;
+      h = size;
+    }
+
+    // Tangent angle for rotation
+    const tangentAngle = angle + Math.atan2(r, growthPx * scale);
+    const rotDeg = (tangentAngle * 180 / Math.PI) + p.rotOffset;
+
+    // Opacity fades — use actual pixel radius so animated items vanish at center
+    let opacity = 1;
+    const fadeRadius = 30; // px — items within this radius fully disappear
+    if (r < fadeRadius) {
+      opacity = 0;
+    } else if (r < fadeRadius * 3) {
+      opacity = (r - fadeRadius) / (fadeRadius * 2);
+    }
+    if (p.centerFade > 0 && norm < p.centerFade) opacity = Math.min(opacity, norm / p.centerFade);
+    if (p.edgeFade > 0 && norm > (1 - p.edgeFade)) opacity = Math.min(opacity, (1 - norm) / p.edgeFade);
+
+    // Scale down as items approach center
+    let centerScale = Math.min(1, Math.max(0, (r - fadeRadius) / (fadeRadius * 2)));
+    if (r < fadeRadius) centerScale = 0;
+
+    const el = items[i];
+    // Fully hide items at center so they don't fly around
+    if (opacity <= 0.01 || centerScale <= 0.01) {
+      el.style.opacity = '0';
+      el.style.transform = `translate(${cx}px, ${cy}px) scale(0)`;
+      continue;
+    }
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    el.style.borderRadius = p.borderRadius + '%';
+    el.style.transform = `translate(${x - w/2}px, ${y - h/2}px) rotate(${rotDeg}deg) scale(${centerScale.toFixed(3)})`;
+    el.style.opacity = Math.max(0, Math.min(1, opacity));
+    el.style.boxShadow = `0 2px 8px rgba(0,0,0,${p.shadow})`;
+    if (inner) inner.style.boxShadow = p.strokeOn ? `inset 0 0 0 0.5px ${p.strokeColor}` : 'none';
+    el.style.zIndex = Math.floor(norm * 20);
+  }
+
+}
+
+
+// ── Randomize ──
+function randomize() {
+  sliders.density.value = 15 + Math.floor(Math.random() * 70);
+  sliders.spacing.value = (0.2 + Math.random() * 1.4).toFixed(2);
+  sliders.growth.value = (5 + Math.random() * 35).toFixed(1);
+  sliders.startRadius.value = Math.floor(Math.random() * 150);
+  sliders.baseSize.value = 25 + Math.floor(Math.random() * 100);
+  sliders.sizeGrowth.value = (Math.random() * 3).toFixed(2);
+  sliders.aspect.value = (0.6 + Math.random() * 1.6).toFixed(2);
+  sliders.borderRadius.value = Math.floor(Math.random() * 40);
+  sliders.rotOffset.value = Math.floor(-45 + Math.random() * 90);
+
+  sliders.centerFade.value = (Math.random() * 0.6).toFixed(2);
+  sliders.edgeFade.value = (Math.random() * 0.4).toFixed(2);
+  sliders.spiralRotation.value = Math.floor(Math.random() * 360);
+
+  sliderIds.forEach(updateDisplay);
+  render();
+}
+
+// ── Reset ──
+function resetDefaults() {
+  Object.keys(DEFAULTS).forEach(key => {
+    if (key === 'bgColor') {
+      bgColorInput.value = DEFAULTS[key];
+      document.body.style.background = DEFAULTS[key];
+    } else if (sliders[key]) {
+      sliders[key].value = DEFAULTS[key];
+    }
+  });
+  sliderIds.forEach(updateDisplay);
+  render();
+}
+
+// ── Toggle controls ──
+function toggleControls() {
+  const panel = document.getElementById('controls');
+  panel.classList.toggle('collapsed');
+  document.querySelector('.toggle-btn').style.display =
+    panel.classList.contains('collapsed') ? 'flex' : 'none';
+}
+
+// ── Export ──
+function rasterizeSpiral(targetW, targetH) {
+  // Rasterize the spiral at given dimensions onto a 2D canvas
+  const p = getParams();
+  const cx = targetW / 2;
+  const cy = targetH / 2;
+  const globalRotRad = p.spiralRotation * Math.PI / 180;
+  const viewDiag = Math.sqrt(cx * cx + cy * cy);
+
+  // Scale item sizes and spiral geometry proportionally to the export dimensions
+  const canvasEl = document.getElementById('canvas');
+  const screenDiag = Math.sqrt(Math.pow(canvasEl.offsetWidth / 2, 2) + Math.pow(canvasEl.offsetHeight / 2, 2)) || viewDiag;
+  const sizeRatio = viewDiag / screenDiag;
+
+  const growthPx = (p.growth / 25) * 12 * sizeRatio;
+  const arcGap = p.spacing * 100 * sizeRatio;
+  const minAngStep = 0.35;
+
+  let theta = 0;
+  const startRadius = p.startRadius * sizeRatio;
+  const posData = [];
+  for (let i = 0; i < p.density; i++) {
+    const r = startRadius + growthPx * theta;
+    posData.push({ theta, r });
+    const adaptiveStep = r > 1 ? arcGap / r : arcGap;
+    theta += Math.max(minAngStep, adaptiveStep);
+  }
+  const maxR = posData.length > 0 ? posData[posData.length - 1].r : 1;
+  const targetR = viewDiag * p.spread;
+  const maxScale = posData[0] && posData[0].r > 0 ? Math.min(targetR, viewDiag) / posData[0].r : targetR / maxR;
+  const scale = maxR > 0 ? Math.min(targetR / maxR, maxScale) : 1;
+
+  const offscreen = document.createElement('canvas');
+  offscreen.width = targetW;
+  offscreen.height = targetH;
+  const ctx = offscreen.getContext('2d');
+  ctx.fillStyle = p.bgColor || document.body.style.background || '#f5f5f0';
+  ctx.fillRect(0, 0, targetW, targetH);
+
+  const allItems = document.querySelectorAll('#canvas .spiral-item');
+
+  const useNatural = document.getElementById('naturalAspect').checked;
+
+  for (let i = 0; i < p.density && i < allItems.length; i++) {
+    const norm = i / Math.max(1, p.density - 1);
+    const { theta: th } = posData[i];
+    let r = startRadius + (growthPx * th) * scale;
+
+    const angle = th + globalRotRad;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+
+    const inner = allItems[i].querySelector('div');
+    const img = inner ? inner._loadedImg : null;
+
+    let size = p.baseSize * sizeRatio * (1 + p.sizeGrowth * norm);
+    let w, h;
+    if (useNatural && img && img.naturalWidth) {
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const sqrtA = Math.sqrt(imgAspect);
+      w = size * sqrtA;
+      h = size / sqrtA;
+    } else {
+      w = size * p.aspect;
+      h = size;
+    }
+
+    const tangentAngle = angle + Math.atan2(r, growthPx * scale);
+    const rotDeg = tangentAngle + p.rotOffset * Math.PI / 180;
+
+    let opacity = 1;
+    if (p.centerFade > 0 && norm < p.centerFade) opacity = Math.min(opacity, norm / p.centerFade);
+    if (p.edgeFade > 0 && norm > (1 - p.edgeFade)) opacity = Math.min(opacity, (1 - norm) / p.edgeFade);
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+    ctx.translate(x, y);
+    ctx.rotate(rotDeg);
+
+    // Shadow
+    ctx.shadowColor = `rgba(0,0,0,${p.shadow})`;
+    ctx.shadowBlur = 8 * sizeRatio;
+    ctx.shadowOffsetY = 2 * sizeRatio;
+
+    // Rounded rect clip
+    const br = p.borderRadius / 100 * Math.min(w, h);
+    const hw = w / 2, hh = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(-hw + br, -hh);
+    ctx.lineTo(hw - br, -hh);
+    ctx.quadraticCurveTo(hw, -hh, hw, -hh + br);
+    ctx.lineTo(hw, hh - br);
+    ctx.quadraticCurveTo(hw, hh, hw - br, hh);
+    ctx.lineTo(-hw + br, hh);
+    ctx.quadraticCurveTo(-hw, hh, -hw, hh - br);
+    ctx.lineTo(-hw, -hh + br);
+    ctx.quadraticCurveTo(-hw, -hh, -hw + br, -hh);
+    ctx.closePath();
+    ctx.clip();
+
+    if (img) {
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const boxAspect = w / h;
+      let sw = w, sh = h;
+      if (imgAspect > boxAspect) { sh = h; sw = h * imgAspect; }
+      else { sw = w; sh = w / imgAspect; }
+      ctx.drawImage(img, -sw / 2, -sh / 2, sw, sh);
+    } else {
+      ctx.fillStyle = '#ddd';
+      ctx.fillRect(-hw, -hh, w, h);
+    }
+
+    // Inset stroke — drawn after image, clipped to rounded rect, lineWidth=1 so 0.5px shows inside
+    if (p.strokeOn) {
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = p.strokeColor;
+      ctx.lineWidth = sizeRatio;
+      ctx.beginPath();
+      ctx.moveTo(-hw + br, -hh);
+      ctx.lineTo(hw - br, -hh);
+      ctx.quadraticCurveTo(hw, -hh, hw, -hh + br);
+      ctx.lineTo(hw, hh - br);
+      ctx.quadraticCurveTo(hw, hh, hw - br, hh);
+      ctx.lineTo(-hw + br, hh);
+      ctx.quadraticCurveTo(-hw, hh, -hw, hh - br);
+      ctx.lineTo(-hw, -hh + br);
+      ctx.quadraticCurveTo(-hw, -hh, -hw + br, -hh);
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+  return offscreen;
+}
+
+function exportImage() {
+  const frameOn = document.getElementById('frameToggle').checked;
+  let ew, eh;
+  if (frameOn) {
+    ew = parseInt(document.getElementById('exportW').value) || 1500;
+    eh = parseInt(document.getElementById('exportH').value) || 500;
+  } else {
+    ew = window.innerWidth;
+    eh = window.innerHeight;
+  }
+
+  // Always export at 2x for retina-quality output
+  const result = rasterizeSpiral(ew * 2, eh * 2);
+
+  // Download
+  const link = document.createElement('a');
+  link.download = `spiral-${ew * 2}x${eh * 2}.png`;
+  link.href = result.toDataURL('image/png');
+  link.click();
+}
+
+// ── Frame ──
+function updateFrame() {
+  const on = document.getElementById('frameToggle').checked;
+  const canvasEl = document.getElementById('canvas');
+  const overlay = document.getElementById('frame-overlay');
+
+  if (!on) {
+    document.body.classList.remove('framed');
+    overlay.classList.remove('active');
+    canvasEl.style.position = 'absolute';
+    canvasEl.style.top = '0';
+    canvasEl.style.left = '0';
+    canvasEl.style.width = '100%';
+    canvasEl.style.height = '100%';
+    document.body.style.background = getParams().bgColor;
+    render();
+    return;
+  }
+
+  document.body.classList.add('framed');
+  overlay.classList.remove('active'); // no overlay needed
+
+  const fw = parseInt(document.getElementById('exportW').value) || 1500;
+  const fh = parseInt(document.getElementById('exportH').value) || 500;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // Reserve space for the controls panel so the frame is centered in the visible area
+  const controlsEl = document.getElementById('controls');
+  const ctrlReserved = controlsEl.classList.contains('collapsed')
+    ? 0
+    : controlsEl.offsetWidth + 40;
+  const usableW = vw - ctrlReserved;
+
+  // Scale frame to fit within usable area with padding
+  const pad = 40;
+  const maxW = usableW - pad * 2;
+  const maxH = vh - pad * 2;
+  const scale = Math.min(maxW / fw, maxH / fh);
+  const dispW = Math.round(fw * scale);
+  const dispH = Math.round(fh * scale);
+  const left = Math.round((usableW - dispW) / 2); // centered in usable (non-controls) area
+  const top = Math.round((vh - dispH) / 2);
+
+  canvasEl.style.position = 'fixed';
+  canvasEl.style.left = left + 'px';
+  canvasEl.style.top = top + 'px';
+  canvasEl.style.width = dispW + 'px';
+  canvasEl.style.height = dispH + 'px';
+  canvasEl.style.background = getParams().bgColor;
+
+  render();
+}
+
+document.getElementById('frameToggle').addEventListener('change', updateFrame);
+document.getElementById('exportW').addEventListener('input', updateFrame);
+document.getElementById('exportH').addEventListener('input', updateFrame);
+window.addEventListener('resize', updateFrame);
+
+// ── Animation ──
+let _animating = false;
+let _animOffset = 0;
+let _lastAnimTime = 0;
+let _animRAF = null;
+
+function getAnimOffset() { return _animating ? _animOffset : 0; }
+
+function animLoop(timestamp) {
+  if (!_animating) return;
+  if (_lastAnimTime === 0) _lastAnimTime = timestamp;
+  const dt = (timestamp - _lastAnimTime) / 1000;
+  _lastAnimTime = timestamp;
+
+  const speed = parseFloat(document.getElementById('animSpeed').value) || 0.5;
+  _animOffset -= dt * speed;
+
+  render();
+  _animRAF = requestAnimationFrame(animLoop);
+}
+
+document.getElementById('animateToggle').addEventListener('change', (e) => {
+  _animating = e.target.checked;
+  if (_animating) {
+    _lastAnimTime = 0;
+    _animRAF = requestAnimationFrame(animLoop);
+  } else {
+    if (_animRAF) cancelAnimationFrame(_animRAF);
+    _animOffset = 0;
+    render();
+  }
+});
+
+document.getElementById('animSpeed').addEventListener('input', () => {
+  document.getElementById('val-animSpeed').textContent = document.getElementById('animSpeed').value;
+});
+
+// ── Image Picker ──
+function updatePickerCount() {
+  const density = parseInt(sliders.density.value);
+  let n, total;
+  if (folderTreeData) {
+    total = Object.keys(allImageFiles).length;
+    n = selectedPaths.size;
+  } else {
+    total = IMAGE_URLS.length;
+    n = selectedImages.size;
+  }
+  const needsClass = n < density ? ' class="needs picker-needs-warn"' : ' class="needs"';
+  document.getElementById('pickerCount').innerHTML =
+    `<strong>${n}</strong> of ${total} selected &nbsp;·&nbsp; <span${needsClass}>spiral needs ${density}</span>`;
+  document.getElementById('img-count-label').textContent = `${n} of ${total}`;
+}
+
+function openPicker() {
+  updatePickerCount();
+  document.getElementById('pickerOverlay').classList.add('open');
+}
+
+function closePicker() {
+  document.getElementById('pickerOverlay').classList.remove('open');
+  // Apply selection to spiral now that picker is closed
+  clearTimeout(_pickerUpdateTimer);
+  _shuffledImages = [];
+  refreshItemImages();
+  render();
+}
+
+function pickerOverlayClick(e) {
+  if (e.target === document.getElementById('pickerOverlay')) closePicker();
+}
+
+function pickerSelectAll() {
+  if (folderTreeData) {
+    Object.keys(allImageFiles).forEach(p => selectedPaths.add(p));
+    document.querySelectorAll('#pickerGrid .picker-item').forEach(el => el.classList.add('selected'));
+    updateTreeBadges();
+  } else {
+    selectedImages = new Set(IMAGE_URLS);
+  }
+  updatePickerCount();
+  scheduleSpiralUpdate();
+}
+
+function pickerClearAll() {
+  if (folderTreeData) {
+    selectedPaths.clear();
+    document.querySelectorAll('#pickerGrid .picker-item').forEach(el => el.classList.remove('selected'));
+    updateTreeBadges();
+  } else {
+    selectedImages.clear();
+  }
+  updatePickerCount();
+  scheduleSpiralUpdate();
+}
+
+function pickerSelectFolder() {
+  if (!currentBrowseNode) return;
+  currentBrowseNode.allImagePaths.forEach(p => selectedPaths.add(p));
+  document.querySelectorAll('#pickerGrid .picker-item').forEach(el => el.classList.add('selected'));
+  updatePickerCount();
+  updateTreeBadges();
+  scheduleSpiralUpdate();
+}
+
+function pickerClearFolder() {
+  if (!currentBrowseNode) return;
+  currentBrowseNode.allImagePaths.forEach(p => selectedPaths.delete(p));
+  document.querySelectorAll('#pickerGrid .picker-item').forEach(el => el.classList.remove('selected'));
+  updatePickerCount();
+  updateTreeBadges();
+  scheduleSpiralUpdate();
+}
+
+// ── Folder loading & tree ──
+function onFolderLoaded(event) {
+  const files = [...event.target.files].filter(f =>
+    /\.(jpe?g|png|gif|webp|avif|tiff?|heic)$/i.test(f.name)
+  );
+  if (files.length === 0) return;
+  processImageEntries(files.map(f => ({ file: f, path: f.webkitRelativePath, name: f.name })));
+}
+
+function processImageEntries(entries) {
+  // Revoke old cached URLs and reset thumb queue
+  Object.values(_thumbCache).forEach(u => u && URL.revokeObjectURL(u));
+  Object.values(_fullCache).forEach(u => u && URL.revokeObjectURL(u));
+  _thumbCache = {};
+  _fullCache = {};
+  _thumbWaiters.length = 0;
+  _thumbActive = 0;
+  allImageFiles = {};
+  selectedPaths = new Set();
+
+  for (const { file, path, name } of entries) {
+    allImageFiles[path] = { file, name };
+    selectedPaths.add(path);
+  }
+
+  folderTreeData = buildFolderTree(entries);
+  currentBrowseNode = folderTreeData;
+  _treeExpanded = new Set([folderTreeData.path]);
+
+  document.getElementById('pickerEmpty').style.display = 'none';
+  document.getElementById('pickerGrid').style.display = 'grid';
+  document.getElementById('pickerTreePanel').style.display = 'block';
+  document.getElementById('btnSelectFolder').style.display = 'inline-block';
+  document.getElementById('btnClearFolder').style.display = 'inline-block';
+  document.getElementById('btnSavePreset').style.display = 'inline-block';
+  document.getElementById('btnDownloadZip').style.display = 'inline-block';
+  document.getElementById('btnDownloadZip').style.display = 'inline-block';
+  document.getElementById('pickerTitle').textContent = folderTreeData.name;
+
+  renderPickerTree();
+  renderPresets();
+  browseNode(folderTreeData);
+  updatePickerCount();
+
+  _shuffledImages = [];
+  refreshItemImages();
+  render();
+}
+
+let _nodeMap = {}; // path -> node for O(1) lookup
+
+function buildFolderTree(entries) {
+  const rootName = entries[0].path.split('/')[0];
+  const root = { name: rootName, path: rootName, children: [], imagePaths: [], allImagePaths: [] };
+  const nodeMap = { [rootName]: root };
+
+  for (const entry of entries) {
+    const parts = entry.path.split('/');
+    for (let depth = 2; depth < parts.length; depth++) {
+      const path = parts.slice(0, depth).join('/');
+      if (!nodeMap[path]) {
+        const parentPath = parts.slice(0, depth - 1).join('/');
+        const node = { name: parts[depth - 1], path, children: [], imagePaths: [], allImagePaths: [] };
+        nodeMap[path] = node;
+        if (nodeMap[parentPath]) nodeMap[parentPath].children.push(node);
+      }
+    }
+    const parentPath = parts.slice(0, parts.length - 1).join('/');
+    if (nodeMap[parentPath]) nodeMap[parentPath].imagePaths.push(entry.path);
+  }
+
+  function computeAll(node) {
+    node.allImagePaths = [...node.imagePaths];
+    node.children.sort((a, b) => a.name.localeCompare(b.name));
+    for (const child of node.children) {
+      computeAll(child);
+      node.allImagePaths.push(...child.allImagePaths);
+    }
+  }
+  computeAll(root);
+  _nodeMap = nodeMap; // store for O(1) lookup
+  return root;
+}
+
+function renderPickerTree() {
+  const panel = document.getElementById('pickerTreePanel');
+  panel.innerHTML = '';
+  if (!folderTreeData) return;
+  renderPresets(); // presets section first, above folder tree
+  renderTreeNode(folderTreeData, 0, panel);
+}
+
+function renderTreeNode(node, depth, container) {
+  const isExpanded = _treeExpanded.has(node.path);
+  const isActive = currentBrowseNode && currentBrowseNode.path === node.path;
+  const sel = node.allImagePaths.filter(p => selectedPaths.has(p)).length;
+  const total = node.allImagePaths.length;
+  const hasChildren = node.children.length > 0;
+
+  const item = document.createElement('div');
+  item.className = 'tree-item' + (isActive ? ' active' : '');
+  item.style.paddingLeft = (8 + depth * 14) + 'px';
+  item.dataset.path = node.path;
+
+  const chevron = document.createElement('span');
+  chevron.className = 'tree-chevron' + (hasChildren ? ' has-children' : '') + (isExpanded ? ' open' : '');
+  chevron.textContent = '›';
+  chevron.addEventListener('click', e => {
+    if (!hasChildren) return;
+    e.stopPropagation();
+    if (_treeExpanded.has(node.path)) _treeExpanded.delete(node.path);
+    else _treeExpanded.add(node.path);
+    renderPickerTree();
+  });
+
+  const name = document.createElement('span');
+  name.className = 'tree-name';
+  name.textContent = node.name;
+
+  const badge = document.createElement('span');
+  badge.className = 'tree-badge' + (sel === 0 ? '' : sel === total ? ' full' : ' partial');
+  badge.textContent = `${sel}/${total}`;
+  badge.dataset.badgePath = node.path;
+
+  item.appendChild(chevron);
+  item.appendChild(name);
+  item.appendChild(badge);
+
+  item.addEventListener('click', () => {
+    currentBrowseNode = node;
+    browseNode(node);
+    document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+  });
+
+  container.appendChild(item);
+
+  if (isExpanded) {
+    for (const child of node.children) {
+      renderTreeNode(child, depth + 1, container);
+    }
+  }
+}
+
+// Spiral updates are deferred until picker closes — no live canvas updates while open
+let _pickerUpdateTimer = null;
+function scheduleSpiralUpdate() {
+  // No-op while picker is open; closePicker() does the actual update
+}
+
+function browseNode(node) {
+  const grid = document.getElementById('pickerGrid');
+
+  // Event delegation — one listener for the whole grid, not one per image
+  if (grid._clickHandler) grid.removeEventListener('click', grid._clickHandler);
+  grid._clickHandler = e => {
+    const item = e.target.closest('.picker-item[data-path]');
+    if (!item) return;
+    const path = item.dataset.path;
+    if (selectedPaths.has(path)) {
+      selectedPaths.delete(path);
+      item.classList.remove('selected');
+    } else {
+      selectedPaths.add(path);
+      item.classList.add('selected');
+    }
+    updatePickerCount();
+    updateTreeBadges();
+    scheduleSpiralUpdate();
+  };
+  grid.addEventListener('click', grid._clickHandler);
+
+  // Build all items in a DocumentFragment — one DOM insertion instead of N
+  // Only show direct images in this folder (not recursive children)
+  const frag = document.createDocumentFragment();
+  const imgEls = []; // collect for async thumb loading
+  for (const path of node.imagePaths) {
+    if (!allImageFiles[path]) continue;
+    const item = document.createElement('div');
+    item.className = 'picker-item' + (selectedPaths.has(path) ? ' selected' : '');
+    item.dataset.path = path;
+    const img = document.createElement('img');
+    img.draggable = false;
+    img.onerror = () => { item.style.display = 'none'; };
+    const check = document.createElement('div');
+    check.className = 'check';
+    check.textContent = '✓';
+    item.appendChild(img);
+    item.appendChild(check);
+    frag.appendChild(item);
+    imgEls.push({ img, path });
+  }
+  grid.innerHTML = '';
+  grid.appendChild(frag);
+
+  // Load thumbnails asynchronously — doesn't block DOM or decode full images
+  for (const { img, path } of imgEls) {
+    getThumbUrl(path).then(url => { if (url) img.src = url; });
+  }
+}
+
+function updateTreeBadges() {
+  document.querySelectorAll('[data-badge-path]').forEach(badge => {
+    const node = _nodeMap[badge.dataset.badgePath]; // O(1) lookup
+    if (!node) return;
+    const sel = node.allImagePaths.filter(p => selectedPaths.has(p)).length;
+    const total = node.allImagePaths.length;
+    badge.textContent = `${sel}/${total}`;
+    badge.className = 'tree-badge' + (sel === 0 ? '' : sel === total ? ' full' : ' partial');
+  });
+}
+
+function getNodeByPath(path) {
+  return _nodeMap[path] || null;
+}
+
+// ── Presets ──
+let _presets = []; // [{ id, name, paths[] }]
+let _editingPreset = null;
+let _preEditPaths = null;
+
+async function loadPresets() {
+  _presets = (await dbGet('presets')) || [];
+  renderPresets();
+}
+
+async function savePresetsToDb() {
+  await dbPut('presets', _presets);
+}
+
+function renderPresets() {
+  const panel = document.getElementById('pickerTreePanel');
+  const existing = panel.querySelector('.presets-section');
+  if (existing) existing.remove();
+  if (_presets.length === 0) return;
+
+  const section = document.createElement('div');
+  section.className = 'presets-section';
+
+  const label = document.createElement('span');
+  label.className = 'presets-label';
+  label.textContent = 'Presets';
+  section.appendChild(label);
+
+  for (const preset of _presets) {
+    const row = document.createElement('div');
+    row.className = 'preset-row' + (_editingPreset?.id === preset.id ? ' editing' : '');
+    row.dataset.presetId = preset.id;
+
+    const name = document.createElement('span');
+    name.className = 'preset-name';
+    name.textContent = preset.name;
+
+    const count = document.createElement('span');
+    count.className = 'preset-count';
+    count.textContent = preset.paths.length;
+
+    const actions = document.createElement('div');
+    actions.className = 'preset-actions';
+
+    const edit = document.createElement('button');
+    edit.className = 'preset-action-btn';
+    edit.textContent = '✎';
+    edit.title = 'Edit preset';
+    edit.onclick = e => { e.stopPropagation(); startEditPreset(preset); };
+
+    const del = document.createElement('button');
+    del.className = 'preset-action-btn del';
+    del.textContent = '✕';
+    del.title = 'Delete preset';
+    del.onclick = async e => {
+      e.stopPropagation();
+      if (_editingPreset?.id === preset.id) cancelEditPreset();
+      _presets = _presets.filter(p => p.id !== preset.id);
+      await savePresetsToDb();
+      renderPresets();
+      if (_presets.length === 0) document.getElementById('btnSavePreset').style.display = 'none';
+  document.getElementById('btnDownloadZip').style.display = 'none';
+    };
+
+    actions.appendChild(edit);
+    actions.appendChild(del);
+    row.appendChild(name);
+    row.appendChild(count);
+    row.appendChild(actions);
+    row.onclick = () => _editingPreset ? null : applyPreset(preset);
+    section.appendChild(row);
+  }
+
+  panel.insertBefore(section, panel.firstChild);
+}
+
+function applyPreset(preset) {
+  selectedPaths = new Set(preset.paths.filter(p => allImageFiles[p]));
+  document.querySelectorAll('#pickerGrid .picker-item').forEach(el => {
+    el.classList.toggle('selected', selectedPaths.has(el.dataset.path));
+  });
+  updatePickerCount();
+  updateTreeBadges();
+}
+
+function startEditPreset(preset) {
+  _editingPreset = preset;
+  _preEditPaths = new Set(selectedPaths);
+  // Load preset selection
+  selectedPaths = new Set(preset.paths.filter(p => allImageFiles[p]));
+  updatePickerCount();
+  updateTreeBadges();
+  // Switch footer to edit mode
+  document.getElementById('presetEditRow').classList.add('visible');
+  document.getElementById('presetEditLabel').innerHTML = `Editing <strong>${preset.name}</strong>`;
+  document.getElementById('btnSelectAll').style.display = 'none';
+  document.getElementById('btnClearAll').style.display = 'none';
+  document.getElementById('btnSelectFolder').style.display = 'none';
+  document.getElementById('btnClearFolder').style.display = 'none';
+  document.getElementById('btnSavePreset').style.display = 'none';
+  document.getElementById('btnDownloadZip').style.display = 'none';
+  renderPresets(); // highlight editing row
+  // Show all preset images in the grid so user can review/deselect
+  browsePresetImages();
+}
+
+function browsePresetImages() {
+  // Virtual node containing only the preset's currently-selected images
+  const paths = [...selectedPaths].filter(p => allImageFiles[p]);
+  currentBrowseNode = { imagePaths: paths, allImagePaths: paths, name: _editingPreset.name, path: '__preset__' };
+  browseNode(currentBrowseNode);
+  // Deactivate any highlighted tree row
+  document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+}
+
+function cancelEditPreset() {
+  _editingPreset = null;
+  if (_preEditPaths !== null) {
+    selectedPaths = _preEditPaths;
+    _preEditPaths = null;
+    updatePickerCount();
+    updateTreeBadges();
+  }
+  _exitEditFooter();
+  // Return to root folder view
+  if (folderTreeData) {
+    currentBrowseNode = folderTreeData;
+    browseNode(folderTreeData);
+  }
+}
+
+async function confirmEditPreset() {
+  if (!_editingPreset) return;
+  _editingPreset.paths = [...selectedPaths];
+  _preEditPaths = null;
+  await savePresetsToDb();
+  _editingPreset = null;
+  renderPresets();
+  _exitEditFooter();
+  if (folderTreeData) {
+    currentBrowseNode = folderTreeData;
+    browseNode(folderTreeData);
+  }
+}
+
+function _exitEditFooter() {
+  document.getElementById('presetEditRow').classList.remove('visible');
+  document.getElementById('btnSelectAll').style.display = '';
+  document.getElementById('btnClearAll').style.display = '';
+  if (folderTreeData) {
+    document.getElementById('btnSelectFolder').style.display = 'inline-block';
+    document.getElementById('btnClearFolder').style.display = 'inline-block';
+    document.getElementById('btnSavePreset').style.display = 'inline-block';
+  document.getElementById('btnDownloadZip').style.display = 'inline-block';
+  }
+}
+
+async function downloadSelectionZip() {
+  if (!window.JSZip) { alert('JSZip not loaded yet, try again.'); return; }
+  const paths = [...selectedPaths].filter(p => allImageFiles[p]);
+  if (paths.length === 0) { alert('No images selected.'); return; }
+
+  const btn = document.getElementById('btnDownloadZip');
+  btn.textContent = 'Zipping…';
+  btn.disabled = true;
+
+  try {
+    const zip = new JSZip();
+    // Deduplicate filenames
+    const seen = {};
+    for (const path of paths) {
+      const { file, name } = allImageFiles[path];
+      let fname = name;
+      if (seen[fname] !== undefined) {
+        seen[fname]++;
+        const dot = fname.lastIndexOf('.');
+        fname = dot >= 0 ? fname.slice(0, dot) + `_${seen[fname]}` + fname.slice(dot) : fname + `_${seen[fname]}`;
+      } else {
+        seen[fname] = 0;
+      }
+      zip.file(fname, file);
+    }
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'spiral-selection.zip';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } finally {
+    btn.textContent = 'Download ZIP';
+    btn.disabled = false;
+  }
+}
+
+function showSavePreset() {
+  document.getElementById('presetSaveRow').classList.add('visible');
+  document.getElementById('btnSelectAll').style.display = 'none';
+  document.getElementById('btnClearAll').style.display = 'none';
+  document.getElementById('btnSelectFolder').style.display = 'none';
+  document.getElementById('btnClearFolder').style.display = 'none';
+  document.getElementById('btnSavePreset').style.display = 'none';
+  document.getElementById('btnDownloadZip').style.display = 'none';
+  const input = document.getElementById('presetNameInput');
+  input.value = '';
+  setTimeout(() => input.focus(), 50);
+}
+
+function cancelSavePreset() {
+  document.getElementById('presetSaveRow').classList.remove('visible');
+  document.getElementById('btnSelectAll').style.display = '';
+  document.getElementById('btnClearAll').style.display = '';
+  if (folderTreeData) {
+    document.getElementById('btnSelectFolder').style.display = 'inline-block';
+    document.getElementById('btnClearFolder').style.display = 'inline-block';
+  }
+  document.getElementById('btnSavePreset').style.display = 'inline-block';
+  document.getElementById('btnDownloadZip').style.display = 'inline-block';
+}
+
+async function confirmSavePreset() {
+  const input = document.getElementById('presetNameInput');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const preset = { id: Date.now().toString(), name, paths: [...selectedPaths] };
+  _presets.push(preset);
+  await savePresetsToDb();
+  renderPresets();
+  cancelSavePreset();
+}
+
+// ── Folder persistence (File System Access API + IndexedDB) ──
+function openSpiralDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('SpiralTool', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('data');
+    req.onsuccess = e => res(e.target.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+async function dbPut(key, value) {
+  try { const db = await openSpiralDB(); return new Promise((res, rej) => { const tx = db.transaction('data','readwrite'); tx.objectStore('data').put(value, key); tx.oncomplete = res; tx.onerror = rej; }); } catch(e) {}
+}
+async function dbGet(key) {
+  try { const db = await openSpiralDB(); return new Promise(res => { const tx = db.transaction('data','readonly'); const r = tx.objectStore('data').get(key); r.onsuccess = () => res(r.result ?? null); r.onerror = () => res(null); }); } catch(e) { return null; }
+}
+
+async function pickFolder() {
+  if (!window.showDirectoryPicker) {
+    document.getElementById('folderInput').click();
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ mode: 'read' });
+    await dbPut('folderHandle', handle);
+    document.getElementById('restoreBtn').style.display = 'none';
+    await loadFromHandle(handle);
+  } catch(e) {
+    if (e.name !== 'AbortError') document.getElementById('folderInput').click();
+  }
+}
+
+async function loadFromHandle(handle) {
+  const entries = [];
+  async function walk(dir, prefix) {
+    for await (const [name, entry] of dir.entries()) {
+      if (entry.kind === 'file' && /\.(jpe?g|png|gif|webp|avif|tiff?|heic)$/i.test(name)) {
+        entries.push({ file: await entry.getFile(), path: `${prefix}/${name}`, name });
+      } else if (entry.kind === 'directory') {
+        await walk(entry, `${prefix}/${name}`);
+      }
+    }
+  }
+  await walk(handle, handle.name);
+  if (entries.length > 0) processImageEntries(entries);
+}
+
+async function tryRestoreFolder() {
+  const handle = await dbGet('folderHandle');
+  if (!handle) return;
+  try {
+    const perm = await handle.queryPermission({ mode: 'read' });
+    if (perm === 'granted') {
+      await loadFromHandle(handle);
+    } else if (perm === 'prompt') {
+      const btn = document.getElementById('restoreBtn');
+      btn.textContent = `Reload "${handle.name}"`;
+      btn.style.display = 'inline-block';
+      btn.onclick = async () => {
+        const p = await handle.requestPermission({ mode: 'read' });
+        if (p === 'granted') { btn.style.display = 'none'; await loadFromHandle(handle); }
+      };
+    }
+  } catch(e) {}
+}
+
+// ── Init ──
+sliderIds.forEach(updateDisplay);
+document.getElementById('img-count-label').textContent = '—';
+render();
+window.addEventListener('resize', render);
+loadPresets();
+if (window.showDirectoryPicker) tryRestoreFolder();
+</script>
+
+</body>
+</html>

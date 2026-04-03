@@ -12,6 +12,7 @@ import Forever from './experiments/forever/Forever'
 import GameBoy from './experiments/gameboy/GameBoy'
 import QrCode from './experiments/qr-code/QrCode'
 import SpiralTool from './experiments/spiral-tool/SpiralTool'
+import PaintWithCosmos from './experiments/cosmos-paint/PaintWithCosmos'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
         <Route path="/experiments/gameboy" element={<GameBoy />} />
         <Route path="/experiments/qrcode" element={<QrCode />} />
         <Route path="/experiments/spiral-tool" element={<SpiralTool />} />
+        <Route path="/experiments/cosmos-paint" element={<PaintWithCosmos />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

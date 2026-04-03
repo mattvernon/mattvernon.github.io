@@ -76,6 +76,13 @@ const EXPERIMENTS = [
     color: '#f5f5f0',
     locked: true,
   },
+  {
+    slug: 'cosmos-paint',
+    title: 'paint with cosmos',
+    description:
+      'Paste a Cosmos collection URL and paint your screen with images by moving your mouse. Each image fades and blurs, leaving a generative trail.',
+    color: '#6C3AED',
+  },
 ]
 
 export default function Experiments() {

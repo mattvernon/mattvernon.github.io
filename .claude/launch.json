@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "npx vite --port $PORT --host 127.0.0.1"],
+      "runtimeExecutable": "/Users/matthewvernon/.nvm/versions/node/v24.14.1/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/vite", "--host", "127.0.0.1", "--port", "5199"],
       "port": 5199,
       "autoPort": true
     }

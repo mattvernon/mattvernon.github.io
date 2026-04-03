@@ -30,30 +30,70 @@ export function parseCollectionUrl(input) {
 }
 
 /**
- * Fetch images from a Cosmos collection by scraping the page HTML.
- * The GraphQL API only returns 20 items, but the server-rendered page
- * contains the full collection data in the RSC stream.
+ * Fetch images from a Cosmos collection.
+ * In dev: scrapes the full page HTML via Vite proxy for all images.
+ * In prod: uses the GraphQL API (limited to 20 items, but no CORS issues).
  * Returns { name, elements: [{ id, imageUrl, width, height, aspectRatio }] }
  */
 export async function fetchCollectionImages(username, slug) {
-  const pageUrl = isDev
-    ? `/api/cosmos-profile/${username}/${slug}`
-    : `https://cosmos.so/${username}/${slug}`
+  if (isDev) {
+    return fetchViaPageScrape(username, slug)
+  }
+  return fetchViaGraphQL(username, slug)
+}
 
-  const res = await fetch(pageUrl)
+const GRAPHQL_ENDPOINT = 'https://api.cosmos.so/graphql'
+
+async function fetchViaGraphQL(username, slug) {
+  const query = `query($slug: String!, $ownerUsername: String!) {
+    cluster(input: { slug: $slug, ownerUsername: $ownerUsername }) {
+      id name numberOfElements
+      elements { items { id image { url width height aspectRatio } } }
+    }
+  }`
+
+  const res = await fetch(GRAPHQL_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables: { slug, ownerUsername: username } }),
+  })
+
+  if (!res.ok) throw new Error(`Failed to fetch collection (${res.status})`)
+
+  const json = await res.json()
+  if (json.errors?.length) throw new Error(json.errors[0].message || 'GraphQL error')
+
+  const cluster = json.data?.cluster
+  if (!cluster) throw new Error('Collection not found')
+
+  const elements = (cluster.elements?.items || [])
+    .filter((item) => item.image?.url)
+    .map((item) => {
+      const uuid = extractUuid(item.image.url)
+      return {
+        id: String(item.id),
+        imageUrl: uuid ? cosmosImageUrl(uuid) : `${item.image.url}?format=webp&w=400`,
+        width: item.image.width || 400,
+        height: item.image.height || 400,
+        aspectRatio: item.image.aspectRatio || 1,
+      }
+    })
+
+  if (elements.length === 0) throw new Error('No images found in this collection')
+  return { name: cluster.name, elements }
+}
+
+async function fetchViaPageScrape(username, slug) {
+  const res = await fetch(`/api/cosmos-profile/${username}/${slug}`)
   if (!res.ok) throw new Error('Collection not found')
 
   const html = await res.text()
 
-  // Extract collection name from the RSC stream
   const nameMatch = html.match(
     /"ownerUsername"\s*:\s*"[^"]*"[^}]*?"name"\s*:\s*"([^"]+)"/
   ) || html.match(/"name"\s*:\s*"([^"]+)"[^}]*?"slug"\s*:\s*"[^"]+"/);
   const name = nameMatch ? nameMatch[1] : slug
 
-  // Extract all element images from the RSC stream.
-  // Elements have: "media":{"__typename":"StaticImage","url":"https://cdn.cosmos.so/UUID","width":N,"height":N,...}
-  // Some images appear in other contexts (avatars, covers) so we match the media pattern specifically.
   const mediaPattern =
     /https:\/\/cdn\.cosmos\.so\/([a-f0-9-]+)(?:[^}]*?)width.?:(\d+)[^}]*?height.?:(\d+)/g
   const seen = new Set()
@@ -67,7 +107,7 @@ export async function fetchCollectionImages(username, slug) {
 
     const width = parseInt(w, 10)
     const height = parseInt(h, 10)
-    if (width < 50 || height < 50) continue // skip tiny images (icons, avatars)
+    if (width < 50 || height < 50) continue
 
     elements.push({
       id: uuid,
@@ -78,10 +118,7 @@ export async function fetchCollectionImages(username, slug) {
     })
   }
 
-  if (elements.length === 0) {
-    throw new Error('No images found in this collection')
-  }
-
+  if (elements.length === 0) throw new Error('No images found in this collection')
   return { name, elements }
 }
 

@@ -43,6 +43,12 @@
   transition: opacity 0.4s, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.cp-toolbar-icon {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.4);
+  margin-right: 10px;
+}
+
 .cp-toolbar-input {
   flex: 1;
   padding: 0;

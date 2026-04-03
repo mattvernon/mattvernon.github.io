@@ -11,7 +11,7 @@ const SPAWN_DISTANCE = 50
 const SPAWN_INTERVAL = 80
 const MAX_IMAGES = 40
 const IMAGE_LIFETIME = 2200 // slightly longer than animation (2s)
-const DEFAULT_COLLECTION = { username: 'dappboi', slug: 'design' }
+const DEFAULT_COLLECTION = { username: 'dappboi', slug: 'art1' }
 
 export default function PaintWithCosmos() {
   const [inputValue, setInputValue] = useState(
@@ -60,8 +60,13 @@ export default function PaintWithCosmos() {
           setLoading(false)
           return
         }
-        await preloadImages(imgs)
-        setElements(imgs)
+        const validImgs = await preloadImages(imgs)
+        if (validImgs.length === 0) {
+          setError('No loadable images found in this collection')
+          setLoading(false)
+          return
+        }
+        setElements(validImgs)
         setPainted([])
         indexRef.current = 0
         lastPosRef.current = { x: 0, y: 0 }
@@ -114,14 +119,17 @@ export default function PaintWithCosmos() {
     }
 
     setPainted((prev) => {
-      const next = [newImg, ...prev]
-      return next.length > MAX_IMAGES ? next.slice(0, MAX_IMAGES) : next
+      const next = [...prev, newImg]
+      return next.length > MAX_IMAGES ? next.slice(-MAX_IMAGES) : next
     })
   }, [])
 
+  const loadingRef = useRef(false)
+  useEffect(() => { loadingRef.current = loading }, [loading])
+
   const handlePointerMove = useCallback(
     (e) => {
-      if (!isPainting || elementsRef.current.length === 0) return
+      if (!isPainting || loadingRef.current || elementsRef.current.length === 0) return
 
       const x = e.clientX
       const y = e.clientY
@@ -143,7 +151,7 @@ export default function PaintWithCosmos() {
 
   const handleTouchMove = useCallback(
     (e) => {
-      if (!isPainting || elementsRef.current.length === 0) return
+      if (!isPainting || loadingRef.current || elementsRef.current.length === 0) return
       e.preventDefault()
       const touch = e.touches[0]
       if (!touch) return
@@ -213,6 +221,14 @@ export default function PaintWithCosmos() {
 
       {/* Toolbar */}
       <form className="cp-toolbar" onSubmit={handleSubmit}>
+        <svg className="cp-toolbar-icon" width="16" height="18" viewBox="0 0 22 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.0145 6.89416C12.9228 6.89416 14.4706 5.35188 14.4706 3.44708C14.4706 1.54228 12.9243 0 11.0145 0C9.10466 0 7.55832 1.54228 7.55832 3.44708C7.55832 5.35188 9.10466 6.89416 11.0145 6.89416Z" fill="currentColor"/>
+          <path d="M11.0145 24.3036C12.9228 24.3036 14.4706 22.7613 14.4706 20.8565C14.4706 18.9517 12.9243 17.4094 11.0145 17.4094C9.10466 17.4094 7.55832 18.9517 7.55832 20.8565C7.55832 22.7613 9.10466 24.3036 11.0145 24.3036Z" fill="currentColor"/>
+          <path d="M3.45617 11.2462C5.3645 11.2462 6.91232 9.70393 6.91232 7.79913C6.91232 5.89433 5.36598 4.35205 3.45617 4.35205C1.54637 4.35205 3.05176e-05 5.89581 3.05176e-05 7.80098C3.05176e-05 9.70615 1.54637 11.2481 3.45617 11.2481V11.2466V11.2462Z" fill="currentColor"/>
+          <path d="M18.5728 19.9515C20.4811 19.9515 22.0289 18.4093 22.0289 16.5045C22.0289 14.5997 20.4826 13.0574 18.5728 13.0574C16.663 13.0574 15.1166 14.5997 15.1166 16.5045C15.1166 18.4093 16.663 19.9515 18.5728 19.9515Z" fill="currentColor"/>
+          <path d="M18.5728 11.2467C20.4811 11.2467 22.0289 9.70442 22.0289 7.79962C22.0289 5.89482 20.4826 4.35254 18.5728 4.35254C16.663 4.35254 15.1166 5.89482 15.1166 7.79962C15.1166 9.70442 16.663 11.2467 18.5728 11.2467Z" fill="currentColor"/>
+          <path d="M3.45617 19.9512C5.3645 19.9512 6.91232 18.4089 6.91232 16.5041C6.91232 14.5993 5.36598 13.057 3.45617 13.057C1.54637 13.057 3.05176e-05 14.6026 3.05176e-05 16.5056C3.05176e-05 18.4085 1.54637 19.9526 3.45617 19.9526V19.9512Z" fill="currentColor"/>
+        </svg>
         <input
           className="cp-toolbar-input"
           type="text"

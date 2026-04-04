@@ -83,6 +83,13 @@ const EXPERIMENTS = [
       'Paste a Cosmos collection URL and paint your screen with images by moving your mouse. Each image fades and blurs, leaving a generative trail.',
     color: '#6C3AED',
   },
+  {
+    slug: 'design-system',
+    title: 'design system',
+    description:
+      'A WIP personal design system — tokens, components, and glass effects built for my projects. Experimenting with auto.exchange to generate design decisions via AI agents.',
+    color: '#FFE600',
+  },
 ]
 
 export default function Experiments() {

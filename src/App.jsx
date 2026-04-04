@@ -13,6 +13,8 @@ import GameBoy from './experiments/gameboy/GameBoy'
 import QrCode from './experiments/qr-code/QrCode'
 import SpiralTool from './experiments/spiral-tool/SpiralTool'
 import PaintWithCosmos from './experiments/cosmos-paint/PaintWithCosmos'
+import CosmosSpiral from './experiments/cosmos-spiral/CosmosSpiral'
+import DesignSystem from './experiments/design-system/DesignSystem'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -33,6 +35,8 @@ function App() {
         <Route path="/experiments/qrcode" element={<QrCode />} />
         <Route path="/experiments/spiral-tool" element={<SpiralTool />} />
         <Route path="/experiments/cosmos-paint" element={<PaintWithCosmos />} />
+        <Route path="/experiments/cosmos-spiral" element={<CosmosSpiral />} />
+        <Route path="/experiments/design-system" element={<DesignSystem />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

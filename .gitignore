@@ -29,3 +29,7 @@ _old/
 # Sass cache (legacy)
 .sass-cache/
 *.css.map
+
+# Environment variables
+.env
+.env.*

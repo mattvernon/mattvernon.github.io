@@ -1,0 +1,348 @@
+/* ==========================================================================
+   Design System Showcase
+   ========================================================================== */
+
+/* Override leaked global body styles from other experiments */
+body:has(.ds) {
+  overflow: auto;
+  height: auto;
+  width: auto;
+  position: static;
+}
+
+.ds {
+  min-height: 100vh;
+  background: var(--color-surface-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+}
+
+/* --- Header --- */
+
+.ds-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-12);
+  background: var(--color-glass-200);
+  backdrop-filter: blur(var(--blur-2xl));
+  -webkit-backdrop-filter: blur(var(--blur-2xl));
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.ds-header h1 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.ds-header-actions {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+/* --- Layout --- */
+
+.ds-body {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ds-nav {
+  position: sticky;
+  top: 49px;
+  width: 220px;
+  height: calc(100vh - 49px);
+  flex-shrink: 0;
+  padding: var(--space-8) var(--space-6);
+  overflow-y: auto;
+  border-right: 1px solid var(--color-border-primary);
+}
+
+.ds-nav a {
+  display: block;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-base);
+  transition: all var(--transition-fast);
+}
+
+.ds-nav a:hover {
+  color: var(--color-text-primary);
+  background: var(--color-glass-200);
+}
+
+.ds-nav-group {
+  margin-bottom: var(--space-8);
+}
+
+.ds-nav-group-label {
+  padding: var(--space-3) var(--space-6);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-widest);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.ds-content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-16) var(--space-16);
+}
+
+/* --- Section --- */
+
+.ds-section {
+  margin-bottom: var(--space-32);
+}
+
+.ds-section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+  margin-bottom: var(--space-4);
+}
+
+.ds-section-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  max-width: 600px;
+  margin-bottom: var(--space-12);
+}
+
+.ds-subsection {
+  margin-bottom: var(--space-16);
+}
+
+.ds-subsection-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-6);
+}
+
+/* --- Swatches --- */
+
+.ds-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: var(--space-3);
+}
+
+.ds-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ds-swatch-color {
+  height: 56px;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-primary);
+}
+
+.ds-swatch-label {
+  font-size: 10px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+/* --- Type specimen --- */
+
+.ds-type-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.ds-type-label {
+  flex-shrink: 0;
+  width: 80px;
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-tertiary);
+}
+
+.ds-type-sample {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Token grid --- */
+
+.ds-token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+
+.ds-token-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-surface-raised);
+}
+
+.ds-token-card-label {
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-4);
+}
+
+.ds-token-card-value {
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+}
+
+/* --- Demo rows --- */
+
+.ds-demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.ds-demo-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* --- Code block --- */
+
+.ds-code {
+  padding: var(--space-6) var(--space-8);
+  background: var(--color-neutral-800);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-primary);
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  overflow-x: auto;
+  white-space: pre;
+  margin-top: var(--space-4);
+}
+
+/* --- Glass demo backgrounds --- */
+
+.ds-glass-stage {
+  padding: var(--space-12);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(51, 0, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(0, 212, 255, 0.2) 0%, transparent 50%),
+    var(--color-neutral-900);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.ds-glass-card-demo {
+  flex: 1;
+  min-width: 200px;
+  padding: var(--space-10);
+}
+
+.ds-glass-card-demo h3 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.ds-glass-card-demo p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* --- Shadow demo --- */
+
+.ds-shadow-demo {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-tertiary);
+}
+
+/* --- Spacing demo --- */
+
+.ds-space-bar {
+  height: 24px;
+  background: var(--color-glass-primary-300);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  padding-left: var(--space-4);
+  font-size: 10px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-on-primary);
+}
+
+/* --- Radius demo --- */
+
+.ds-radius-demo {
+  width: 80px;
+  height: 80px;
+  background: var(--color-glass-300);
+  border: 1px solid var(--color-border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-tertiary);
+}
+
+/* --- Motion demo --- */
+
+.ds-motion-demo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-base);
+  background: var(--color-primary-700);
+  cursor: pointer;
+}
+
+.ds-motion-demo:hover {
+  background: var(--color-primary-600);
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 768px) {
+  .ds-nav {
+    display: none;
+  }
+
+  .ds-content {
+    padding: var(--space-8);
+  }
+
+  .ds-swatches {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

@@ -1,0 +1,396 @@
+/* ==========================================================================
+   Design System Tokens
+   Generated with Wisp (auto.exchange) — Matt Vernon's personal design system
+   ========================================================================== */
+
+:root {
+  /* ============================================
+     COLOR SYSTEM - Dark Theme (Default)
+     ============================================ */
+
+  /* Brand Primary - Electric Purple */
+  --color-primary-900: #1a0066;
+  --color-primary-800: #2600a3;
+  --color-primary-700: #3300ff;
+  --color-primary-600: #5c33ff;
+  --color-primary-500: #7d5cff;
+  --color-primary-400: #9d85ff;
+  --color-primary-300: #beadff;
+  --color-primary-200: #ded6ff;
+  --color-primary-100: #f0ebff;
+  --color-primary-50: #f7f5ff;
+
+  /* Secondary - Cool Blue-Purple */
+  --color-secondary-900: #0a0a2e;
+  --color-secondary-800: #16194d;
+  --color-secondary-700: #1e2870;
+  --color-secondary-600: #2d3e9e;
+  --color-secondary-500: #4a5fc9;
+  --color-secondary-400: #6b82e0;
+  --color-secondary-300: #95a9f0;
+  --color-secondary-200: #c2cff8;
+  --color-secondary-100: #e3e9fc;
+  --color-secondary-50: #f4f6fe;
+
+  /* Accent - Electric Cyan */
+  --color-accent-900: #003d52;
+  --color-accent-800: #00607a;
+  --color-accent-700: #0088b8;
+  --color-accent-600: #00b0e6;
+  --color-accent-500: #00d4ff;
+  --color-accent-400: #33ddff;
+  --color-accent-300: #66e5ff;
+  --color-accent-200: #99eeff;
+  --color-accent-100: #ccf6ff;
+  --color-accent-50: #e6fbff;
+
+  /* Neutrals */
+  --color-neutral-950: #000000;
+  --color-neutral-900: #0a0a0f;
+  --color-neutral-800: #14141f;
+  --color-neutral-700: #1f1f2e;
+  --color-neutral-600: #2e2e42;
+  --color-neutral-500: #4a4a61;
+  --color-neutral-400: #6b6b85;
+  --color-neutral-300: #9494ad;
+  --color-neutral-200: #c2c2d1;
+  --color-neutral-100: #e3e3eb;
+  --color-neutral-50: #f5f5f7;
+  --color-neutral-0: #ffffff;
+
+  /* Semantic States */
+  --color-success-900: #0a3d1f;
+  --color-success-700: #0f7a3d;
+  --color-success-500: #00d166;
+  --color-success-300: #66e9a8;
+  --color-success-100: #ccf7e0;
+
+  --color-warning-900: #4d3300;
+  --color-warning-700: #996600;
+  --color-warning-500: #ffaa00;
+  --color-warning-300: #ffd166;
+  --color-warning-100: #fff0cc;
+
+  --color-error-900: #4d0a14;
+  --color-error-700: #c91432;
+  --color-error-500: #ff1f4d;
+  --color-error-300: #ff7a99;
+  --color-error-100: #ffd6e0;
+
+  --color-info-900: #0a2847;
+  --color-info-700: #1a5299;
+  --color-info-500: #2e7de6;
+  --color-info-300: #85b8f2;
+  --color-info-100: #d6e9fa;
+
+  /* Surface Colors */
+  --color-surface-base: #0a0a0f;
+  --color-surface-raised: #14141f;
+  --color-surface-overlay: #1f1f2e;
+
+  /* Glass Surface Variants */
+  --color-glass-100: rgba(255, 255, 255, 0.03);
+  --color-glass-200: rgba(255, 255, 255, 0.05);
+  --color-glass-300: rgba(255, 255, 255, 0.08);
+  --color-glass-400: rgba(255, 255, 255, 0.12);
+  --color-glass-500: rgba(255, 255, 255, 0.16);
+
+  --color-glass-primary-100: rgba(51, 0, 255, 0.08);
+  --color-glass-primary-200: rgba(51, 0, 255, 0.12);
+  --color-glass-primary-300: rgba(51, 0, 255, 0.20);
+  --color-glass-primary-400: rgba(51, 0, 255, 0.30);
+
+  /* Text Colors */
+  --color-text-primary: rgba(255, 255, 255, 0.95);
+  --color-text-secondary: rgba(255, 255, 255, 0.70);
+  --color-text-tertiary: rgba(255, 255, 255, 0.50);
+  --color-text-disabled: rgba(255, 255, 255, 0.30);
+  --color-text-on-primary: #ffffff;
+  --color-text-on-surface: rgba(255, 255, 255, 0.95);
+
+  /* Border Colors */
+  --color-border-primary: rgba(255, 255, 255, 0.08);
+  --color-border-secondary: rgba(255, 255, 255, 0.05);
+  --color-border-focus: #3300ff;
+  --color-border-glass: rgba(255, 255, 255, 0.12);
+
+
+  /* ============================================
+     TYPOGRAPHY SYSTEM
+     ============================================ */
+
+  /* Font Families */
+  --font-family-sans: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'Suisse Intl Mono', 'SF Mono', 'Roboto Mono', 'Courier New', monospace;
+
+  /* Font Weights */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Fluid Type Scale */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.825rem + 0.25vw, 1rem);
+  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --font-size-md: clamp(1.125rem, 1.05rem + 0.375vw, 1.25rem);
+  --font-size-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --font-size-xl: clamp(1.5rem, 1.35rem + 0.75vw, 1.875rem);
+  --font-size-2xl: clamp(1.875rem, 1.65rem + 1.125vw, 2.25rem);
+  --font-size-3xl: clamp(2.25rem, 1.95rem + 1.5vw, 3rem);
+  --font-size-4xl: clamp(3rem, 2.55rem + 2.25vw, 3.75rem);
+  --font-size-5xl: clamp(3.75rem, 3.15rem + 3vw, 4.5rem);
+  --font-size-6xl: clamp(4.5rem, 3.75rem + 3.75vw, 6rem);
+
+  /* Line Heights */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+
+  /* ============================================
+     SPACING SYSTEM (8px base unit)
+     ============================================ */
+
+  --space-0: 0;
+  --space-1: 0.125rem;    /* 2px */
+  --space-2: 0.25rem;     /* 4px */
+  --space-3: 0.375rem;    /* 6px */
+  --space-4: 0.5rem;      /* 8px — base unit */
+  --space-5: 0.625rem;    /* 10px */
+  --space-6: 0.75rem;     /* 12px */
+  --space-8: 1rem;        /* 16px — 2x base */
+  --space-10: 1.25rem;    /* 20px */
+  --space-12: 1.5rem;     /* 24px — 3x base */
+  --space-16: 2rem;       /* 32px — 4x base */
+  --space-20: 2.5rem;     /* 40px */
+  --space-24: 3rem;       /* 48px — 6x base */
+  --space-32: 4rem;       /* 64px — 8x base */
+  --space-40: 5rem;       /* 80px */
+  --space-48: 6rem;       /* 96px — 12x base */
+  --space-56: 7rem;       /* 112px */
+  --space-64: 8rem;       /* 128px — 16x base */
+  --space-80: 10rem;      /* 160px */
+  --space-96: 12rem;      /* 192px — 24x base */
+  --space-128: 16rem;     /* 256px */
+
+
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+
+  --radius-none: 0;
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-base: 0.5rem;  /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1rem;      /* 16px */
+  --radius-xl: 1.5rem;    /* 24px */
+  --radius-2xl: 2rem;     /* 32px */
+  --radius-3xl: 3rem;     /* 48px */
+  --radius-pill: 50rem;
+  --radius-full: 9999px;
+
+
+  /* ============================================
+     ELEVATION (Box Shadows)
+     ============================================ */
+
+  --shadow-xs:
+    0 1px 2px 0 rgba(0, 0, 0, 0.15);
+
+  --shadow-sm:
+    0 1px 3px 0 rgba(0, 0, 0, 0.2),
+    0 1px 2px -1px rgba(0, 0, 0, 0.2);
+
+  --shadow-base:
+    0 4px 6px -1px rgba(0, 0, 0, 0.25),
+    0 2px 4px -2px rgba(0, 0, 0, 0.25);
+
+  --shadow-md:
+    0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+  --shadow-lg:
+    0 20px 25px -5px rgba(0, 0, 0, 0.35),
+    0 8px 10px -6px rgba(0, 0, 0, 0.35);
+
+  --shadow-xl:
+    0 25px 50px -12px rgba(0, 0, 0, 0.4);
+
+  --shadow-2xl:
+    0 35px 60px -15px rgba(0, 0, 0, 0.45);
+
+  --shadow-inner:
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+
+  /* Glow Shadows */
+  --shadow-glow-primary:
+    0 0 20px rgba(51, 0, 255, 0.4),
+    0 0 40px rgba(51, 0, 255, 0.2);
+
+  --shadow-glow-accent:
+    0 0 20px rgba(0, 212, 255, 0.4),
+    0 0 40px rgba(0, 212, 255, 0.2);
+
+  --shadow-glass:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+
+  /* ============================================
+     GLASS / SURFACE EFFECTS
+     ============================================ */
+
+  /* Backdrop Blur Levels */
+  --blur-none: 0;
+  --blur-xs: 2px;
+  --blur-sm: 4px;
+  --blur-base: 8px;
+  --blur-md: 12px;
+  --blur-lg: 16px;
+  --blur-xl: 24px;
+  --blur-2xl: 40px;
+  --blur-3xl: 64px;
+
+  /* Surface Opacity Levels */
+  --opacity-0: 0;
+  --opacity-5: 0.05;
+  --opacity-10: 0.10;
+  --opacity-15: 0.15;
+  --opacity-20: 0.20;
+  --opacity-30: 0.30;
+  --opacity-40: 0.40;
+  --opacity-50: 0.50;
+  --opacity-60: 0.60;
+  --opacity-70: 0.70;
+  --opacity-80: 0.80;
+  --opacity-90: 0.90;
+  --opacity-95: 0.95;
+  --opacity-100: 1;
+
+
+  /* ============================================
+     MOTION / TRANSITIONS
+     ============================================ */
+
+  /* Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-smooth: 400ms;
+  --duration-slow: 600ms;
+  --duration-slower: 800ms;
+
+  /* Easings */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Common Transitions */
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-in-out);
+  --transition-smooth: var(--duration-smooth) var(--ease-smooth);
+  --transition-color: color var(--duration-fast) var(--ease-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-opacity: opacity var(--duration-fast) var(--ease-out);
+
+
+  /* ============================================
+     BREAKPOINTS
+     ============================================ */
+
+  --breakpoint-xs: 375px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-3xl: 1920px;
+
+
+  /* ============================================
+     Z-INDEX SCALE
+     ============================================ */
+
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-toast: 700;
+  --z-tooltip: 800;
+  --z-max: 999;
+}
+
+
+/* ==========================================================================
+   Light Theme Overrides
+   ========================================================================== */
+
+[data-theme="light"] {
+  /* Surface Colors */
+  --color-surface-base: #ffffff;
+  --color-surface-raised: #fafafa;
+  --color-surface-overlay: #f5f5f5;
+
+  /* Text Colors */
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-disabled: #d4d4d4;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-surface: #171717;
+
+  /* Border Colors */
+  --color-border-primary: #e5e5e5;
+  --color-border-secondary: #f5f5f5;
+  --color-border-focus: #3300ff;
+  --color-border-glass: rgba(0, 0, 0, 0.1);
+
+  /* Glass Surface Variants */
+  --color-glass-100: rgba(255, 255, 255, 0.50);
+  --color-glass-200: rgba(255, 255, 255, 0.60);
+  --color-glass-300: rgba(255, 255, 255, 0.70);
+  --color-glass-400: rgba(255, 255, 255, 0.80);
+  --color-glass-500: rgba(255, 255, 255, 0.90);
+
+  --color-glass-primary-100: rgba(51, 0, 255, 0.04);
+  --color-glass-primary-200: rgba(51, 0, 255, 0.08);
+  --color-glass-primary-300: rgba(51, 0, 255, 0.12);
+  --color-glass-primary-400: rgba(51, 0, 255, 0.20);
+
+  /* Shadows — lighter for light theme */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-base: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.12);
+  --shadow-2xl: 0 35px 60px rgba(0, 0, 0, 0.15);
+  --shadow-glass:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}

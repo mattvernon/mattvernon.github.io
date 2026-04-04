@@ -1,0 +1,200 @@
+/* ==========================================================================
+   Component Classes — Glass cards, buttons, inputs, surfaces
+   ========================================================================== */
+
+
+/* --- Glass Card --- */
+
+.glass {
+  background: var(--color-glass-300);
+  backdrop-filter: blur(var(--blur-2xl));
+  -webkit-backdrop-filter: blur(var(--blur-2xl));
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-subtle {
+  background: var(--color-glass-100);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-md);
+}
+
+.glass-prominent {
+  background: var(--color-glass-500);
+  backdrop-filter: blur(var(--blur-3xl));
+  -webkit-backdrop-filter: blur(var(--blur-3xl));
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-primary {
+  background: var(--color-glass-primary-200);
+  backdrop-filter: blur(var(--blur-2xl));
+  -webkit-backdrop-filter: blur(var(--blur-2xl));
+  border: 1px solid rgba(51, 0, 255, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+
+/* --- Buttons --- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-12);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-none);
+  letter-spacing: var(--letter-spacing-wide);
+  border-radius: var(--radius-pill);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--color-primary-700);
+  color: var(--color-text-on-primary);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-600);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.btn-secondary {
+  background: var(--color-glass-300);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-glass);
+}
+
+.btn-secondary:hover {
+  background: var(--color-glass-400);
+  border-color: var(--color-border-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--color-glass-200);
+  color: var(--color-text-primary);
+}
+
+.btn-sm {
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+  padding: var(--space-6) var(--space-16);
+  font-size: var(--font-size-base);
+}
+
+.btn-icon {
+  padding: var(--space-4);
+  border-radius: var(--radius-full);
+}
+
+
+/* --- Inputs --- */
+
+.input {
+  width: 100%;
+  padding: var(--space-5) var(--space-8);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-glass-200);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.input:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px var(--color-glass-primary-100);
+}
+
+.input-glass {
+  background: var(--color-glass-100);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border-color: var(--color-border-glass);
+}
+
+
+/* --- Surface / Card --- */
+
+.surface {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+}
+
+.surface-overlay {
+  background: var(--color-surface-overlay);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+
+/* --- Badge --- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  border-radius: var(--radius-pill);
+}
+
+.badge-primary {
+  background: var(--color-glass-primary-200);
+  color: var(--color-primary-300);
+}
+
+.badge-success {
+  background: rgba(0, 209, 102, 0.15);
+  color: var(--color-success-300);
+}
+
+.badge-warning {
+  background: rgba(255, 170, 0, 0.15);
+  color: var(--color-warning-300);
+}
+
+.badge-error {
+  background: rgba(255, 31, 77, 0.15);
+  color: var(--color-error-300);
+}
+
+
+/* --- Divider --- */
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border-primary);
+}

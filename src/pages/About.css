@@ -38,13 +38,15 @@
 
 .about-section-label {
   display: block;
-  text-align: center;
-  font-family: 'Suisse Intl Mono', 'SF Mono', 'Fira Code', monospace;
-  font-size: 11px;
+  text-align: left;
+  font-family: 'Suisse Intl', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 24px;
   font-weight: 400;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: none;
   color: #000;
+  opacity: 0.7;
   margin-bottom: 32px;
 }
 
@@ -70,13 +72,23 @@
   margin-bottom: 0;
 }
 
-/* Inline Foundation Labs logo in text */
+.about-body--prior {
+  margin-top: 60px;
+}
+
+/* Inline logos in text */
 .about-inline-logo {
   display: inline-block;
   width: 14px;
   height: 14px;
   vertical-align: -1px;
   color: #000;
+}
+
+.about-inline-logo--cosmos {
+  width: 30px;
+  height: 30px;
+  vertical-align: -8px;
 }
 
 /* ── Product Cards ── */
@@ -100,6 +112,11 @@
 .about-product-card--green {
   background: #00FF00;
   color: #000;
+}
+
+.about-product-card--cosmos {
+  background: #000;
+  color: #fff;
 }
 
 .about-product-card--dark {
@@ -132,6 +149,12 @@
   width: 48px;
   height: auto;
   color: #000;
+}
+
+.about-product-logo--cosmos {
+  width: 48px;
+  height: 48px;
+  color: #fff;
 }
 
 .about-product-logo--fnd {
@@ -168,11 +191,13 @@
   color: rgba(0, 0, 0, 0.4);
 }
 
+.about-product-card--cosmos .about-product-card-link,
 .about-product-card--dark .about-product-card-link {
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.5);
 }
 
+.about-product-card--cosmos .about-product-card-link svg,
 .about-product-card--dark .about-product-card-link svg {
   color: rgba(255, 255, 255, 0.4);
 }

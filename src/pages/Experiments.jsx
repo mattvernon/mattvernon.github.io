@@ -15,7 +15,7 @@ const EXPERIMENTS = [
     title: 'y2k racer',
     description:
       'An arcade style street racing game built entirely in three.js, running in the browser. My ode to racing games like Need for Speed Underground, Midnight Club and Burnout.',
-    color: '#E600FF',
+    color: '#FFE600',
   },
   {
     slug: 'reelmaker',
@@ -51,21 +51,21 @@ const EXPERIMENTS = [
     title: 'qr code',
     description:
       'Generate and customize QR codes with different pixel styles, colors, and an optional logo. Download as SVG.',
-    color: '#6C3AED',
+    color: '#00E0FF',
   },
   {
     slug: 'gameboy',
     title: 'gameboy color',
     description:
       'A GameBoy Color emulator running in the browser via WebAssembly.',
-    color: '#7B2FBE',
+    color: '#34C759',
   },
   {
     slug: 'forever',
     title: 'foundation forever',
     description:
       'A goodbye photo montage for Foundation — auto-playing slideshow with music, confetti, and WordArt.',
-    color: '#7C4DFF',
+    color: '#FF2D55',
     locked: true,
   },
   {
@@ -81,7 +81,7 @@ const EXPERIMENTS = [
     title: 'paint with cosmos',
     description:
       'Paste a Cosmos collection URL and paint your screen with images by moving your mouse. Each image fades and blurs, leaving a generative trail.',
-    color: '#6C3AED',
+    color: '#08080c',
   },
   {
     slug: 'design-system',
@@ -91,6 +91,28 @@ const EXPERIMENTS = [
     color: '#FFE600',
   },
 ]
+
+const HIDDEN_EXPERIMENT_SLUGS = new Set([
+  'reelmaker',
+  'moodboard',
+  'ioscart',
+  'spiral-tool',
+  'design-system',
+])
+
+const DARK_TEXT_COLORS = new Set([
+  '#FFE600',
+  '#8ACE00',
+  '#FFCBA4',
+  '#f5f5f0',
+  '#00E0FF',
+  '#34C759',
+  '#FF2D55',
+])
+
+function usesDarkText(color) {
+  return DARK_TEXT_COLORS.has(color)
+}
 
 export default function Experiments() {
   const [activeExp, setActiveExp] = useState(null)
@@ -147,6 +169,8 @@ export default function Experiments() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  const visibleExperiments = EXPERIMENTS.filter((exp) => !HIDDEN_EXPERIMENT_SLUGS.has(exp.slug))
+
   return (
     <div className="exp-page" ref={pageRef}>
       <Navbar variant="experiments" onMenuOpen={() => { setActiveExp(null); setClosing(false) }} />
@@ -160,10 +184,10 @@ export default function Experiments() {
         </p>
 
         <div className="exp-cards">
-          {EXPERIMENTS.map((exp) => (
+          {visibleExperiments.map((exp) => (
             <div
               key={exp.slug}
-              className={`exp-card${exp.color === '#FFE600' || exp.color === '#8ACE00' || exp.color === '#FFCBA4' || exp.color === '#f5f5f0' ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
+              className={`exp-card${usesDarkText(exp.color) ? ' exp-card--dark' : ''}${exp.color === '#08080c' ? ' exp-card--bordered' : ''}`}
               style={{ background: exp.color }}
               onClick={() => { setIframeLoaded(false); setActiveExp(exp) }}
               role="button"
@@ -195,7 +219,7 @@ export default function Experiments() {
           <div className={`exp-modal${closing ? ' exp-modal--closing' : ''}`} onClick={(e) => e.stopPropagation()}>
             <div className="exp-modal-toolbar">
               <span
-                className={`exp-modal-title${activeExp.color === '#FFE600' ? ' exp-modal-title--dark' : ''}`}
+                className={`exp-modal-title${usesDarkText(activeExp.color) ? ' exp-modal-title--dark' : ''}`}
                 style={{ background: activeExp.color }}
               >
                 {activeExp.title}

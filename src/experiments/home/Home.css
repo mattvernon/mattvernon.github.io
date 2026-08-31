@@ -552,8 +552,17 @@
   top: 16px;
   right: 16px;
   z-index: 9999;
+  width: min(520px, calc(100vw - 32px));
   display: flex;
+  flex-direction: column;
   gap: 8px;
+}
+
+.hm-layout-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .hm-layout-editor-btn {
@@ -579,6 +588,33 @@
 
 .hm-layout-editor-btn--reset:hover {
   background: #882222;
+}
+
+.hm-layout-editor-readout {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.68);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.hm-layout-editor-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) repeat(4, auto);
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hm-layout-editor-file {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Mobile Overrides ── */

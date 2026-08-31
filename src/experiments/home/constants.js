@@ -7,6 +7,7 @@ export const DEFAULT_BG_COLOR = '#3300FF'
 export const ARTIFACTS = [
   { filename: 'aura_discovery.mp4', type: 'video' },
   { filename: 'aura_predictflow.mp4', type: 'video' },
+  { filename: 'cosmos_landing.mp4', type: 'video' },
   { filename: 'foundation_create.gif', type: 'image' },
   { filename: 'foundation_drops.mp4', type: 'video' },
   { filename: 'foundation_worlds.mp4', type: 'video' },
@@ -27,7 +28,13 @@ export const ARTIFACTS = [
   { filename: 'dharma_webparallax.mp4', type: 'video' },
   { filename: 'Rodeo_3Dcharms.mp4', type: 'video' },
   { filename: 'Rodeo_siteexploration.mp4', type: 'video' },
+  { filename: 'sequence_website.mp4', type: 'video' },
   { filename: 'wildwildweb.png', type: 'image' },
+]
+
+export const FEATURED_POSITIONING_FILES = [
+  'cosmos_landing.mp4',
+  'sequence_website.mp4',
 ]
 
 // Seeded pseudo-random so layout is stable across reloads
@@ -50,6 +57,7 @@ export function getCanvasDimensions() {
 export const MANUAL_LAYOUT = [
   { filename: 'aura_discovery.mp4', x: 0.3038, y: 0.3922, w: 411, z: 1 },
   { filename: 'aura_predictflow.mp4', x: 0.5041, y: 0.2026, w: 432, z: 1 },
+  { filename: 'cosmos_landing.mp4', x: 0.235, y: 0.2654, w: 680, z: 1 },
   { filename: 'foundation_create.gif', x: 0.2295, y: 0.5414, w: 819, z: 1 },
   { filename: 'foundation_drops.mp4', x: 0.3407, y: 0.3092, w: 664, z: 1 },
   { filename: 'foundation_worlds.mp4', x: 0.6086, y: 0.4158, w: 667, z: 100 },
@@ -70,6 +78,7 @@ export const MANUAL_LAYOUT = [
   { filename: 'dharma_webparallax.mp4', x: 0.3994, y: 0.626, w: 767, z: 77 },
   { filename: 'Rodeo_3Dcharms.mp4', x: 0.839, y: 0.444, w: 658, z: 1 },
   { filename: 'Rodeo_siteexploration.mp4', x: 0.2798, y: 0.654, w: 706, z: 1 },
+  { filename: 'sequence_website.mp4', x: 0.8016, y: 0.5232, w: 620, z: 1 },
   { filename: 'wildwildweb.png', x: 0.7902, y: 0.3826, w: 661, z: 1 },
 ]
 

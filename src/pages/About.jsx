@@ -453,14 +453,6 @@ export default function About() {
         <section className="about-section">
           <span className="about-section-label">Contact</span>
 
-          <div className="about-body">
-            <p>
-              For the first time in over a decade, I&rsquo;m
-              actively exploring new roles &mdash; if you&rsquo;d
-              like to get in touch, please email me.
-            </p>
-          </div>
-
           <div className="about-email">
             <a href="mailto:hello@matthewvernon.co">hello@matthewvernon.co</a>
             <button

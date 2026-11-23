@@ -4,6 +4,14 @@ import './About.css'
 
 /* ── SVG Icons ── */
 
+function VercelTriangleLogo({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Vercel">
+      <path d="M12 2 24 22H0L12 2Z" fill="currentColor" />
+    </svg>
+  )
+}
+
 function CosmosLogo({ className }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -322,7 +330,25 @@ export default function About() {
               currently based in Brooklyn, NY.
             </p>
             <p>
-              I&rsquo;m currently Head of Design at Cosmos (<CosmosLogoInline />).
+              I&rsquo;m currently a Member of Technical Staff at Vercel (<VercelTriangleLogo className="about-inline-logo about-inline-logo--vercel" />).
+            </p>
+          </div>
+
+          <ProductCard
+            variant="vercel"
+            logo={<VercelTriangleLogo className="about-product-logo about-product-logo--vercel" />}
+            url="vercel.com"
+            urlLabel="vercel.com"
+            name="Vercel"
+            description="Agentic infrastructure."
+          />
+
+          <div className="about-body about-body--prior">
+            <p>
+              Prior to Vercel, I took a short stint leading design at Cosmos (<CosmosLogoInline />),
+              working on things like <a href="https://www.cosmos.so/serviceprojects" target="_blank" rel="noopener noreferrer">Verified Profiles</a>,{' '}
+              <a href="https://www.cosmos.so/sequence" target="_blank" rel="noopener noreferrer">Sequence</a>, and{' '}
+              <a href="https://www.cosmos.so/summer" target="_blank" rel="noopener noreferrer">Summer Update</a>.
             </p>
           </div>
 
@@ -426,7 +452,7 @@ export default function About() {
             url="foundation-labs.xyz/rodeo"
             urlLabel="foundation-labs.xyz/rodeo"
             name="Rodeo"
-            description={<>Your social sketchbook.<br />Create. Share. Collect. Own.</>}
+            description="Your social sketchbook."
           />
         </section>
 

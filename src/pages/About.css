@@ -72,6 +72,19 @@
   margin-bottom: 0;
 }
 
+.about-body a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: rgba(0, 0, 0, 0.28);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.about-body a:hover {
+  text-decoration-color: #000;
+}
+
 .about-body--prior {
   margin-top: 60px;
 }
@@ -89,6 +102,12 @@
   width: 30px;
   height: 30px;
   vertical-align: -8px;
+}
+
+.about-inline-logo--vercel {
+  width: 20px;
+  height: 20px;
+  vertical-align: -3px;
 }
 
 /* ── Product Cards ── */
@@ -115,6 +134,12 @@
 }
 
 .about-product-card--cosmos {
+  background: #fff;
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.about-product-card--vercel {
   background: #000;
   color: #fff;
 }
@@ -154,6 +179,12 @@
 .about-product-logo--cosmos {
   width: 48px;
   height: 48px;
+  color: #000;
+}
+
+.about-product-logo--vercel {
+  width: 48px;
+  height: 48px;
   color: #fff;
 }
 
@@ -191,22 +222,24 @@
   color: rgba(0, 0, 0, 0.4);
 }
 
-.about-product-card--cosmos .about-product-card-link,
+.about-product-card--vercel .about-product-card-link,
 .about-product-card--dark .about-product-card-link {
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.5);
 }
 
-.about-product-card--cosmos .about-product-card-link svg,
+.about-product-card--vercel .about-product-card-link svg,
 .about-product-card--dark .about-product-card-link svg {
   color: rgba(255, 255, 255, 0.4);
 }
 
+.about-product-card--cosmos .about-product-card-link,
 .about-product-card--white .about-product-card-link {
   background: rgba(0, 0, 0, 0.06);
   color: rgba(0, 0, 0, 0.5);
 }
 
+.about-product-card--cosmos .about-product-card-link svg,
 .about-product-card--white .about-product-card-link svg {
   color: rgba(0, 0, 0, 0.4);
 }
